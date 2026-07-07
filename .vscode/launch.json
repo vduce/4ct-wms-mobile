@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Washroom Ops Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--flavor",
+        "dev",
+        "--dart-define=FLAVOR=dev"
+      ]
+    },
+    {
+      "name": "Washroom Ops QA",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--flavor",
+        "qa",
+        "--dart-define=FLAVOR=qa"
+      ]
+    },
+    {
+      "name": "Washroom Ops Prod",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--flavor",
+        "prod",
+        "--dart-define=FLAVOR=prod"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "@@locale": "en",
+  "appTitle": "4CT Washroom Ops",
+  "loginSubtitle": "Sign in with the OTP sent to your registered account.",
+  "emailOrUsernameLabel": "Email or username",
+  "otpLabel": "6 digit OTP",
+  "sendOtpButton": "Send OTP",
+  "verifyOtpButton": "Verify OTP",
+  "enterEmailOrUsernameError": "Enter email or username.",
+  "otpSentMessage": "OTP sent.",
+  "enterSixDigitOtpError": "Enter a 6 digit OTP.",
+  "operationsTitle": "Operations",
+  "signOutTooltip": "Sign out",
+  "defaultUserName": "User",
+  "homeGreeting": "Hi {username}",
+  "@homeGreeting": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "tenantAirportSummary": "Tenant {tenantId} - Airport {airportId}",
+  "@tenantAirportSummary": {
+    "placeholders": {
+      "tenantId": {
+        "type": "String"
+      },
+      "airportId": {
+        "type": "String"
+      }
+    }
+  },
+  "statusPending": "Pending",
+  "statusAcknowledged": "Acknowledged",
+  "statusEscalated": "Escalated",
+  "statusCompleted": "Completed",
+  "openDashboardsButton": "Open dashboards",
+  "ticketsTitle": "{status} tickets",
+  "@ticketsTitle": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketApiMappingPendingTitle": "Ticket API mapping pending",
+  "ticketApiMappingPendingSubtitle": "Preserve /list_tickets_feedback and /update_ticket",
+  "ticketLockRulesTitle": "System/completed ticket lock rules",
+  "ticketLockRulesSubtitle": "Disable status changes, comments, and attachments.",
+  "attachmentUploadSkeletonTitle": "Attachment upload skeleton",
+  "attachmentUploadSkeletonSubtitle": "Use camera/file picker, then upload to SAS URLs.",
+  "dashboardsTitle": "Dashboards",
+  "washroomFootfallTitle": "Washroom footfall",
+  "negativeFeedbackHeatmapTitle": "Negative feedback heatmap",
+  "zoneLeadResponseResolutionTitle": "Zone lead response and resolution",
+  "feedbackDeviceTitle": "Feedback device",
+  "washroomLabel": "Washroom {washroomId}",
+  "@washroomLabel": {
+    "placeholders": {
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "goodFeedbackButton": "Good",
+  "needsAttentionButton": "Needs attention",
+  "feedbackDeviceMigrationNote": "QR, idle timeout, weather, and feedback reason APIs are mapped in MIGRATION_PLAN.md."
+}
