@@ -10,6 +10,7 @@ class EnvironmentConfig {
   const EnvironmentConfig({
     required this.flavor,
     required this.apiBaseUrl,
+    required this.tenantSlug,
     required this.oneSignalAppId,
     required this.enableNetworkLogging,
   });
@@ -25,12 +26,9 @@ class EnvironmentConfig {
     );
 
     final defaultBaseUrl = switch (flavor) {
-      AppFlavor.dev =>
-        'https://fourcorners-washroom-bial-prod.azurewebsites.net/api',
-      AppFlavor.qa =>
-        'https://fourcorners-washroom-bial-prod.azurewebsites.net/api',
-      AppFlavor.prod =>
-        'https://fourcorners-washroom-bial-prod.azurewebsites.net/api',
+      AppFlavor.dev => 'http://localhost:9000/api/v1',
+      AppFlavor.qa => 'https://qa-api.4ctwms.com/api/v1',
+      AppFlavor.prod => 'https://api.wms-dev.smartdigibuild.net/api/v1',
     };
 
     return EnvironmentConfig(
@@ -38,6 +36,7 @@ class EnvironmentConfig {
       apiBaseUrl: const String.fromEnvironment('API_BASE_URL').isNotEmpty
           ? const String.fromEnvironment('API_BASE_URL')
           : defaultBaseUrl,
+      tenantSlug: const String.fromEnvironment('TENANT_SLUG'),
       oneSignalAppId: const String.fromEnvironment('ONESIGNAL_APP_ID'),
       enableNetworkLogging: const bool.fromEnvironment(
         'ENABLE_NETWORK_LOGGING',
@@ -48,6 +47,7 @@ class EnvironmentConfig {
 
   final AppFlavor flavor;
   final String apiBaseUrl;
+  final String tenantSlug;
   final String oneSignalAppId;
   final bool enableNetworkLogging;
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,32 +16,60 @@ class AuthRepository {
   final Dio _dio;
 
   Future<void> requestOtp(String username) async {
-    await _dio.post<void>('/otp_generator', data: {'username': username});
+    await _dio.post<void>('/auth/request-otp', data: {'username': username});
   }
 
   Future<UserSession> verifyOtp(String otp) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '/check_otp',
+      '/auth/verify-otp',
       data: {'otp': otp},
     );
-    final data = response.data ?? {};
-    final user = data['user'] as Map<String, dynamic>? ?? {};
-    final washroomIds = (user['washroomIds'] as List? ?? [])
+    final data = _unwrapData(response.data);
+    return _sessionFromTokenPair(data);
+  }
+
+  Future<UserSession> loginWithPassword({
+    required String username,
+    required String password,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/auth/login-password',
+      data: {'username': username, 'password': password},
+    );
+    final data = _unwrapData(response.data);
+    return _sessionFromTokenPair(data);
+  }
+
+  UserSession _sessionFromTokenPair(Map<String, dynamic> data) {
+    final accessToken = data['accessToken']?.toString() ?? '';
+    final refreshToken = data['refreshToken']?.toString() ?? '';
+    if (accessToken.isEmpty || refreshToken.isEmpty) {
+      throw const FormatException('Invalid login response.');
+    }
+
+    final payload = _decodeJwt(accessToken);
+    if (payload.isEmpty) {
+      throw const FormatException('Invalid access token.');
+    }
+
+    final washroomIds = (payload['washroomIds'] as List? ?? [])
         .map((item) => item.toString())
         .where((item) => item.isNotEmpty)
         .toList();
 
     return UserSession(
-      userId: user['user_id']?.toString() ?? '',
-      tenantId: user['tenant_id']?.toString() ?? '',
-      airportId: user['airport_id']?.toString() ?? '',
-      username: user['username']?.toString() ?? '',
-      role: user['role']?.toString() ?? '',
-      email: user['email']?.toString() ?? '',
-      lastLogin: DateTime.tryParse(user['lastLogin']?.toString() ?? ''),
+      userId: (payload['sub'] ?? payload['user_id'])?.toString() ?? '',
+      tenantId: (payload['tenantId'] ?? payload['tenant_id'])?.toString() ?? '',
+      airportId:
+          (payload['locationId'] ?? payload['airport_id'])?.toString() ?? '',
+      username: (payload['name'] ?? payload['username'])?.toString() ?? '',
+      role: payload['role']?.toString() ?? '',
+      roleDisplayName: payload['roleDisplayName']?.toString(),
+      email: payload['email']?.toString() ?? '',
+      lastLogin: DateTime.now(),
       washroomIds: washroomIds,
-      authToken: data['authToken']?.toString() ?? '',
-      webappUrl: data['webappUrl']?.toString(),
+      authToken: accessToken,
+      refreshToken: refreshToken,
     );
   }
 
@@ -48,13 +78,9 @@ class AuthRepository {
     required String oldPassword,
     required String newPassword,
   }) async {
-    await _dio.put<void>(
-      '/update_password',
-      data: {
-        'email': email,
-        'oldPassword': oldPassword,
-        'newPassword': newPassword,
-      },
+    await _dio.post<void>(
+      '/auth/update-password',
+      data: {'currentPassword': oldPassword, 'newPassword': newPassword},
     );
   }
 
@@ -62,9 +88,25 @@ class AuthRepository {
     required String userId,
     required String token,
   }) async {
-    await _dio.post<void>(
-      '/update_push_notification_token',
-      data: {'userId': userId, 'token': token},
-    );
+    await _dio.put<void>('/auth/push-token', data: {'token': token});
+  }
+
+  Map<String, dynamic> _unwrapData(Map<String, dynamic>? responseData) {
+    final raw = responseData ?? <String, dynamic>{};
+    final data = raw['data'];
+    return data is Map<String, dynamic> ? data : raw;
+  }
+
+  Map<String, dynamic> _decodeJwt(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return <String, dynamic>{};
+
+      final normalized = base64Url.normalize(parts[1]);
+      final decoded = utf8.decode(base64Url.decode(normalized));
+      return jsonDecode(decoded) as Map<String, dynamic>;
+    } catch (_) {
+      return <String, dynamic>{};
+    }
   }
 }

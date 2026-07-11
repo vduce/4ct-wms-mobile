@@ -23,6 +23,7 @@ class SessionController extends Notifier<SessionState> {
       await ref.read(tenantControllerProvider.notifier).restoreCachedBranding();
       final storage = ref.read(secureStorageProvider);
       final token = await storage.read(SessionKeys.authToken);
+      final refreshToken = await storage.read(SessionKeys.refreshToken);
       final userId = await storage.read(SessionKeys.userId);
       final tenantId = await storage.read(SessionKeys.tenantId);
       final airportId = await storage.read(SessionKeys.airportId);
@@ -30,6 +31,7 @@ class SessionController extends Notifier<SessionState> {
 
       if ([
         token,
+        refreshToken,
         userId,
         tenantId,
         airportId,
@@ -56,6 +58,8 @@ class SessionController extends Notifier<SessionState> {
         ),
         washroomIds: washroomIds,
         authToken: token!,
+        refreshToken: refreshToken!,
+        roleDisplayName: await storage.read(SessionKeys.roleDisplayName),
         webappUrl: await storage.read(SessionKeys.webappUrl),
       );
       state = SessionState.authenticated(session);
@@ -88,6 +92,7 @@ class SessionController extends Notifier<SessionState> {
       SessionKeys.airportId,
       SessionKeys.username,
       SessionKeys.role,
+      SessionKeys.roleDisplayName,
       SessionKeys.email,
       SessionKeys.lastLogin,
       SessionKeys.washroomIds,
@@ -100,11 +105,16 @@ class SessionController extends Notifier<SessionState> {
   Future<void> _persist(UserSession session) async {
     final storage = ref.read(secureStorageProvider);
     await storage.write(SessionKeys.authToken, session.authToken);
+    await storage.write(SessionKeys.refreshToken, session.refreshToken);
     await storage.write(SessionKeys.userId, session.userId);
     await storage.write(SessionKeys.tenantId, session.tenantId);
     await storage.write(SessionKeys.airportId, session.airportId);
     await storage.write(SessionKeys.username, session.username);
     await storage.write(SessionKeys.role, session.role);
+    await storage.write(
+      SessionKeys.roleDisplayName,
+      session.roleDisplayName ?? '',
+    );
     await storage.write(SessionKeys.email, session.email);
     await storage.write(
       SessionKeys.lastLogin,

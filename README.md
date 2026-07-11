@@ -60,7 +60,8 @@ flutter run --flavor prod --dart-define=FLAVOR=prod
 Optional defines:
 
 ```sh
---dart-define=API_BASE_URL=https://example.com/api
+--dart-define=API_BASE_URL=https://example.com/api/v1
+--dart-define=TENANT_SLUG=tenant-slug
 --dart-define=ONESIGNAL_APP_ID=your-app-id
 --dart-define=ENABLE_NETWORK_LOGGING=false
 ```
@@ -70,14 +71,17 @@ Prod uses `com.fourct.washroomops`; dev and qa add `.dev` and `.qa` suffixes so 
 
 ## Implemented Skeleton
 
-- OTP auth repository for `/otp_generator` and `/check_otp`
+- OTP auth repository for `/auth/request-otp` and `/auth/verify-otp`
+- JWT-backed session parsing with access and refresh token persistence
+- 401 refresh retry through `/auth/refresh`
 - Secure session persistence and restore
 - Role-based route redirect:
   - `Feedback-device` -> feedback device flow
   - `Zone-lead` / `Shift-Incharge` -> operations flow
 - Tenant context provider with tenant/airport/washroom IDs
-- Cached dynamic branding fallback with default 4CT theme
-- Dio interceptor for `Authorization`, `X-Tenant-Id`, `X-Airport-Id`, `X-Terminal-Id`, and `X-Zone-Id`
+- Cached dynamic branding from `/tenants/branding/:slug` before auth when `TENANT_SLUG` is configured
+- Authenticated branding refresh from `/tenants/me` after login
+- Dio interceptor for `Authorization`, `X-Tenant-Id`, `X-Location-Id`, `X-Airport-Id`, `X-Terminal-Id`, and `X-Zone-Id`
 - OneSignal initialization service with foreground/open handling hooks
 - Placeholder operations, ticket, dashboard, and feedback screens ready for API-backed modules
 

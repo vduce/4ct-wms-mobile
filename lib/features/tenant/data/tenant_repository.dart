@@ -28,21 +28,34 @@ class TenantRepository {
   }
 
   Future<TenantBranding> fetchBranding(TenantContext context) async {
-    // TBD: replace when backend exposes tenant configuration.
+    final response = await _dio.get<Map<String, Object?>>('/tenants/me');
+    final tenant = response.data?['data'] as Map<String, Object?>? ?? {};
+    final branding = _brandingFromTenantJson(tenant);
+    await _cacheBranding(branding);
+    return branding;
+  }
+
+  Future<TenantBranding> fetchBrandingBySlug(String slug) async {
     final response = await _dio.get<Map<String, Object?>>(
-      '/tenant_config',
-      queryParameters: {
-        'tenantId': context.tenantId,
-        'airportId': context.airportId,
-      },
+      '/tenants/branding/${Uri.encodeComponent(slug)}',
     );
-    final branding = TenantBranding.fromJson(
-      response.data?['branding'] as Map<String, Object?>? ?? {},
+    final body = response.data ?? {};
+    final tenant = body['data'] as Map<String, Object?>? ?? body;
+    final branding = _brandingFromTenantJson(tenant);
+    await _cacheBranding(branding);
+    return branding;
+  }
+
+  TenantBranding _brandingFromTenantJson(Map<String, Object?> tenant) {
+    return TenantBranding.fromJson(
+      tenant['branding'] as Map<String, Object?>? ?? {},
     );
-    await _store.setString(
+  }
+
+  Future<void> _cacheBranding(TenantBranding branding) {
+    return _store.setString(
       SessionKeys.cachedBranding,
       jsonEncode(branding.toJson()),
     );
-    return branding;
   }
 }

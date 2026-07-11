@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/environment_config.dart';
 import '../domain/tenant_models.dart';
 import 'tenant_repository.dart';
 
@@ -15,11 +16,20 @@ class TenantController extends Notifier<TenantState> {
   TenantState build() => TenantState.initial();
 
   Future<void> restoreCachedBranding() async {
-    final cached = await ref
-        .read(tenantRepositoryProvider)
-        .readCachedBranding();
+    final repository = ref.read(tenantRepositoryProvider);
+    final cached = await repository.readCachedBranding();
     if (cached != null) {
       state = state.copyWith(branding: cached);
+    }
+
+    final tenantSlug = ref.read(environmentConfigProvider).tenantSlug.trim();
+    if (tenantSlug.isEmpty) return;
+
+    try {
+      final branding = await repository.fetchBrandingBySlug(tenantSlug);
+      state = state.copyWith(branding: branding);
+    } catch (_) {
+      // Cached/default branding is already available; login should not depend on branding.
     }
   }
 

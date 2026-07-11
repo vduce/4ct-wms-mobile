@@ -53,6 +53,7 @@ class AuthTenantInterceptor extends Interceptor {
     }
     if (tenant != null) {
       options.headers['X-Tenant-Id'] = tenant.tenantId;
+      options.headers['X-Location-Id'] = tenant.airportId;
       options.headers['X-Airport-Id'] = tenant.airportId;
       if (tenant.terminalId != null) {
         options.headers['X-Terminal-Id'] = tenant.terminalId;
@@ -64,7 +65,13 @@ class AuthTenantInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final refreshed = await _tryRefreshAndRetry(err, handler);
+    if (refreshed) return;
+
     final response = err.response;
     final data = response?.data;
     var message = err.message ?? 'Network request failed';
@@ -83,5 +90,62 @@ class AuthTenantInterceptor extends Interceptor {
         ),
       ),
     );
+  }
+
+  Future<bool> _tryRefreshAndRetry(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final response = err.response;
+    final requestOptions = err.requestOptions;
+    final alreadyRetried = requestOptions.extra['authRetry'] == true;
+    final path = requestOptions.path;
+
+    if (response?.statusCode != 401 ||
+        alreadyRetried ||
+        path.contains('/auth/refresh')) {
+      return false;
+    }
+
+    final storage = _ref.read(secureStorageProvider);
+    final refreshToken = await storage.read(SessionKeys.refreshToken);
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    try {
+      final config = _ref.read(environmentConfigProvider);
+      final refreshDio = Dio(
+        BaseOptions(
+          baseUrl: config.apiBaseUrl,
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+      final refreshResponse = await refreshDio.post<Map<String, dynamic>>(
+        '/auth/refresh',
+        data: {'refreshToken': refreshToken},
+      );
+      final tokens = _unwrapData(refreshResponse.data);
+      final accessToken = tokens['accessToken']?.toString() ?? '';
+      final newRefreshToken = tokens['refreshToken']?.toString() ?? '';
+
+      if (accessToken.isEmpty || newRefreshToken.isEmpty) return false;
+
+      await storage.write(SessionKeys.authToken, accessToken);
+      await storage.write(SessionKeys.refreshToken, newRefreshToken);
+
+      requestOptions.extra['authRetry'] = true;
+      requestOptions.headers['Authorization'] = 'Bearer $accessToken';
+
+      final retryResponse = await Dio().fetch<dynamic>(requestOptions);
+      handler.resolve(retryResponse);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Map<String, dynamic> _unwrapData(Map<String, dynamic>? responseData) {
+    final raw = responseData ?? <String, dynamic>{};
+    final data = raw['data'];
+    return data is Map<String, dynamic> ? data : raw;
   }
 }

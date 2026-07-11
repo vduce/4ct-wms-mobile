@@ -37,7 +37,7 @@ class TenantBranding {
   factory TenantBranding.fromJson(Map<String, Object?> json) {
     return TenantBranding(
       appName: json['appName'] as String? ?? '4CT Washroom Ops',
-      logoUrl: json['logoUrl'] as String?,
+      logoUrl: (json['logo'] ?? json['logoUrl']) as String?,
       primaryColor:
           _parseColor(json['primaryColor'] as String?) ??
           const Color(0xFF0126B2),
@@ -64,7 +64,7 @@ class TenantBranding {
 
   Map<String, Object?> toJson() => {
     'appName': appName,
-    'logoUrl': logoUrl,
+    'logo': logoUrl,
     'primaryColor': _colorToHex(primaryColor),
     'secondaryColor': _colorToHex(secondaryColor),
     'themeMode': themeMode.name,

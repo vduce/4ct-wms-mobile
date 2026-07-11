@@ -54,7 +54,8 @@
 
 - Ionic stores `authToken`, `user_id`, `tenant_id`, `airport_id`, `username`, `role`, `email`, `lastLogin`, `washroomIds`, and `webappUrl`.
 - Flutter stores secrets and session identifiers in secure storage.
-- No refresh-token endpoint was found in the Ionic app. Refresh behavior is TBD.
+- New WMS API auth uses `/auth/request-otp`, `/auth/verify-otp`, `/auth/login-password`, and `/auth/refresh`.
+- Flutter now stores both access and refresh tokens and parses user/role/tenant/location/washroom scope from the JWT payload.
 - Role support found: `Feedback-device`, `Zone-lead`, `Shift-Incharge`.
 
 ### Tenant/Airport Flow
@@ -62,7 +63,8 @@
 - Login response provides tenant and airport IDs.
 - Washrooms are scoped from `washroomIds`.
 - No tenant discovery, airport selection, terminal selection, zone selection, or branding API exists in the Ionic mobile code.
-- Flutter has a tenant context and branding repository with `/tenant_config` marked TBD.
+- Flutter can resolve pre-auth tenant branding from `/tenants/branding/:slug` when `TENANT_SLUG` is configured.
+- Flutter refreshes authenticated tenant branding from the new `/tenants/me` API and caches it locally.
 
 ### Storage Usage
 

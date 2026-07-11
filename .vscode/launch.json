@@ -9,7 +9,34 @@
       "toolArgs": [
         "--flavor",
         "dev",
-        "--dart-define=FLAVOR=dev"
+        "--dart-define=FLAVOR=dev",
+        "--dart-define=TENANT_SLUG=wms-dev"
+      ]
+    },
+    {
+      "name": "Washroom Ops Dev Android Emulator",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--flavor",
+        "dev",
+        "--dart-define=FLAVOR=dev",
+        "--dart-define=TENANT_SLUG=wms-dev",
+        "--dart-define=API_BASE_URL=http://10.0.2.2:9000/api/v1"
+      ]
+    },
+    {
+      "name": "Washroom Ops Dev iOS Simulator",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--flavor",
+        "dev",
+        "--dart-define=FLAVOR=dev",
+        "--dart-define=TENANT_SLUG=wms-dev",
+        "--dart-define=API_BASE_URL=http://localhost:9000/api/v1"
       ]
     },
     {
@@ -20,7 +47,8 @@
       "toolArgs": [
         "--flavor",
         "qa",
-        "--dart-define=FLAVOR=qa"
+        "--dart-define=FLAVOR=qa",
+        "--dart-define=TENANT_SLUG=wms-dev"
       ]
     },
     {
@@ -31,7 +59,8 @@
       "toolArgs": [
         "--flavor",
         "prod",
-        "--dart-define=FLAVOR=prod"
+        "--dart-define=FLAVOR=prod",
+        "--dart-define=TENANT_SLUG=wms-dev"
       ]
     }
   ]

@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => '4CT Washroom Ops';
+  String get appTitle => 'Smart Washroom Management';
 
   @override
   String get loginSubtitle =>
@@ -126,4 +126,109 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get feedbackDeviceMigrationNote =>
       'QR, idle timeout, weather, and feedback reason APIs are mapped in MIGRATION_PLAN.md.';
+
+  @override
+  String get feedbackNoWashroomError =>
+      'No washroom is available for this feedback device.';
+
+  @override
+  String get feedbackSubmitFailedError =>
+      'Could not submit feedback. Please try again.';
+
+  @override
+  String get feedbackSelectIssueError => 'Please select at least one issue.';
+
+  @override
+  String get feedbackKioskLabel => 'Feedback kiosk';
+
+  @override
+  String get scanLabel => 'Scan';
+
+  @override
+  String get metricAqiLabel => 'AQI';
+
+  @override
+  String get metricOccupancyLabel => 'Occupancy';
+
+  @override
+  String get metricFootfallLabel => 'Footfall';
+
+  @override
+  String get metricOdourLabel => 'Odour';
+
+  @override
+  String get feedbackScreensaverTitle => 'How was your washroom experience?';
+
+  @override
+  String get feedbackScreensaverFallback => 'Tap to share your feedback';
+
+  @override
+  String get feedbackStartButton => 'Tap to give feedback';
+
+  @override
+  String get feedbackChoiceSatisfiedTitle => 'Satisfied';
+
+  @override
+  String get feedbackChoiceSatisfiedSubtitle =>
+      'Everything was clean and comfortable';
+
+  @override
+  String get feedbackChoiceNeedsAttentionSubtitle =>
+      'Report an issue so our team can fix it';
+
+  @override
+  String get feedbackChoiceTitle => 'Please share your feedback';
+
+  @override
+  String get feedbackChoiceSubtitle =>
+      'Your input helps keep airport washrooms clean, stocked, and comfortable.';
+
+  @override
+  String get feedbackCommentTitle => 'Add a comment';
+
+  @override
+  String get feedbackCommentHint => 'Tell us what needs attention';
+
+  @override
+  String get feedbackCommentSaveButton => 'Save comment';
+
+  @override
+  String get feedbackNegativeTitle => 'What needs attention?';
+
+  @override
+  String get feedbackNegativeSubtitle =>
+      'Select all issues you noticed. Our team will be alerted.';
+
+  @override
+  String get feedbackAddCommentButton => 'Add comment';
+
+  @override
+  String get feedbackEditCommentButton => 'Edit comment';
+
+  @override
+  String get feedbackSubmitButton => 'Submit feedback';
+
+  @override
+  String get feedbackEmptyReasonsMessage =>
+      'No active feedback reasons are configured for this location.';
+
+  @override
+  String get feedbackThanksTitle => 'Thank you for your feedback';
+
+  @override
+  String get feedbackThanksPositiveSubtitle =>
+      'We are glad your experience was comfortable.';
+
+  @override
+  String get feedbackThanksNegativeSubtitle =>
+      'Our facility team has been notified.';
+
+  @override
+  String get doneButton => 'Done';
+
+  @override
+  String get feedbackDeviceNotReadyTitle => 'Feedback device is not ready';
+
+  @override
+  String get retryButton => 'Retry';
 }

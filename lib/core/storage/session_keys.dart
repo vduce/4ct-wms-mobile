@@ -6,6 +6,7 @@ abstract final class SessionKeys {
   static const airportId = 'airport_id';
   static const username = 'username';
   static const role = 'role';
+  static const roleDisplayName = 'roleDisplayName';
   static const email = 'email';
   static const lastLogin = 'lastLogin';
   static const washroomIds = 'washroomIds';

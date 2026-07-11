@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'4CT Washroom Ops'**
+  /// **'Smart Washroom Management'**
   String get appTitle;
 
   /// No description provided for @loginSubtitle.
@@ -303,6 +303,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'QR, idle timeout, weather, and feedback reason APIs are mapped in MIGRATION_PLAN.md.'**
   String get feedbackDeviceMigrationNote;
+
+  /// No description provided for @feedbackNoWashroomError.
+  ///
+  /// In en, this message translates to:
+  /// **'No washroom is available for this feedback device.'**
+  String get feedbackNoWashroomError;
+
+  /// No description provided for @feedbackSubmitFailedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit feedback. Please try again.'**
+  String get feedbackSubmitFailedError;
+
+  /// No description provided for @feedbackSelectIssueError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select at least one issue.'**
+  String get feedbackSelectIssueError;
+
+  /// No description provided for @feedbackKioskLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback kiosk'**
+  String get feedbackKioskLabel;
+
+  /// No description provided for @scanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get scanLabel;
+
+  /// No description provided for @metricAqiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AQI'**
+  String get metricAqiLabel;
+
+  /// No description provided for @metricOccupancyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Occupancy'**
+  String get metricOccupancyLabel;
+
+  /// No description provided for @metricFootfallLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Footfall'**
+  String get metricFootfallLabel;
+
+  /// No description provided for @metricOdourLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Odour'**
+  String get metricOdourLabel;
+
+  /// No description provided for @feedbackScreensaverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How was your washroom experience?'**
+  String get feedbackScreensaverTitle;
+
+  /// No description provided for @feedbackScreensaverFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to share your feedback'**
+  String get feedbackScreensaverFallback;
+
+  /// No description provided for @feedbackStartButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to give feedback'**
+  String get feedbackStartButton;
+
+  /// No description provided for @feedbackChoiceSatisfiedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Satisfied'**
+  String get feedbackChoiceSatisfiedTitle;
+
+  /// No description provided for @feedbackChoiceSatisfiedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything was clean and comfortable'**
+  String get feedbackChoiceSatisfiedSubtitle;
+
+  /// No description provided for @feedbackChoiceNeedsAttentionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report an issue so our team can fix it'**
+  String get feedbackChoiceNeedsAttentionSubtitle;
+
+  /// No description provided for @feedbackChoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please share your feedback'**
+  String get feedbackChoiceTitle;
+
+  /// No description provided for @feedbackChoiceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your input helps keep airport washrooms clean, stocked, and comfortable.'**
+  String get feedbackChoiceSubtitle;
+
+  /// No description provided for @feedbackCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment'**
+  String get feedbackCommentTitle;
+
+  /// No description provided for @feedbackCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what needs attention'**
+  String get feedbackCommentHint;
+
+  /// No description provided for @feedbackCommentSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save comment'**
+  String get feedbackCommentSaveButton;
+
+  /// No description provided for @feedbackNegativeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What needs attention?'**
+  String get feedbackNegativeTitle;
+
+  /// No description provided for @feedbackNegativeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all issues you noticed. Our team will be alerted.'**
+  String get feedbackNegativeSubtitle;
+
+  /// No description provided for @feedbackAddCommentButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add comment'**
+  String get feedbackAddCommentButton;
+
+  /// No description provided for @feedbackEditCommentButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit comment'**
+  String get feedbackEditCommentButton;
+
+  /// No description provided for @feedbackSubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit feedback'**
+  String get feedbackSubmitButton;
+
+  /// No description provided for @feedbackEmptyReasonsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No active feedback reasons are configured for this location.'**
+  String get feedbackEmptyReasonsMessage;
+
+  /// No description provided for @feedbackThanksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your feedback'**
+  String get feedbackThanksTitle;
+
+  /// No description provided for @feedbackThanksPositiveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We are glad your experience was comfortable.'**
+  String get feedbackThanksPositiveSubtitle;
+
+  /// No description provided for @feedbackThanksNegativeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Our facility team has been notified.'**
+  String get feedbackThanksNegativeSubtitle;
+
+  /// No description provided for @doneButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get doneButton;
+
+  /// No description provided for @feedbackDeviceNotReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback device is not ready'**
+  String get feedbackDeviceNotReadyTitle;
+
+  /// No description provided for @retryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryButton;
 }
 
 class _AppLocalizationsDelegate

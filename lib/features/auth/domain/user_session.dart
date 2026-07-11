@@ -9,6 +9,8 @@ class UserSession {
     required this.lastLogin,
     required this.washroomIds,
     required this.authToken,
+    required this.refreshToken,
+    this.roleDisplayName,
     this.webappUrl,
   });
 
@@ -21,11 +23,23 @@ class UserSession {
   final DateTime? lastLogin;
   final List<String> washroomIds;
   final String authToken;
+  final String refreshToken;
+  final String? roleDisplayName;
   final String? webappUrl;
 
-  bool get isFeedbackDevice => role == 'Feedback-device';
+  String get normalizedRole =>
+      role.trim().toLowerCase().replaceAll(RegExp(r'[\s-]+'), '_');
 
-  bool get isSupervisor => role == 'Zone-lead' || role == 'Shift-Incharge';
+  bool get isFeedbackDevice =>
+      normalizedRole == 'feedback_device' ||
+      normalizedRole == 'user' ||
+      role == 'Feedback-device';
+
+  bool get isSupervisor =>
+      normalizedRole == 'zone_lead' ||
+      normalizedRole == 'shift_incharge' ||
+      role == 'Zone-lead' ||
+      role == 'Shift-Incharge';
 }
 
 class SessionState {
