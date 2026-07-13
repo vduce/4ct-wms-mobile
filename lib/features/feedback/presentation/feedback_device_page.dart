@@ -3,8 +3,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../app/theme/airport_feedback_design_tokens.dart';
 import '../../../l10n/app_localizations_context.dart';
+import '../../../shared/widgets/adani_gradient_button.dart';
+import '../../../shared/widgets/app_loading_dialog.dart';
+import '../../../shared/widgets/app_lottie_message_dialog.dart';
 import '../../auth/data/session_controller.dart';
 import '../../tenant/data/tenant_controller.dart';
 import '../data/feedback_repository.dart';
@@ -56,12 +61,6 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
           onTap: _handleGlobalTap,
           onPanDown: (_) => _startIdleTimer(),
           child: _KioskScaffold(
-            brandingName: branding.appName,
-            logoUrl: branding.logoUrl,
-            washroom: data.washroom,
-            metrics: data.metrics,
-            onSignOut: () =>
-                ref.read(sessionControllerProvider.notifier).signOut(),
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 260),
               switchInCurve: Curves.easeOutCubic,
@@ -69,13 +68,13 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
               child: switch (_step) {
                 _FeedbackStep.screensaver => _ScreensaverPanel(
                   key: const ValueKey('screensaver'),
-                  washroom: data.washroom,
-                  metrics: data.metrics,
+                  brandingName: branding.appName,
                   onStart: _showChoice,
                 ),
                 _FeedbackStep.choice => _ChoicePanel(
                   key: const ValueKey('choice'),
                   submitting: _submitting,
+                  onBack: _resetToScreensaver,
                   onPositive: () => _submitPositive(data),
                   onNegative: _showNegative,
                 ),
@@ -256,196 +255,235 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
 }
 
 class _KioskScaffold extends StatelessWidget {
-  const _KioskScaffold({
-    required this.brandingName,
-    required this.logoUrl,
-    required this.washroom,
-    required this.metrics,
-    required this.onSignOut,
-    required this.child,
-  });
+  const _KioskScaffold({required this.child});
 
-  final String brandingName;
-  final String? logoUrl;
-  final FeedbackWashroom? washroom;
-  final FeedbackMetrics metrics;
-  final VoidCallback onSignOut;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final compact = size.width < 760 || size.height < 720;
-    final tablet = size.shortestSide >= 600;
-    final horizontalPadding = compact ? 16.0 : (tablet ? 28.0 : 32.0);
-    final verticalPadding = compact ? 12.0 : 24.0;
-    final sectionGap = compact ? 12.0 : 22.0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF06121F), Color(0xFF142B38), Color(0xFF102019)],
+          colors: isDark
+              ? const [
+                  AirportFeedbackColors.darkBackground,
+                  Color(0xFF001B34),
+                  AirportFeedbackColors.darkBackground,
+                ]
+              : const [
+                  AirportFeedbackColors.lightBackground,
+                  Color(0xFFFFFFFF),
+                ],
         ),
       ),
-      child: SafeArea(
-        child: Stack(
+      child: SafeArea(child: child),
+    );
+  }
+}
+
+class _ScreensaverPanel extends StatelessWidget {
+  const _ScreensaverPanel({
+    required this.brandingName,
+    required this.onStart,
+    super.key,
+  });
+
+  final String brandingName;
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
+    final secondaryColor = isDark
+        ? AirportFeedbackColors.darkSecondaryText
+        : AirportFeedbackColors.lightSecondaryText;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final phone = constraints.maxWidth < 520;
+        final compact =
+            phone || constraints.maxWidth < 720 || constraints.maxHeight < 620;
+        final horizontalPadding = phone ? 22.0 : (compact ? 22.0 : 42.0);
+        final topPadding = phone ? 14.0 : (compact ? 20.0 : 34.0);
+        final contentWidth = math.min(
+          phone
+              ? constraints.maxWidth - (horizontalPadding * 2)
+              : constraints.maxWidth * (compact ? 0.74 : 0.48),
+          compact ? 390.0 : 460.0,
+        );
+
+        return Stack(
+          fit: StackFit.expand,
           children: [
-            Positioned.fill(
-              child: CustomPaint(painter: _KioskBackgroundPainter()),
+            Image.asset(
+              isDark
+                  ? AirportFeedbackAssets.darkAirportBackground
+                  : AirportFeedbackAssets.lightAirportBackground,
+              fit: BoxFit.cover,
+              alignment: isDark ? Alignment.centerRight : Alignment.center,
+            ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: isDark
+                      ? [
+                          AirportFeedbackColors.darkBackground.withValues(
+                            alpha: 0.88,
+                          ),
+                          AirportFeedbackColors.darkBackground.withValues(
+                            alpha: 0.34,
+                          ),
+                          Colors.transparent,
+                        ]
+                      : [
+                          Colors.white.withValues(alpha: 0.78),
+                          Colors.white.withValues(alpha: 0.36),
+                          Colors.transparent,
+                        ],
+                ),
+              ),
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(
                 horizontalPadding,
-                verticalPadding,
+                topPadding,
                 horizontalPadding,
-                verticalPadding,
+                compact ? 22 : 34,
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _TopBar(
-                    brandingName: brandingName,
-                    logoUrl: logoUrl,
-                    washroom: washroom,
-                    onSignOut: onSignOut,
-                    compact: compact,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _BrandHeader(
+                          semanticsLabel: brandingName,
+                          compact: compact,
+                        ),
+                      ),
+                      SizedBox(width: phone ? 8 : 14),
+                      _LanguagePill(compact: compact),
+                    ],
                   ),
-                  SizedBox(height: sectionGap),
-                  _MetricStrip(metrics: metrics, compact: compact),
-                  SizedBox(height: compact ? 14 : sectionGap + 2),
-                  Expanded(child: child),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: contentWidth),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.feedbackWelcomePrefix,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: textColor,
+                                    fontSize: phone ? 18 : (compact ? 19 : 23),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.feedbackAirportName,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.displaySmall
+                                  ?.copyWith(
+                                    color: textColor,
+                                    fontSize: phone ? 31 : (compact ? 35 : 48),
+                                    height: 1.06,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                            ),
+                            SizedBox(height: phone ? 14 : (compact ? 18 : 26)),
+                            Text(
+                              l10n.feedbackWelcomeSubtitle,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: secondaryColor,
+                                    fontSize: phone
+                                        ? 12.5
+                                        : (compact ? 15 : 18),
+                                    height: phone ? 1.34 : 1.45,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            SizedBox(height: phone ? 68 : (compact ? 28 : 42)),
+                            _WelcomeCta(compact: compact, onPressed: onStart),
+                            SizedBox(height: phone ? 28 : (compact ? 26 : 44)),
+                            _QrStartCard(compact: compact),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
-class _TopBar extends StatelessWidget {
-  const _TopBar({
-    required this.brandingName,
-    required this.logoUrl,
-    required this.washroom,
-    required this.onSignOut,
-    required this.compact,
-  });
+class _BrandHeader extends StatelessWidget {
+  const _BrandHeader({required this.semanticsLabel, required this.compact});
 
-  final String brandingName;
-  final String? logoUrl;
-  final FeedbackWashroom? washroom;
-  final VoidCallback onSignOut;
+  final String semanticsLabel;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final logoSize = compact ? 58.0 : 68.0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final logoHeight = phone ? 37.0 : (compact ? 34.0 : 48.0);
+    final logoWidth = phone ? 170.0 : (compact ? 194.0 : 258.0);
 
-    return Row(
-      children: [
-        Container(
-          width: logoSize,
-          height: logoSize,
-          padding: EdgeInsets.all(compact ? 8 : 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(compact ? 16 : 18),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.72)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x33000000),
-                blurRadius: 24,
-                offset: Offset(0, 12),
-              ),
-            ],
-          ),
-          child: logoUrl == null || logoUrl!.trim().isEmpty
-              ? Icon(
-                  Icons.local_airport_rounded,
-                  color: const Color(0xFF102019),
-                  size: compact ? 30 : 34,
-                )
-              : Image.network(logoUrl!, fit: BoxFit.contain),
-        ),
-        SizedBox(width: compact ? 12 : 18),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                brandingName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                washroom == null
-                    ? l10n.feedbackKioskLabel
-                    : '${washroom!.name}${washroom!.code.isEmpty ? '' : ' · ${washroom!.code}'}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.74),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(width: compact ? 10 : 12),
-        _QrBadge(compact: compact),
-        SizedBox(width: compact ? 10 : 12),
-        IconButton.filledTonal(
-          tooltip: l10n.signOutTooltip,
-          onPressed: onSignOut,
-          icon: const Icon(Icons.logout_rounded),
-        ),
-      ],
-    );
-  }
-}
-
-class _QrBadge extends StatelessWidget {
-  const _QrBadge({required this.compact});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 12 : 14,
-        vertical: compact ? 9 : 10,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(compact ? 16 : 18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.36)),
-      ),
+    return Semantics(
+      label: semanticsLabel,
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.qr_code_2_rounded,
-            color: const Color(0xFF102019),
-            size: compact ? 24 : 28,
+          _AdaniWordmark(compact: compact),
+          Container(
+            width: 1,
+            height: phone ? 24 : (compact ? 27 : 36),
+            margin: EdgeInsets.symmetric(
+              horizontal: phone ? 8 : (compact ? 12 : 18),
+            ),
+            color:
+                (isDark ? Colors.white : AirportFeedbackColors.lightPrimaryText)
+                    .withValues(alpha: 0.35),
           ),
-          SizedBox(width: compact ? 6 : 8),
-          Text(
-            l10n.scanLabel,
-            style: const TextStyle(
-              color: Color(0xFF102019),
-              fontWeight: FontWeight.w800,
+          Flexible(
+            child: SizedBox(
+              height: logoHeight,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SvgPicture.asset(
+                  AirportFeedbackAssets.mialLogo,
+                  width: logoWidth,
+                  height: logoHeight,
+                  fit: BoxFit.contain,
+                  colorFilter: isDark
+                      ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                      : null,
+                ),
+              ),
             ),
           ),
         ],
@@ -454,231 +492,273 @@ class _QrBadge extends StatelessWidget {
   }
 }
 
-class _MetricStrip extends StatelessWidget {
-  const _MetricStrip({required this.metrics, required this.compact});
+class _AdaniWordmark extends StatelessWidget {
+  const _AdaniWordmark({required this.compact});
 
-  final FeedbackMetrics metrics;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final phone = MediaQuery.sizeOf(context).width < 520;
+
+    return ShaderMask(
+      shaderCallback: (bounds) => const LinearGradient(
+        colors: [
+          AirportFeedbackColors.primaryBlue,
+          AirportFeedbackColors.primaryPurple,
+          AirportFeedbackColors.primaryPink,
+        ],
+      ).createShader(bounds),
+      child: Text(
+        'adani',
+        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          color: Colors.white,
+          fontSize: phone ? 22 : (compact ? 25 : 32),
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0,
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguagePill extends StatelessWidget {
+  const _LanguagePill({required this.compact});
+
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final items = [
-      _MetricItem(
-        l10n.metricAqiLabel,
-        _formatNumber(metrics.aqi),
-        Icons.eco_rounded,
-      ),
-      _MetricItem(
-        l10n.metricOccupancyLabel,
-        metrics.occupancyLabel,
-        Icons.meeting_room_rounded,
-      ),
-      _MetricItem(
-        l10n.metricFootfallLabel,
-        '${metrics.footfall ?? '-'}',
-        Icons.directions_walk,
-      ),
-      _MetricItem(
-        l10n.metricOdourLabel,
-        _formatNumber(metrics.odour),
-        Icons.air_rounded,
-      ),
-    ];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foreground = isDark
+        ? Colors.white
+        : AirportFeedbackColors.lightPrimaryText;
+    final phone = MediaQuery.sizeOf(context).width < 520;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final tileWidth = compact ? 154.0 : 168.0;
-        final gap = compact ? 10.0 : 12.0;
-        final requiredWidth =
-            (items.length * tileWidth) + ((items.length - 1) * gap);
-        final canFit = constraints.maxWidth >= requiredWidth;
-
-        return SizedBox(
-          height: compact ? 76 : 92,
-          child: canFit
-              ? Row(
-                  children: [
-                    for (var index = 0; index < items.length; index++) ...[
-                      if (index > 0) SizedBox(width: gap),
-                      Expanded(
-                        child: _MetricTile(
-                          item: items[index],
-                          compact: compact,
-                        ),
-                      ),
-                    ],
-                  ],
-                )
-              : ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) => SizedBox(width: gap),
-                  itemBuilder: (context, index) => _MetricTile(
-                    item: items[index],
-                    compact: compact,
-                    width: tileWidth,
-                  ),
-                ),
-        );
-      },
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: phone ? 8 : (compact ? 12 : 16),
+        vertical: phone ? 7 : (compact ? 9 : 11),
+      ),
+      decoration: BoxDecoration(
+        color: isDark
+            ? const Color(0xFF071B31).withValues(alpha: 0.86)
+            : Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: isDark ? const Color(0xFF253C5C) : const Color(0xFFE6E8EF),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.language_rounded,
+            color: foreground,
+            size: phone ? 13 : (compact ? 16 : 18),
+          ),
+          SizedBox(width: phone ? 4 : 7),
+          Text(
+            l10n.feedbackLanguageEnglish,
+            style: TextStyle(
+              color: foreground,
+              fontSize: phone ? 10 : (compact ? 12 : 13),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(width: phone ? 2 : 4),
+          Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: foreground,
+            size: phone ? 13 : (compact ? 16 : 18),
+          ),
+        ],
+      ),
     );
   }
-
-  String _formatNumber(num? value) {
-    if (value == null) return '-';
-    if (value % 1 == 0) return value.toInt().toString();
-    return value.toStringAsFixed(1);
-  }
 }
 
-class _MetricItem {
-  const _MetricItem(this.label, this.value, this.icon);
+class _WelcomeCta extends StatelessWidget {
+  const _WelcomeCta({required this.compact, required this.onPressed});
 
-  final String label;
-  final String value;
-  final IconData icon;
-}
-
-class _MetricTile extends StatelessWidget {
-  const _MetricTile({required this.item, required this.compact, this.width});
-
-  final _MetricItem item;
   final bool compact;
-  final double? width;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final phone = MediaQuery.sizeOf(context).width < 520;
+
     return SizedBox(
-      width: width,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? 14 : 16,
-          vertical: compact ? 10 : 12,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
-        ),
-        child: Row(
+      width: phone ? double.infinity : (compact ? 310 : 390),
+      child: AdaniGradientButton(
+        onPressed: onPressed,
+        height: compact ? 64 : 76,
+        radius: 18,
+        gradient: isDark
+            ? AirportFeedbackGradients.darkWelcome
+            : AirportFeedbackGradients.lightWelcome,
+        padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 20),
+        icon: _FeedbackCommentIcon(compact: compact),
+        label: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              item.icon,
-              color: const Color(0xFF95F3D1),
-              size: compact ? 24 : 28,
+            Text(
+              l10n.feedbackShareFeedbackTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: compact ? 15 : 18,
+                fontWeight: FontWeight.w900,
+              ),
             ),
-            SizedBox(width: compact ? 10 : 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    item.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.68),
-                      fontWeight: FontWeight.w700,
-                      fontSize: compact ? 11 : 12,
-                    ),
-                  ),
-                  Text(
-                    item.value,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: compact ? 20 : 22,
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 3),
+            Text(
+              l10n.feedbackStartSubtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.82),
+                fontSize: compact ? 11 : 13,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
         ),
+        trailingIcon: Icon(
+          Icons.arrow_forward_rounded,
+          size: compact ? 22 : 26,
+        ),
       ),
     );
   }
 }
 
-class _ScreensaverPanel extends StatelessWidget {
-  const _ScreensaverPanel({
-    required this.washroom,
-    required this.metrics,
-    required this.onStart,
-    super.key,
-  });
+class _FeedbackCommentIcon extends StatelessWidget {
+  const _FeedbackCommentIcon({required this.compact});
 
-  final FeedbackWashroom? washroom;
-  final FeedbackMetrics metrics;
-  final VoidCallback onStart;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final size = phone ? 42.0 : (compact ? 42.0 : 48.0);
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.18),
+        shape: BoxShape.circle,
+      ),
+      child: CustomPaint(painter: _FeedbackCommentIconPainter()),
+    );
+  }
+}
+
+class _FeedbackCommentIconPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bubblePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    final dotPaint = Paint()
+      ..color = AirportFeedbackColors.primaryPurple.withValues(alpha: 0.76)
+      ..style = PaintingStyle.fill;
+
+    final bubbleRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        size.width * 0.25,
+        size.height * 0.28,
+        size.width * 0.52,
+        size.height * 0.39,
+      ),
+      Radius.circular(size.width * 0.11),
+    );
+    canvas.drawRRect(bubbleRect, bubblePaint);
+
+    final tail = Path()
+      ..moveTo(size.width * 0.36, size.height * 0.64)
+      ..lineTo(size.width * 0.28, size.height * 0.76)
+      ..lineTo(size.width * 0.49, size.height * 0.66)
+      ..close();
+    canvas.drawPath(tail, bubblePaint);
+
+    final dotRadius = size.width * 0.035;
+    for (final offset in const [0.42, 0.51, 0.60]) {
+      canvas.drawCircle(
+        Offset(size.width * offset, size.height * 0.475),
+        dotRadius,
+        dotPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _QrStartCard extends StatelessWidget {
+  const _QrStartCard({required this.compact});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final foreground = isDark
+        ? Colors.white
+        : AirportFeedbackColors.lightPrimaryText;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final shortHeight = constraints.maxHeight < 520;
-        final buttonWidth = math.min(320.0, constraints.maxWidth);
-
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 980),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.clean_hands_rounded,
-                  color: const Color(0xFF95F3D1),
-                  size: shortHeight ? 68 : 86,
-                ),
-                SizedBox(height: shortHeight ? 18 : 24),
-                Text(
-                  l10n.feedbackScreensaverTitle,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: Colors.white,
-                    fontSize: shortHeight ? 30 : null,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: shortHeight ? 10 : 14),
-                Text(
-                  washroom?.name ?? l10n.feedbackScreensaverFallback,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.74),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: shortHeight ? 28 : 42),
-                FilledButton.icon(
-                  onPressed: onStart,
-                  icon: const Icon(Icons.touch_app_rounded),
-                  label: Text(l10n.feedbackStartButton),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF95F3D1),
-                    foregroundColor: const Color(0xFF06251A),
-                    minimumSize: Size(buttonWidth, shortHeight ? 58 : 64),
-                    textStyle: TextStyle(
-                      fontSize: shortHeight ? 18 : 20,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
+    return Container(
+      width: phone ? double.infinity : (compact ? 250 : 292),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 16 : 20,
+        vertical: compact ? 13 : 16,
+      ),
+      decoration: BoxDecoration(
+        color: isDark
+            ? const Color(0xFF081B33).withValues(alpha: 0.8)
+            : Colors.white.withValues(alpha: 0.84),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? const Color(0xFF243B5A) : const Color(0xFFE6E8EF),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.qr_code_2_rounded,
+            color: foreground,
+            size: compact ? 30 : 36,
+          ),
+          SizedBox(width: compact ? 12 : 16),
+          Expanded(
+            child: Text(
+              l10n.feedbackQrStartLabel,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: foreground,
+                fontSize: compact ? 13 : 15,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
@@ -686,90 +766,358 @@ class _ScreensaverPanel extends StatelessWidget {
 class _ChoicePanel extends StatelessWidget {
   const _ChoicePanel({
     required this.submitting,
+    required this.onBack,
     required this.onPositive,
     required this.onNegative,
     super.key,
   });
 
   final bool submitting;
+  final VoidCallback onBack;
   final VoidCallback onPositive;
   final VoidCallback onNegative;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
+    final secondaryText = isDark
+        ? AirportFeedbackColors.darkSecondaryText
+        : AirportFeedbackColors.lightSecondaryText;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final stacked = constraints.maxWidth < 720;
-        final shortHeight = constraints.maxHeight < 560;
-        final buttonHeight = stacked
-            ? (shortHeight ? 350.0 : 430.0)
-            : (shortHeight ? 230.0 : 280.0);
+        final phone = constraints.maxWidth < 520;
+        final compact =
+            phone || constraints.maxWidth < 720 || constraints.maxHeight < 620;
+        final stacked = constraints.maxWidth < 340;
+        final shortHeight = constraints.maxHeight < 600;
+        final buttonHeight = phone
+            ? (shortHeight ? 184.0 : 200.0)
+            : stacked
+            ? (shortHeight ? 360.0 : 430.0)
+            : (shortHeight ? 250.0 : 340.0);
         final children = [
           Expanded(
             child: _FeedbackChoiceButton(
               title: l10n.feedbackChoiceSatisfiedTitle,
               subtitle: l10n.feedbackChoiceSatisfiedSubtitle,
-              icon: Icons.thumb_up_alt_rounded,
-              color: const Color(0xFF1BBF74),
+              positive: true,
               onTap: submitting ? null : onPositive,
             ),
           ),
-          SizedBox(width: stacked ? 0 : 20, height: stacked ? 16 : 0),
+          SizedBox(
+            width: stacked ? 0 : (phone ? 14 : 36),
+            height: stacked ? 18 : 0,
+          ),
           Expanded(
             child: _FeedbackChoiceButton(
               title: l10n.needsAttentionButton,
               subtitle: l10n.feedbackChoiceNeedsAttentionSubtitle,
-              icon: Icons.report_problem_rounded,
-              color: const Color(0xFFE04F4F),
+              positive: false,
               onTap: submitting ? null : onNegative,
             ),
           ),
         ];
 
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1040),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  l10n.feedbackChoiceTitle,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: Colors.white,
-                    fontSize: shortHeight ? 30 : null,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: shortHeight ? 8 : 12),
-                Text(
-                  l10n.feedbackChoiceSubtitle,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.72),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: shortHeight ? 24 : 36),
-                Flexible(
-                  child: SizedBox(
-                    height: buttonHeight,
-                    child: stacked
-                        ? Column(children: children)
-                        : Row(children: children),
-                  ),
-                ),
-              ],
+        return Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: -80,
+              height: phone ? 116 : (compact ? 156 : 230),
+              child: _AirportSkylineStrip(isDark: isDark),
             ),
-          ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                phone ? 16 : (compact ? 18 : 30),
+                phone ? 10 : (compact ? 14 : 24),
+                phone ? 16 : (compact ? 18 : 30),
+                phone ? 12 : (compact ? 18 : 24),
+              ),
+              child: Column(
+                children: [
+                  _StepHeader(
+                    activeStep: 1,
+                    compact: compact,
+                    onBack: onBack,
+                    showLanguage: true,
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 940),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _MoodFace(
+                              positive: true,
+                              size: phone ? 66 : (compact ? 72 : 88),
+                              decorative: true,
+                            ),
+                            SizedBox(
+                              height: phone ? 14 : (shortHeight ? 16 : 22),
+                            ),
+                            Text(
+                              l10n.feedbackChoiceTitle,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.displaySmall
+                                  ?.copyWith(
+                                    color: primaryText,
+                                    fontSize: phone ? 28 : (compact ? 31 : 38),
+                                    height: 1.08,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                            ),
+                            SizedBox(
+                              height: phone ? 7 : (shortHeight ? 8 : 12),
+                            ),
+                            Text(
+                              l10n.feedbackChoiceSubtitle,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: secondaryText,
+                                    fontSize: phone ? 12 : (compact ? 14 : 16),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            SizedBox(
+                              height: phone ? 28 : (shortHeight ? 28 : 40),
+                            ),
+                            Flexible(
+                              child: SizedBox(
+                                height: buttonHeight,
+                                child: stacked
+                                    ? Column(children: children)
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: children,
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+}
+
+class _StepHeader extends StatelessWidget {
+  const _StepHeader({
+    required this.activeStep,
+    required this.compact,
+    required this.onBack,
+    this.showLanguage = false,
+  });
+
+  final int activeStep;
+  final bool compact;
+  final VoidCallback onBack;
+  final bool showLanguage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _RoundIconButton(
+          icon: Icons.arrow_back_ios_new_rounded,
+          onPressed: onBack,
+          compact: compact,
+        ),
+        Expanded(
+          child: Center(child: _ProgressSteps(activeStep: activeStep)),
+        ),
+        if (showLanguage)
+          _LanguagePill(compact: compact)
+        else
+          SizedBox(width: compact ? 44 : 52),
+      ],
+    );
+  }
+}
+
+class _RoundIconButton extends StatelessWidget {
+  const _RoundIconButton({
+    required this.icon,
+    required this.onPressed,
+    required this.compact,
+  });
+
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foreground = isDark
+        ? Colors.white
+        : AirportFeedbackColors.lightPrimaryText;
+
+    return Material(
+      color: isDark ? const Color(0xFF071B31) : Colors.white,
+      shape: CircleBorder(
+        side: BorderSide(
+          color: isDark ? const Color(0xFF253C5C) : const Color(0xFFE6E8EF),
+        ),
+      ),
+      elevation: isDark ? 0 : 8,
+      shadowColor: Colors.black.withValues(alpha: 0.12),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: SizedBox.square(
+          dimension: compact ? 44 : 52,
+          child: Icon(icon, color: foreground, size: compact ? 18 : 20),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressSteps extends StatelessWidget {
+  const _ProgressSteps({required this.activeStep});
+
+  final int activeStep;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final active = isDark
+        ? AirportFeedbackColors.progressActiveDark
+        : AirportFeedbackColors.progressActiveLight;
+    final inactive = isDark
+        ? AirportFeedbackColors.progressInactiveDark
+        : AirportFeedbackColors.progressInactiveLight;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var index = 0; index < 4; index++) ...[
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: index == activeStep ? (phone ? 18 : 22) : (phone ? 9 : 12),
+            height: phone ? 9 : 12,
+            decoration: BoxDecoration(
+              color: index <= activeStep ? active : inactive,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: index < activeStep
+                ? Icon(
+                    Icons.check_rounded,
+                    size: phone ? 8 : 10,
+                    color: Colors.white,
+                  )
+                : null,
+          ),
+          if (index < 3)
+            Container(
+              width: phone ? 30 : 44,
+              height: phone ? 2.4 : 3,
+              color: index < activeStep ? active : inactive,
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+class _MoodFace extends StatelessWidget {
+  const _MoodFace({
+    required this.positive,
+    required this.size,
+    this.decorative = false,
+  });
+
+  final bool positive;
+  final double size;
+  final bool decorative;
+
+  @override
+  Widget build(BuildContext context) {
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: positive
+          ? const [Color(0xFF7BE3BF), Color(0xFF05B78C)]
+          : const [Color(0xFFFF8A99), Color(0xFFF13B49)],
+    );
+
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        if (decorative) ...[
+          Positioned(
+            left: -42,
+            bottom: 4,
+            child: Icon(
+              Icons.cloud_rounded,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.12)
+                  : const Color(0xFFDAD5FF),
+              size: size * 0.45,
+            ),
+          ),
+          Positioned(
+            right: -34,
+            top: 8,
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              color: AirportFeedbackColors.primaryPink,
+              size: size * 0.22,
+            ),
+          ),
+          Positioned(
+            left: -26,
+            top: -8,
+            child: Icon(
+              Icons.star_rounded,
+              color: AirportFeedbackColors.darkPrimaryCyan,
+              size: size * 0.18,
+            ),
+          ),
+        ],
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            gradient: gradient,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color:
+                    (positive
+                            ? AirportFeedbackColors.goodActionLight
+                            : AirportFeedbackColors.badActionLight)
+                        .withValues(alpha: 0.24),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: CustomPaint(painter: _FacePainter(positive: positive)),
+        ),
+      ],
     );
   }
 }
@@ -778,89 +1126,190 @@ class _FeedbackChoiceButton extends StatelessWidget {
   const _FeedbackChoiceButton({
     required this.title,
     required this.subtitle,
-    required this.icon,
-    required this.color,
+    required this.positive,
     required this.onTap,
   });
 
   final String title;
   final String subtitle;
-  final IconData icon;
-  final Color color;
+  final bool positive;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compact =
-            constraints.maxHeight < 240 || constraints.maxWidth < 430;
-        final radius = compact ? 24.0 : 28.0;
-        final iconBox = compact ? 82.0 : 104.0;
+        final phoneCard =
+            constraints.maxWidth < 210 || constraints.maxHeight < 215;
+        final veryTight = constraints.maxHeight < 250;
+        final tight = constraints.maxHeight < 320;
+        final compact = phoneCard || tight || constraints.maxWidth < 330;
+        final horizontalPadding = phoneCard
+            ? 12.0
+            : veryTight
+            ? 14.0
+            : tight
+            ? 20.0
+            : compact
+            ? 18.0
+            : 28.0;
+        final verticalPadding = phoneCard
+            ? 12.0
+            : veryTight
+            ? 14.0
+            : tight
+            ? 18.0
+            : compact
+            ? 18.0
+            : 28.0;
+        final faceSize = phoneCard
+            ? 56.0
+            : veryTight
+            ? 58.0
+            : tight
+            ? 78.0
+            : compact
+            ? 72.0
+            : 92.0;
+        final titleFontSize = phoneCard
+            ? 19.0
+            : veryTight
+            ? 20.0
+            : tight
+            ? 24.0
+            : compact
+            ? 22.0
+            : 27.0;
+        final subtitleFontSize = phoneCard
+            ? 10.5
+            : veryTight
+            ? 11.5
+            : tight
+            ? 13.0
+            : compact
+            ? 12.5
+            : 15.0;
+        final actionSize = phoneCard
+            ? 36.0
+            : veryTight
+            ? 36.0
+            : tight
+            ? 44.0
+            : compact
+            ? 42.0
+            : 50.0;
+        final cardColor = isDark
+            ? (positive
+                  ? AirportFeedbackColors.goodCardDark
+                  : AirportFeedbackColors.badCardDark)
+            : (positive
+                  ? AirportFeedbackColors.goodCardLight
+                  : AirportFeedbackColors.badCardLight);
+        final borderColor = isDark
+            ? (positive
+                  ? AirportFeedbackColors.goodCardBorderDark
+                  : AirportFeedbackColors.badCardBorderDark)
+            : (positive
+                  ? AirportFeedbackColors.goodCardBorderLight
+                  : AirportFeedbackColors.badCardBorderLight);
+        final actionColor = isDark
+            ? (positive
+                  ? AirportFeedbackColors.goodActionDark
+                  : AirportFeedbackColors.badActionDark)
+            : (positive
+                  ? AirportFeedbackColors.goodActionLight
+                  : AirportFeedbackColors.badActionLight);
+        final primaryText = isDark
+            ? AirportFeedbackColors.darkPrimaryText
+            : AirportFeedbackColors.lightPrimaryText;
+        final secondaryText = isDark
+            ? AirportFeedbackColors.darkSecondaryText
+            : AirportFeedbackColors.lightSecondaryText;
 
         return Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(radius),
+            borderRadius: BorderRadius.circular(phoneCard ? 18 : 26),
             onTap: onTap,
             child: Ink(
-              padding: EdgeInsets.all(compact ? 22 : 28),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
               decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(radius),
+                color: cardColor.withValues(alpha: isDark ? 0.92 : 0.84),
+                borderRadius: BorderRadius.circular(phoneCard ? 18 : 26),
+                border: Border.all(color: borderColor, width: 1.2),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withValues(alpha: 0.3),
-                    blurRadius: 30,
-                    offset: const Offset(0, 18),
+                    color: borderColor.withValues(alpha: isDark ? 0.16 : 0.2),
+                    blurRadius: 26,
+                    offset: const Offset(0, 12),
                   ),
                 ],
               ),
-              child: Row(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: iconBox,
-                    height: iconBox,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      icon,
-                      color: Colors.white,
-                      size: compact ? 46 : 58,
+                  _MoodFace(positive: positive, size: faceSize),
+                  SizedBox(
+                    height: phoneCard
+                        ? 8
+                        : veryTight
+                        ? 8
+                        : tight
+                        ? 14
+                        : compact
+                        ? 14
+                        : 20,
+                  ),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: primaryText,
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(width: compact ? 18 : 24),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontSize: compact ? 24 : null,
-                                fontWeight: FontWeight.w900,
-                              ),
-                        ),
-                        SizedBox(height: compact ? 6 : 8),
-                        Text(
-                          subtitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.86),
-                                fontSize: compact ? 15 : null,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ],
+                  SizedBox(height: phoneCard ? 4 : (tight ? 5 : 8)),
+                  Text(
+                    subtitle,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: secondaryText,
+                      fontSize: subtitleFontSize,
+                      height: phoneCard ? 1.12 : 1.22,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: phoneCard
+                        ? 10
+                        : veryTight
+                        ? 8
+                        : tight
+                        ? 16
+                        : compact
+                        ? 18
+                        : 26,
+                  ),
+                  Container(
+                    width: actionSize,
+                    height: actionSize,
+                    decoration: BoxDecoration(
+                      color: actionColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -871,6 +1320,55 @@ class _FeedbackChoiceButton extends StatelessWidget {
       },
     );
   }
+}
+
+class _FacePainter extends CustomPainter {
+  const _FacePainter({required this.positive});
+
+  final bool positive;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AirportFeedbackColors.lightPrimaryText
+      ..style = PaintingStyle.fill;
+    final eyeRadius = size.width * 0.045;
+    canvas.drawCircle(
+      Offset(size.width * 0.36, size.height * 0.42),
+      eyeRadius,
+      paint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.64, size.height * 0.42),
+      eyeRadius,
+      paint,
+    );
+
+    final mouthPaint = Paint()
+      ..color = AirportFeedbackColors.lightPrimaryText
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = size.width * 0.055
+      ..style = PaintingStyle.stroke;
+    final mouthRect = Rect.fromCenter(
+      center: Offset(
+        size.width * 0.5,
+        positive ? size.height * 0.5 : size.height * 0.72,
+      ),
+      width: size.width * 0.36,
+      height: size.height * 0.32,
+    );
+    canvas.drawArc(
+      mouthRect,
+      positive ? 0.18 : 3.32,
+      positive ? 2.78 : 2.78,
+      false,
+      mouthPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _FacePainter oldDelegate) =>
+      oldDelegate.positive != positive;
 }
 
 class _CommentSheet extends StatefulWidget {
@@ -964,157 +1462,232 @@ class _NegativeFeedbackPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
+    final secondaryText = isDark
+        ? AirportFeedbackColors.darkSecondaryText
+        : AirportFeedbackColors.lightSecondaryText;
 
     return LayoutBuilder(
       builder: (context, panelConstraints) {
+        final phone = panelConstraints.maxWidth < 520;
         final compact =
-            panelConstraints.maxWidth < 700 || panelConstraints.maxHeight < 520;
-        final stackActions = panelConstraints.maxWidth < 560;
-        final radius = compact ? 24.0 : 28.0;
-        final padding = compact ? 18.0 : 24.0;
-        final actionHeight = compact ? 52.0 : 56.0;
+            phone ||
+            panelConstraints.maxWidth < 760 ||
+            panelConstraints.maxHeight < 620;
 
-        final commentButton = OutlinedButton.icon(
-          onPressed: submitting ? null : onAddComment,
-          icon: Icon(
-            comment.isEmpty
-                ? Icons.add_comment_outlined
-                : Icons.mode_comment_rounded,
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            phone ? 14 : (compact ? 18 : 30),
+            phone ? 10 : (compact ? 14 : 24),
+            phone ? 14 : (compact ? 18 : 30),
+            phone ? 12 : (compact ? 18 : 24),
           ),
-          label: Text(
-            comment.isEmpty
-                ? l10n.feedbackAddCommentButton
-                : l10n.feedbackEditCommentButton,
-          ),
-          style: OutlinedButton.styleFrom(
-            minimumSize: Size.fromHeight(actionHeight),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-        );
-        final submitButton = FilledButton.icon(
-          onPressed: submitting ? null : onSubmit,
-          icon: submitting
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.send_rounded),
-          label: Text(l10n.feedbackSubmitButton),
-          style: FilledButton.styleFrom(
-            minimumSize: Size.fromHeight(actionHeight),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-        );
-
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(radius),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(padding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    IconButton.filledTonal(
-                      onPressed: submitting ? null : onBack,
-                      icon: const Icon(Icons.arrow_back_rounded),
-                    ),
-                    SizedBox(width: compact ? 12 : 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.feedbackNegativeTitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  fontSize: compact ? 22 : null,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                          ),
-                          Text(
-                            l10n.feedbackNegativeSubtitle,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+          child: Column(
+            children: [
+              _StepHeader(
+                activeStep: 2,
+                compact: compact,
+                onBack: submitting ? () {} : onBack,
+              ),
+              SizedBox(height: phone ? 12 : (compact ? 18 : 26)),
+              Text(
+                l10n.feedbackNegativeTitle,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: primaryText,
+                  fontSize: phone ? 18 : (compact ? 21 : 27),
+                  fontWeight: FontWeight.w900,
                 ),
-                SizedBox(height: compact ? 16 : 20),
-                Expanded(
-                  child: reasons.isEmpty
-                      ? const _EmptyReasons()
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            final minTileWidth = compact ? 160.0 : 190.0;
-                            final count = math.max(
-                              2,
-                              math.min(4, constraints.maxWidth ~/ minTileWidth),
-                            );
-                            return GridView.builder(
-                              itemCount: reasons.length,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: count,
-                                    crossAxisSpacing: compact ? 12 : 14,
-                                    mainAxisSpacing: compact ? 12 : 14,
-                                    childAspectRatio: compact ? 1.04 : 1.18,
-                                  ),
-                              itemBuilder: (context, index) {
-                                final reason = reasons[index];
-                                return _ReasonTile(
-                                  reason: reason,
-                                  selected: selectedReasonIds.contains(
-                                    reason.id,
-                                  ),
-                                  onTap: submitting
-                                      ? null
-                                      : () => onToggleReason(reason.id),
-                                );
-                              },
-                            );
-                          },
+              ),
+              SizedBox(height: phone ? 2 : 4),
+              Text(
+                l10n.feedbackNegativeSubtitle,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: primaryText,
+                  fontSize: phone ? 17 : (compact ? 18 : 22),
+                  height: 1.15,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: phone ? 6 : 8),
+              Text(
+                l10n.feedbackNegativeHelper,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: secondaryText,
+                  fontSize: phone ? 10.5 : (compact ? 12 : 14),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: phone ? 12 : (compact ? 18 : 24)),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1040),
+                    child: reasons.isEmpty
+                        ? const _EmptyReasons()
+                        : LayoutBuilder(
+                            builder: (context, constraints) {
+                              final minTileWidth = compact ? 118.0 : 150.0;
+                              final count = phone
+                                  ? 4
+                                  : math.max(
+                                      2,
+                                      math.min(
+                                        5,
+                                        constraints.maxWidth ~/ minTileWidth,
+                                      ),
+                                    );
+                              return GridView.builder(
+                                itemCount: reasons.length,
+                                padding: EdgeInsets.zero,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: count,
+                                      crossAxisSpacing: phone
+                                          ? 8
+                                          : (compact ? 12 : 18),
+                                      mainAxisSpacing: phone
+                                          ? 8
+                                          : (compact ? 12 : 18),
+                                      childAspectRatio: phone
+                                          ? 1.02
+                                          : (compact ? 1.08 : 1.14),
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final reason = reasons[index];
+                                  return _ReasonTile(
+                                    reason: reason,
+                                    selected: selectedReasonIds.contains(
+                                      reason.id,
+                                    ),
+                                    onTap: submitting
+                                        ? null
+                                        : () => onToggleReason(reason.id),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                  ),
+                ),
+              ),
+              SizedBox(height: phone ? 10 : (compact ? 14 : 18)),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1040),
+                child: _CommentFieldButton(
+                  comment: comment,
+                  onPressed: submitting ? null : onAddComment,
+                ),
+              ),
+              SizedBox(height: phone ? 10 : (compact ? 14 : 18)),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1040),
+                child: AdaniGradientButton(
+                  onPressed: submitting ? null : onSubmit,
+                  height: phone ? 52 : (compact ? 58 : 66),
+                  radius: 12,
+                  label: submitting
+                      ? const SizedBox.square(
+                          dimension: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          l10n.feedbackSubmitButton,
+                          style: TextStyle(
+                            fontSize: phone ? 14 : (compact ? 15 : 18),
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                  trailingIcon: submitting
+                      ? null
+                      : Icon(
+                          Icons.send_rounded,
+                          size: phone ? 18 : (compact ? 20 : 23),
                         ),
                 ),
-                SizedBox(height: compact ? 14 : 18),
-                if (stackActions)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      commentButton,
-                      const SizedBox(height: 12),
-                      submitButton,
-                    ],
-                  )
-                else
-                  Row(
-                    children: [
-                      Expanded(child: commentButton),
-                      const SizedBox(width: 14),
-                      Expanded(child: submitButton),
-                    ],
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
+    );
+  }
+}
+
+class _CommentFieldButton extends StatelessWidget {
+  const _CommentFieldButton({required this.comment, required this.onPressed});
+
+  final String comment;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final textColor = isDark
+        ? AirportFeedbackColors.darkSecondaryText
+        : AirportFeedbackColors.lightSecondaryText;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onPressed,
+        child: Ink(
+          height: phone ? 46 : 54,
+          padding: EdgeInsets.symmetric(horizontal: phone ? 14 : 18),
+          decoration: BoxDecoration(
+            color: isDark
+                ? const Color(0xFF0B2A37).withValues(alpha: 0.86)
+                : const Color(0xFFF1F0FA).withValues(alpha: 0.82),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? const Color(0xFF245162) : const Color(0xFFE6E5F0),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                comment.isEmpty
+                    ? Icons.chat_bubble_outline_rounded
+                    : Icons.chat_bubble_rounded,
+                color: textColor,
+                size: phone ? 17 : 20,
+              ),
+              SizedBox(width: phone ? 9 : 12),
+              Expanded(
+                child: Text(
+                  comment.isEmpty
+                      ? l10n.feedbackCommentFieldPlaceholder
+                      : comment,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: phone ? 12.5 : 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1132,15 +1705,35 @@ class _ReasonTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _reasonColor(reason);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = selected
+        ? (isDark
+              ? AirportFeedbackColors.issueSelectedDark
+              : AirportFeedbackColors.issueSelectedLight)
+        : (isDark
+              ? AirportFeedbackColors.issueCardDark
+              : AirportFeedbackColors.issueCardLight);
+    final borderColor = selected
+        ? (isDark
+              ? AirportFeedbackColors.issueSelectedBorderDark
+              : AirportFeedbackColors.issueSelectedBorderLight)
+        : (isDark
+              ? AirportFeedbackColors.issueCardBorderDark
+              : AirportFeedbackColors.issueCardBorderLight);
+    final textColor = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final veryCompact =
-            constraints.maxHeight < 145 || constraints.maxWidth < 150;
-        final compact = veryCompact || constraints.maxHeight < 165;
-        final radius = veryCompact ? 18.0 : (compact ? 20.0 : 22.0);
-        final graphicSize = veryCompact ? 42.0 : (compact ? 52.0 : 64.0);
+        final phoneTile =
+            constraints.maxWidth < 96 || constraints.maxHeight < 92;
+        final compact =
+            phoneTile ||
+            constraints.maxHeight < 124 ||
+            constraints.maxWidth < 132;
+        final graphicSize = phoneTile ? 30.0 : (compact ? 42.0 : 58.0);
+        final radius = phoneTile ? 10.0 : 14.0;
 
         return Material(
           color: Colors.transparent,
@@ -1148,50 +1741,68 @@ class _ReasonTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(radius),
             onTap: onTap,
             child: Ink(
-              padding: EdgeInsets.all(veryCompact ? 8 : (compact ? 12 : 16)),
+              padding: EdgeInsets.symmetric(
+                horizontal: phoneTile ? 5 : (compact ? 8 : 12),
+                vertical: phoneTile ? 5 : (compact ? 8 : 11),
+              ),
               decoration: BoxDecoration(
-                color: selected
-                    ? color.withValues(alpha: 0.12)
-                    : const Color(0xFFF7F8FA),
+                color: cardColor.withValues(alpha: isDark ? 0.92 : 0.96),
                 borderRadius: BorderRadius.circular(radius),
                 border: Border.all(
-                  color: selected ? color : const Color(0xFFE1E5EA),
-                  width: selected ? 2 : 1,
+                  color: borderColor,
+                  width: selected ? 1.6 : 1,
                 ),
+                boxShadow: isDark
+                    ? const []
+                    : [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF09183A,
+                          ).withValues(alpha: 0.05),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  _reasonGraphic(
-                    color: color,
-                    size: graphicSize,
-                    iconSize: veryCompact ? 26 : (compact ? 32 : 38),
-                  ),
-                  SizedBox(height: veryCompact ? 4 : (compact ? 8 : 12)),
-                  Text(
-                    reason.reason,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: veryCompact ? 12 : (compact ? 14 : null),
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1F2937),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _reasonGraphic(
+                          size: graphicSize,
+                          iconSize: phoneTile ? 20 : (compact ? 25 : 34),
+                        ),
+                        SizedBox(height: phoneTile ? 3 : (compact ? 6 : 10)),
+                        Text(
+                          reason.reason,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: textColor,
+                                fontSize: phoneTile
+                                    ? 8.4
+                                    : (compact ? 10.5 : 12),
+                                height: phoneTile ? 1.05 : 1.12,
+                                fontWeight: FontWeight.w900,
+                              ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: veryCompact ? 4 : (compact ? 6 : 8)),
-                  SizedBox(
-                    height: veryCompact ? 18 : (compact ? 20 : 24),
-                    child: AnimatedOpacity(
-                      opacity: selected ? 1 : 0,
-                      duration: const Duration(milliseconds: 160),
+                  if (selected)
+                    Positioned(
+                      right: 0,
+                      top: 0,
                       child: Icon(
                         Icons.check_circle_rounded,
-                        color: color,
-                        size: veryCompact ? 18 : (compact ? 20 : 24),
+                        color: borderColor,
+                        size: phoneTile ? 14 : (compact ? 17 : 20),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -1201,12 +1812,10 @@ class _ReasonTile extends StatelessWidget {
     );
   }
 
-  Widget _reasonGraphic({
-    required Color color,
-    required double size,
-    required double iconSize,
-  }) {
+  Widget _reasonGraphic({required double size, required double iconSize}) {
+    final asset = _reasonAsset(reason.reason);
     final imageUrl = reason.imageUrl?.trim() ?? '';
+    final color = _reasonColor(reason);
     final fallbackIcon = Icon(
       _reasonIcon(reason.reason),
       color: color,
@@ -1216,15 +1825,12 @@ class _ReasonTile extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      padding: EdgeInsets.all(imageUrl.isEmpty ? 0 : 10),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-      ),
-      child: imageUrl.isEmpty
-          ? fallbackIcon
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(size / 3),
+      alignment: Alignment.center,
+      child: asset != null
+          ? Image.asset(asset, fit: BoxFit.contain)
+          : imageUrl.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(10),
               child: Image.network(
                 imageUrl,
                 fit: BoxFit.contain,
@@ -1234,8 +1840,33 @@ class _ReasonTile extends StatelessWidget {
                   return fallbackIcon;
                 },
               ),
-            ),
+            )
+          : fallbackIcon,
     );
+  }
+
+  String? _reasonAsset(String label) {
+    final value = label.toLowerCase();
+    if (value.contains('slippery') || value.contains('floor')) {
+      return AirportFeedbackAssets.slipperyFloor;
+    }
+    if (value.contains('soap')) return AirportFeedbackAssets.noSoap;
+    if (value.contains('paper')) return AirportFeedbackAssets.noToiletPaper;
+    if (value.contains('mirror')) return AirportFeedbackAssets.mirrorDirty;
+    if (value.contains('urinal')) return AirportFeedbackAssets.urinalDirty;
+    if (value.contains('commode') || value.contains('toilet')) {
+      return AirportFeedbackAssets.commodeDirty;
+    }
+    if (value.contains('sink')) return AirportFeedbackAssets.sinkClogged;
+    if (value.contains('basin')) return AirportFeedbackAssets.washbasinDirty;
+    if (value.contains('water')) return AirportFeedbackAssets.waterjetIssue;
+    if (value.contains('smell') ||
+        value.contains('odor') ||
+        value.contains('odour')) {
+      return AirportFeedbackAssets.unpleasantSmell;
+    }
+    if (value.contains('other')) return AirportFeedbackAssets.others;
+    return null;
   }
 
   IconData _reasonIcon(String label) {
@@ -1298,59 +1929,15 @@ class _ThanksPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 760),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x55000000),
-                blurRadius: 40,
-                offset: Offset(0, 20),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 52),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  positive ? Icons.verified_rounded : Icons.handshake_rounded,
-                  color: positive
-                      ? const Color(0xFF1BBF74)
-                      : const Color(0xFF3157D5),
-                  size: 88,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  l10n.feedbackThanksTitle,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  positive
-                      ? l10n.feedbackThanksPositiveSubtitle
-                      : l10n.feedbackThanksNegativeSubtitle,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                TextButton(onPressed: onDone, child: Text(l10n.doneButton)),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return AppLottieMessageDialog(
+      animationAsset: AirportFeedbackAssets.successAnimation,
+      title: l10n.feedbackThanksTitle,
+      message: positive
+          ? l10n.feedbackThanksPositiveSubtitle
+          : l10n.feedbackThanksNegativeSubtitle,
+      actionLabel: l10n.doneButton,
+      onAction: onDone,
+      fallbackIcon: positive ? Icons.verified_rounded : Icons.handshake_rounded,
     );
   }
 }
@@ -1360,9 +1947,13 @@ class _LoadingShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: Color(0xFF06121F),
-      child: Center(child: CircularProgressIndicator()),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return ColoredBox(
+      color: isDark
+          ? AirportFeedbackColors.darkBackground
+          : AirportFeedbackColors.lightBackground,
+      child: const AppLoadingDialog(),
     );
   }
 }
@@ -1381,15 +1972,24 @@ class _ErrorShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surface = isDark
+        ? AirportFeedbackColors.darkSurface
+        : AirportFeedbackColors.lightSurface;
+    final primaryText = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
 
     return ColoredBox(
-      color: const Color(0xFF06121F),
+      color: isDark
+          ? AirportFeedbackColors.darkBackground
+          : AirportFeedbackColors.lightBackground,
       child: Center(
         child: Container(
           width: 520,
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: surface,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
@@ -1400,6 +2000,7 @@ class _ErrorShell extends StatelessWidget {
               Text(
                 l10n.feedbackDeviceNotReadyTitle,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: primaryText,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -1436,30 +2037,23 @@ class _ErrorShell extends StatelessWidget {
   }
 }
 
-class _KioskBackgroundPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.05)
-      ..strokeWidth = 1;
+class _AirportSkylineStrip extends StatelessWidget {
+  const _AirportSkylineStrip({required this.isDark});
 
-    for (var i = 0; i < 7; i++) {
-      final y = size.height * (0.18 + i * 0.12);
-      canvas.drawLine(Offset(0, y), Offset(size.width, y - 90), paint);
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isDark) {
+      return const SizedBox.shrink();
     }
 
-    final accent = Paint()
-      ..color = const Color(0xFF95F3D1).withValues(alpha: 0.08)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 8;
-    final path = Path()
-      ..moveTo(size.width * 0.08, size.height * 0.88)
-      ..lineTo(size.width * 0.36, size.height * 0.78)
-      ..lineTo(size.width * 0.62, size.height * 0.86)
-      ..lineTo(size.width * 0.92, size.height * 0.72);
-    canvas.drawPath(path, accent);
+    return IgnorePointer(
+      child: Image.asset(
+        isDark ? AirportFeedbackAssets.darkAirportSkyline : AirportFeedbackAssets.lightAirportSkyline,
+        fit: BoxFit.fill,
+        alignment: Alignment.bottomCenter,
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

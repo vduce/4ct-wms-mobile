@@ -295,7 +295,7 @@ abstract class AppLocalizations {
   /// No description provided for @needsAttentionButton.
   ///
   /// In en, this message translates to:
-  /// **'Needs attention'**
+  /// **'Not Good'**
   String get needsAttentionButton;
 
   /// No description provided for @feedbackDeviceMigrationNote.
@@ -333,6 +333,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan'**
   String get scanLabel;
+
+  /// No description provided for @feedbackLanguageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'EN'**
+  String get feedbackLanguageEnglish;
+
+  /// No description provided for @feedbackWelcomePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to'**
+  String get feedbackWelcomePrefix;
+
+  /// No description provided for @feedbackAirportName.
+  ///
+  /// In en, this message translates to:
+  /// **'Mumbai International Airport'**
+  String get feedbackAirportName;
+
+  /// No description provided for @feedbackWelcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your feedback helps us create a better experience for you.'**
+  String get feedbackWelcomeSubtitle;
+
+  /// No description provided for @feedbackShareFeedbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Your Feedback'**
+  String get feedbackShareFeedbackTitle;
+
+  /// No description provided for @feedbackStartSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to get started'**
+  String get feedbackStartSubtitle;
+
+  /// No description provided for @feedbackQrStartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR code to start'**
+  String get feedbackQrStartLabel;
 
   /// No description provided for @metricAqiLabel.
   ///
@@ -379,31 +421,31 @@ abstract class AppLocalizations {
   /// No description provided for @feedbackChoiceSatisfiedTitle.
   ///
   /// In en, this message translates to:
-  /// **'Satisfied'**
+  /// **'Good'**
   String get feedbackChoiceSatisfiedTitle;
 
   /// No description provided for @feedbackChoiceSatisfiedSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Everything was clean and comfortable'**
+  /// **'I had a great experience'**
   String get feedbackChoiceSatisfiedSubtitle;
 
   /// No description provided for @feedbackChoiceNeedsAttentionSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Report an issue so our team can fix it'**
+  /// **'There is something we can improve'**
   String get feedbackChoiceNeedsAttentionSubtitle;
 
   /// No description provided for @feedbackChoiceTitle.
   ///
   /// In en, this message translates to:
-  /// **'Please share your feedback'**
+  /// **'How was your experience today?'**
   String get feedbackChoiceTitle;
 
   /// No description provided for @feedbackChoiceSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Your input helps keep airport washrooms clean, stocked, and comfortable.'**
+  /// **'Your feedback keeps us going'**
   String get feedbackChoiceSubtitle;
 
   /// No description provided for @feedbackCommentTitle.
@@ -427,14 +469,20 @@ abstract class AppLocalizations {
   /// No description provided for @feedbackNegativeTitle.
   ///
   /// In en, this message translates to:
-  /// **'What needs attention?'**
+  /// **'We\'re sorry to hear that.'**
   String get feedbackNegativeTitle;
 
   /// No description provided for @feedbackNegativeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Select all issues you noticed. Our team will be alerted.'**
+  /// **'Please select the issue you faced.'**
   String get feedbackNegativeSubtitle;
+
+  /// No description provided for @feedbackNegativeHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all that apply and click on Submit once selected.'**
+  String get feedbackNegativeHelper;
 
   /// No description provided for @feedbackAddCommentButton.
   ///
@@ -448,10 +496,16 @@ abstract class AppLocalizations {
   /// **'Edit comment'**
   String get feedbackEditCommentButton;
 
+  /// No description provided for @feedbackCommentFieldPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add additional comments...'**
+  String get feedbackCommentFieldPlaceholder;
+
   /// No description provided for @feedbackSubmitButton.
   ///
   /// In en, this message translates to:
-  /// **'Submit feedback'**
+  /// **'SUBMIT FEEDBACK'**
   String get feedbackSubmitButton;
 
   /// No description provided for @feedbackEmptyReasonsMessage.
@@ -495,6 +549,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retryButton;
+
+  /// No description provided for @ticketHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket history'**
+  String get ticketHistoryTitle;
+
+  /// No description provided for @lastLoginLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Login {value}'**
+  String lastLoginLabel(String value);
+
+  /// No description provided for @activeShiftLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift {value}'**
+  String activeShiftLabel(String value);
+
+  /// No description provided for @ticketStatusCardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket overview'**
+  String get ticketStatusCardsTitle;
+
+  /// No description provided for @viewHistoryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'View history'**
+  String get viewHistoryButton;
+
+  /// No description provided for @passengerFlowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Passenger flow'**
+  String get passengerFlowTitle;
+
+  /// No description provided for @supervisedUnitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervised washrooms'**
+  String get supervisedUnitsTitle;
+
+  /// No description provided for @supervisedUnitsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} units'**
+  String supervisedUnitsCount(int count);
+
+  /// No description provided for @cubiclesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cubicles'**
+  String cubiclesCount(int count);
+
+  /// No description provided for @janitorScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Janitor schedule'**
+  String get janitorScheduleTitle;
+
+  /// No description provided for @janitorsAssignedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} assigned'**
+  String janitorsAssignedCount(int count);
+
+  /// No description provided for @emptyWashroomsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No supervised washrooms are assigned.'**
+  String get emptyWashroomsMessage;
+
+  /// No description provided for @emptyScheduleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No janitor schedule is available for this window.'**
+  String get emptyScheduleMessage;
+
+  /// No description provided for @emptyPassengerFlowMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No passenger flow peaks are available.'**
+  String get emptyPassengerFlowMessage;
+
+  /// No description provided for @supervisorTicketsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load supervisor tickets.'**
+  String get supervisorTicketsLoadFailed;
+
+  /// No description provided for @supervisedUnitsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load supervised washrooms.'**
+  String get supervisedUnitsLoadFailed;
+
+  /// No description provided for @passengerFlowLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load passenger flow.'**
+  String get passengerFlowLoadFailed;
+
+  /// No description provided for @noWashroomsAssignedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No washrooms are assigned to this user.'**
+  String get noWashroomsAssignedMessage;
+
+  /// No description provided for @passengerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} passengers'**
+  String passengerCount(int count);
+
+  /// No description provided for @washroomFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Washroom'**
+  String get washroomFallback;
+
+  /// No description provided for @userTicketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User tickets'**
+  String get userTicketsTitle;
+
+  /// No description provided for @systemTicketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System tickets'**
+  String get systemTicketsTitle;
+
+  /// No description provided for @noTicketsForFilterMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No tickets match the current filters.'**
+  String get noTicketsForFilterMessage;
+
+  /// No description provided for @noSystemTicketsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No system tickets match this status.'**
+  String get noSystemTicketsMessage;
+
+  /// No description provided for @ticketCategoryFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket'**
+  String get ticketCategoryFallback;
+
+  /// No description provided for @priorityFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get priorityFallback;
+
+  /// No description provided for @ticketSourceUser.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get ticketSourceUser;
+
+  /// No description provided for @ticketSourceSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get ticketSourceSystem;
+
+  /// No description provided for @acknowledgeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Acknowledge'**
+  String get acknowledgeButton;
+
+  /// No description provided for @ticketAcknowledgedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket acknowledged.'**
+  String get ticketAcknowledgedMessage;
+
+  /// No description provided for @ticketAcknowledgeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not acknowledge ticket.'**
+  String get ticketAcknowledgeFailed;
+
+  /// No description provided for @ticketDetailLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load ticket details.'**
+  String get ticketDetailLoadFailed;
+
+  /// No description provided for @ticketCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get ticketCategoryLabel;
+
+  /// No description provided for @priorityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priorityLabel;
+
+  /// No description provided for @reportedAtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported at'**
+  String get reportedAtLabel;
+
+  /// No description provided for @assignedToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned to'**
+  String get assignedToLabel;
+
+  /// No description provided for @updateTicketTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update ticket'**
+  String get updateTicketTitle;
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get statusLabel;
+
+  /// No description provided for @commentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get commentLabel;
+
+  /// No description provided for @ticketCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a concise update for the team'**
+  String get ticketCommentHint;
+
+  /// No description provided for @cameraButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get cameraButton;
+
+  /// No description provided for @galleryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get galleryButton;
+
+  /// No description provided for @removeAttachmentTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove attachment'**
+  String get removeAttachmentTooltip;
+
+  /// No description provided for @updateTicketButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update ticket'**
+  String get updateTicketButton;
+
+  /// No description provided for @systemTicketLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System ticket locked'**
+  String get systemTicketLockedTitle;
+
+  /// No description provided for @completedTicketLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed ticket locked'**
+  String get completedTicketLockedTitle;
+
+  /// No description provided for @ticketLockedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changes, comments, and attachments are disabled.'**
+  String get ticketLockedSubtitle;
+
+  /// No description provided for @attachmentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get attachmentsTitle;
+
+  /// No description provided for @noAttachmentsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No attachments have been added.'**
+  String get noAttachmentsMessage;
+
+  /// No description provided for @ticketTimelineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeline'**
+  String get ticketTimelineTitle;
+
+  /// No description provided for @emptyTicketTimelineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No ticket updates are available.'**
+  String get emptyTicketTimelineMessage;
+
+  /// No description provided for @attachmentPickFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add the selected attachment.'**
+  String get attachmentPickFailed;
+
+  /// No description provided for @ticketUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket updated.'**
+  String get ticketUpdatedMessage;
+
+  /// No description provided for @ticketUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update ticket.'**
+  String get ticketUpdateFailed;
+
+  /// No description provided for @exportCsvTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get exportCsvTooltip;
+
+  /// No description provided for @exportCsvButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get exportCsvButton;
+
+  /// No description provided for @ticketHistoryLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load ticket history.'**
+  String get ticketHistoryLoadFailed;
+
+  /// No description provided for @ticketHistoryResults.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} results'**
+  String ticketHistoryResults(int count);
+
+  /// No description provided for @fromDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From {date}'**
+  String fromDateLabel(String date);
+
+  /// No description provided for @toDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To {date}'**
+  String toDateLabel(String date);
+
+  /// No description provided for @allStatusesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All statuses'**
+  String get allStatusesLabel;
+
+  /// No description provided for @ticketSourceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get ticketSourceLabel;
+
+  /// No description provided for @allSourcesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All sources'**
+  String get allSourcesLabel;
+
+  /// No description provided for @allWashroomsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All washrooms'**
+  String get allWashroomsLabel;
+
+  /// No description provided for @fromDateAfterToDateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'From date cannot be after To date.'**
+  String get fromDateAfterToDateMessage;
+
+  /// No description provided for @toDateBeforeFromDateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'To date cannot be before From date.'**
+  String get toDateBeforeFromDateMessage;
+
+  /// No description provided for @noTicketsToExportMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No tickets are available to export.'**
+  String get noTicketsToExportMessage;
+
+  /// No description provided for @ticketHistoryExportText.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV export from Smart Washroom'**
+  String get ticketHistoryExportText;
+
+  /// No description provided for @ticketHistoryExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not export ticket history.'**
+  String get ticketHistoryExportFailed;
 }
 
 class _AppLocalizationsDelegate

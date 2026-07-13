@@ -64,13 +64,20 @@
     }
   },
   "goodFeedbackButton": "Good",
-  "needsAttentionButton": "Needs attention",
+  "needsAttentionButton": "Not Good",
   "feedbackDeviceMigrationNote": "QR, idle timeout, weather, and feedback reason APIs are mapped in MIGRATION_PLAN.md.",
   "feedbackNoWashroomError": "No washroom is available for this feedback device.",
   "feedbackSubmitFailedError": "Could not submit feedback. Please try again.",
   "feedbackSelectIssueError": "Please select at least one issue.",
   "feedbackKioskLabel": "Feedback kiosk",
   "scanLabel": "Scan",
+  "feedbackLanguageEnglish": "EN",
+  "feedbackWelcomePrefix": "Welcome to",
+  "feedbackAirportName": "Mumbai International Airport",
+  "feedbackWelcomeSubtitle": "Your feedback helps us create a better experience for you.",
+  "feedbackShareFeedbackTitle": "Share Your Feedback",
+  "feedbackStartSubtitle": "Tap to get started",
+  "feedbackQrStartLabel": "Scan QR code to start",
   "metricAqiLabel": "AQI",
   "metricOccupancyLabel": "Occupancy",
   "metricFootfallLabel": "Footfall",
@@ -78,24 +85,158 @@
   "feedbackScreensaverTitle": "How was your washroom experience?",
   "feedbackScreensaverFallback": "Tap to share your feedback",
   "feedbackStartButton": "Tap to give feedback",
-  "feedbackChoiceSatisfiedTitle": "Satisfied",
-  "feedbackChoiceSatisfiedSubtitle": "Everything was clean and comfortable",
-  "feedbackChoiceNeedsAttentionSubtitle": "Report an issue so our team can fix it",
-  "feedbackChoiceTitle": "Please share your feedback",
-  "feedbackChoiceSubtitle": "Your input helps keep airport washrooms clean, stocked, and comfortable.",
+  "feedbackChoiceSatisfiedTitle": "Good",
+  "feedbackChoiceSatisfiedSubtitle": "I had a great experience",
+  "feedbackChoiceNeedsAttentionSubtitle": "There is something we can improve",
+  "feedbackChoiceTitle": "How was your experience today?",
+  "feedbackChoiceSubtitle": "Your feedback keeps us going",
   "feedbackCommentTitle": "Add a comment",
   "feedbackCommentHint": "Tell us what needs attention",
   "feedbackCommentSaveButton": "Save comment",
-  "feedbackNegativeTitle": "What needs attention?",
-  "feedbackNegativeSubtitle": "Select all issues you noticed. Our team will be alerted.",
+  "feedbackNegativeTitle": "We're sorry to hear that.",
+  "feedbackNegativeSubtitle": "Please select the issue you faced.",
+  "feedbackNegativeHelper": "Select all that apply and click on Submit once selected.",
   "feedbackAddCommentButton": "Add comment",
   "feedbackEditCommentButton": "Edit comment",
-  "feedbackSubmitButton": "Submit feedback",
+  "feedbackCommentFieldPlaceholder": "Add additional comments...",
+  "feedbackSubmitButton": "SUBMIT FEEDBACK",
   "feedbackEmptyReasonsMessage": "No active feedback reasons are configured for this location.",
   "feedbackThanksTitle": "Thank you for your feedback",
   "feedbackThanksPositiveSubtitle": "We are glad your experience was comfortable.",
   "feedbackThanksNegativeSubtitle": "Our facility team has been notified.",
   "doneButton": "Done",
   "feedbackDeviceNotReadyTitle": "Feedback device is not ready",
-  "retryButton": "Retry"
+  "retryButton": "Retry",
+  "ticketHistoryTitle": "Ticket history",
+  "lastLoginLabel": "Login {value}",
+  "@lastLoginLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "activeShiftLabel": "Shift {value}",
+  "@activeShiftLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketStatusCardsTitle": "Ticket overview",
+  "viewHistoryButton": "View history",
+  "passengerFlowTitle": "Passenger flow",
+  "supervisedUnitsTitle": "Supervised washrooms",
+  "supervisedUnitsCount": "{count} units",
+  "@supervisedUnitsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cubiclesCount": "{count} cubicles",
+  "@cubiclesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "janitorScheduleTitle": "Janitor schedule",
+  "janitorsAssignedCount": "{count} assigned",
+  "@janitorsAssignedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyWashroomsMessage": "No supervised washrooms are assigned.",
+  "emptyScheduleMessage": "No janitor schedule is available for this window.",
+  "emptyPassengerFlowMessage": "No passenger flow peaks are available.",
+  "supervisorTicketsLoadFailed": "Could not load supervisor tickets.",
+  "supervisedUnitsLoadFailed": "Could not load supervised washrooms.",
+  "passengerFlowLoadFailed": "Could not load passenger flow.",
+  "noWashroomsAssignedMessage": "No washrooms are assigned to this user.",
+  "passengerCount": "{count} passengers",
+  "@passengerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "washroomFallback": "Washroom",
+  "userTicketsTitle": "User tickets",
+  "systemTicketsTitle": "System tickets",
+  "noTicketsForFilterMessage": "No tickets match the current filters.",
+  "noSystemTicketsMessage": "No system tickets match this status.",
+  "ticketCategoryFallback": "Ticket",
+  "priorityFallback": "Normal",
+  "ticketSourceUser": "User",
+  "ticketSourceSystem": "System",
+  "acknowledgeButton": "Acknowledge",
+  "ticketAcknowledgedMessage": "Ticket acknowledged.",
+  "ticketAcknowledgeFailed": "Could not acknowledge ticket.",
+  "ticketDetailLoadFailed": "Could not load ticket details.",
+  "ticketCategoryLabel": "Category",
+  "priorityLabel": "Priority",
+  "reportedAtLabel": "Reported at",
+  "assignedToLabel": "Assigned to",
+  "updateTicketTitle": "Update ticket",
+  "statusLabel": "Status",
+  "commentLabel": "Comment",
+  "ticketCommentHint": "Add a concise update for the team",
+  "cameraButton": "Camera",
+  "galleryButton": "Gallery",
+  "removeAttachmentTooltip": "Remove attachment",
+  "updateTicketButton": "Update ticket",
+  "systemTicketLockedTitle": "System ticket locked",
+  "completedTicketLockedTitle": "Completed ticket locked",
+  "ticketLockedSubtitle": "Status changes, comments, and attachments are disabled.",
+  "attachmentsTitle": "Attachments",
+  "noAttachmentsMessage": "No attachments have been added.",
+  "ticketTimelineTitle": "Timeline",
+  "emptyTicketTimelineMessage": "No ticket updates are available.",
+  "attachmentPickFailed": "Could not add the selected attachment.",
+  "ticketUpdatedMessage": "Ticket updated.",
+  "ticketUpdateFailed": "Could not update ticket.",
+  "exportCsvTooltip": "Export CSV",
+  "exportCsvButton": "Export CSV",
+  "ticketHistoryLoadFailed": "Could not load ticket history.",
+  "ticketHistoryResults": "{count} results",
+  "@ticketHistoryResults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fromDateLabel": "From {date}",
+  "@fromDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "toDateLabel": "To {date}",
+  "@toDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allStatusesLabel": "All statuses",
+  "ticketSourceLabel": "Source",
+  "allSourcesLabel": "All sources",
+  "allWashroomsLabel": "All washrooms",
+  "fromDateAfterToDateMessage": "From date cannot be after To date.",
+  "toDateBeforeFromDateMessage": "To date cannot be before From date.",
+  "noTicketsToExportMessage": "No tickets are available to export.",
+  "ticketHistoryExportText": "CSV export from Smart Washroom",
+  "ticketHistoryExportFailed": "Could not export ticket history."
 }

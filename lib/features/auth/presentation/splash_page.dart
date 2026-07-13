@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/widgets/app_loading_dialog.dart';
 import '../../../shared/widgets/app_logo.dart';
 import '../data/session_controller.dart';
 
@@ -24,21 +25,16 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Widget build(BuildContext context) {
     return const Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 48),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppLogo(maxWidth: 280, maxHeight: 180),
-              SizedBox(height: 32),
-              SizedBox.square(
-                dimension: 24,
-                child: CircularProgressIndicator(strokeWidth: 2.5),
-              ),
-            ],
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 48),
+              child: AppLogo(maxWidth: 280, maxHeight: 180),
+            ),
           ),
-        ),
+          AppLoadingDialog(alignment: Alignment.topCenter),
+        ],
       ),
     );
   }

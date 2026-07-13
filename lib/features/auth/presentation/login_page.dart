@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations_context.dart';
+import '../../../shared/widgets/adani_gradient_button.dart';
 import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/page_shell.dart';
 import '../data/session_controller.dart';
@@ -60,7 +61,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
           const SizedBox(height: 20),
-          FilledButton.icon(
+          AdaniGradientButton(
             onPressed: _busy ? null : _submit,
             icon: _busy
                 ? const SizedBox.square(

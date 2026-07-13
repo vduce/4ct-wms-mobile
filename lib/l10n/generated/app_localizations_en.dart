@@ -121,7 +121,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goodFeedbackButton => 'Good';
 
   @override
-  String get needsAttentionButton => 'Needs attention';
+  String get needsAttentionButton => 'Not Good';
 
   @override
   String get feedbackDeviceMigrationNote =>
@@ -145,6 +145,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanLabel => 'Scan';
 
   @override
+  String get feedbackLanguageEnglish => 'EN';
+
+  @override
+  String get feedbackWelcomePrefix => 'Welcome to';
+
+  @override
+  String get feedbackAirportName => 'Mumbai International Airport';
+
+  @override
+  String get feedbackWelcomeSubtitle =>
+      'Your feedback helps us create a better experience for you.';
+
+  @override
+  String get feedbackShareFeedbackTitle => 'Share Your Feedback';
+
+  @override
+  String get feedbackStartSubtitle => 'Tap to get started';
+
+  @override
+  String get feedbackQrStartLabel => 'Scan QR code to start';
+
+  @override
   String get metricAqiLabel => 'AQI';
 
   @override
@@ -166,22 +188,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackStartButton => 'Tap to give feedback';
 
   @override
-  String get feedbackChoiceSatisfiedTitle => 'Satisfied';
+  String get feedbackChoiceSatisfiedTitle => 'Good';
 
   @override
-  String get feedbackChoiceSatisfiedSubtitle =>
-      'Everything was clean and comfortable';
+  String get feedbackChoiceSatisfiedSubtitle => 'I had a great experience';
 
   @override
   String get feedbackChoiceNeedsAttentionSubtitle =>
-      'Report an issue so our team can fix it';
+      'There is something we can improve';
 
   @override
-  String get feedbackChoiceTitle => 'Please share your feedback';
+  String get feedbackChoiceTitle => 'How was your experience today?';
 
   @override
-  String get feedbackChoiceSubtitle =>
-      'Your input helps keep airport washrooms clean, stocked, and comfortable.';
+  String get feedbackChoiceSubtitle => 'Your feedback keeps us going';
 
   @override
   String get feedbackCommentTitle => 'Add a comment';
@@ -193,11 +213,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackCommentSaveButton => 'Save comment';
 
   @override
-  String get feedbackNegativeTitle => 'What needs attention?';
+  String get feedbackNegativeTitle => 'We\'re sorry to hear that.';
 
   @override
-  String get feedbackNegativeSubtitle =>
-      'Select all issues you noticed. Our team will be alerted.';
+  String get feedbackNegativeSubtitle => 'Please select the issue you faced.';
+
+  @override
+  String get feedbackNegativeHelper =>
+      'Select all that apply and click on Submit once selected.';
 
   @override
   String get feedbackAddCommentButton => 'Add comment';
@@ -206,7 +229,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackEditCommentButton => 'Edit comment';
 
   @override
-  String get feedbackSubmitButton => 'Submit feedback';
+  String get feedbackCommentFieldPlaceholder => 'Add additional comments...';
+
+  @override
+  String get feedbackSubmitButton => 'SUBMIT FEEDBACK';
 
   @override
   String get feedbackEmptyReasonsMessage =>
@@ -231,4 +257,237 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retryButton => 'Retry';
+
+  @override
+  String get ticketHistoryTitle => 'Ticket history';
+
+  @override
+  String lastLoginLabel(String value) {
+    return 'Login $value';
+  }
+
+  @override
+  String activeShiftLabel(String value) {
+    return 'Shift $value';
+  }
+
+  @override
+  String get ticketStatusCardsTitle => 'Ticket overview';
+
+  @override
+  String get viewHistoryButton => 'View history';
+
+  @override
+  String get passengerFlowTitle => 'Passenger flow';
+
+  @override
+  String get supervisedUnitsTitle => 'Supervised washrooms';
+
+  @override
+  String supervisedUnitsCount(int count) {
+    return '$count units';
+  }
+
+  @override
+  String cubiclesCount(int count) {
+    return '$count cubicles';
+  }
+
+  @override
+  String get janitorScheduleTitle => 'Janitor schedule';
+
+  @override
+  String janitorsAssignedCount(int count) {
+    return '$count assigned';
+  }
+
+  @override
+  String get emptyWashroomsMessage => 'No supervised washrooms are assigned.';
+
+  @override
+  String get emptyScheduleMessage =>
+      'No janitor schedule is available for this window.';
+
+  @override
+  String get emptyPassengerFlowMessage =>
+      'No passenger flow peaks are available.';
+
+  @override
+  String get supervisorTicketsLoadFailed =>
+      'Could not load supervisor tickets.';
+
+  @override
+  String get supervisedUnitsLoadFailed =>
+      'Could not load supervised washrooms.';
+
+  @override
+  String get passengerFlowLoadFailed => 'Could not load passenger flow.';
+
+  @override
+  String get noWashroomsAssignedMessage =>
+      'No washrooms are assigned to this user.';
+
+  @override
+  String passengerCount(int count) {
+    return '$count passengers';
+  }
+
+  @override
+  String get washroomFallback => 'Washroom';
+
+  @override
+  String get userTicketsTitle => 'User tickets';
+
+  @override
+  String get systemTicketsTitle => 'System tickets';
+
+  @override
+  String get noTicketsForFilterMessage =>
+      'No tickets match the current filters.';
+
+  @override
+  String get noSystemTicketsMessage => 'No system tickets match this status.';
+
+  @override
+  String get ticketCategoryFallback => 'Ticket';
+
+  @override
+  String get priorityFallback => 'Normal';
+
+  @override
+  String get ticketSourceUser => 'User';
+
+  @override
+  String get ticketSourceSystem => 'System';
+
+  @override
+  String get acknowledgeButton => 'Acknowledge';
+
+  @override
+  String get ticketAcknowledgedMessage => 'Ticket acknowledged.';
+
+  @override
+  String get ticketAcknowledgeFailed => 'Could not acknowledge ticket.';
+
+  @override
+  String get ticketDetailLoadFailed => 'Could not load ticket details.';
+
+  @override
+  String get ticketCategoryLabel => 'Category';
+
+  @override
+  String get priorityLabel => 'Priority';
+
+  @override
+  String get reportedAtLabel => 'Reported at';
+
+  @override
+  String get assignedToLabel => 'Assigned to';
+
+  @override
+  String get updateTicketTitle => 'Update ticket';
+
+  @override
+  String get statusLabel => 'Status';
+
+  @override
+  String get commentLabel => 'Comment';
+
+  @override
+  String get ticketCommentHint => 'Add a concise update for the team';
+
+  @override
+  String get cameraButton => 'Camera';
+
+  @override
+  String get galleryButton => 'Gallery';
+
+  @override
+  String get removeAttachmentTooltip => 'Remove attachment';
+
+  @override
+  String get updateTicketButton => 'Update ticket';
+
+  @override
+  String get systemTicketLockedTitle => 'System ticket locked';
+
+  @override
+  String get completedTicketLockedTitle => 'Completed ticket locked';
+
+  @override
+  String get ticketLockedSubtitle =>
+      'Status changes, comments, and attachments are disabled.';
+
+  @override
+  String get attachmentsTitle => 'Attachments';
+
+  @override
+  String get noAttachmentsMessage => 'No attachments have been added.';
+
+  @override
+  String get ticketTimelineTitle => 'Timeline';
+
+  @override
+  String get emptyTicketTimelineMessage => 'No ticket updates are available.';
+
+  @override
+  String get attachmentPickFailed => 'Could not add the selected attachment.';
+
+  @override
+  String get ticketUpdatedMessage => 'Ticket updated.';
+
+  @override
+  String get ticketUpdateFailed => 'Could not update ticket.';
+
+  @override
+  String get exportCsvTooltip => 'Export CSV';
+
+  @override
+  String get exportCsvButton => 'Export CSV';
+
+  @override
+  String get ticketHistoryLoadFailed => 'Could not load ticket history.';
+
+  @override
+  String ticketHistoryResults(int count) {
+    return '$count results';
+  }
+
+  @override
+  String fromDateLabel(String date) {
+    return 'From $date';
+  }
+
+  @override
+  String toDateLabel(String date) {
+    return 'To $date';
+  }
+
+  @override
+  String get allStatusesLabel => 'All statuses';
+
+  @override
+  String get ticketSourceLabel => 'Source';
+
+  @override
+  String get allSourcesLabel => 'All sources';
+
+  @override
+  String get allWashroomsLabel => 'All washrooms';
+
+  @override
+  String get fromDateAfterToDateMessage => 'From date cannot be after To date.';
+
+  @override
+  String get toDateBeforeFromDateMessage =>
+      'To date cannot be before From date.';
+
+  @override
+  String get noTicketsToExportMessage => 'No tickets are available to export.';
+
+  @override
+  String get ticketHistoryExportText => 'CSV export from Smart Washroom';
+
+  @override
+  String get ticketHistoryExportFailed => 'Could not export ticket history.';
 }
