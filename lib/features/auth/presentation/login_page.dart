@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations_context.dart';
-import '../../../shared/widgets/adani_gradient_button.dart';
+import '../../../shared/widgets/app_gradient_button.dart';
 import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/page_shell.dart';
 import '../data/session_controller.dart';
@@ -16,6 +16,11 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
+  static const _darkThemeAirportLogoAssetPath =
+      'assets/branding/csmia-logo-dark.webp';
+  static const _lightThemeAirportLogoAssetPath =
+      'assets/branding/csmia-logo-light.png';
+
   final _emailController = TextEditingController();
   final _otpController = TextEditingController();
   bool _otpRequested = false;
@@ -31,9 +36,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return PageShell(
-      header: const AppLogo(maxWidth: 260, maxHeight: 150),
+      header: AppLogo(
+        assetPath: isDark
+            ? _darkThemeAirportLogoAssetPath
+            : _lightThemeAirportLogoAssetPath,
+        maxWidth: 300,
+        maxHeight: 120,
+      ),
       title: l10n.appTitle,
       subtitle: l10n.loginSubtitle,
       child: Column(
@@ -61,7 +73,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
           const SizedBox(height: 20),
-          AdaniGradientButton(
+          AppGradientButton(
             onPressed: _busy ? null : _submit,
             icon: _busy
                 ? const SizedBox.square(
@@ -73,6 +85,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               _otpRequested ? l10n.verifyOtpButton : l10n.sendOtpButton,
             ),
           ),
+          const SizedBox(height: 48),
+          _PoweredByFourCt(label: l10n.poweredByLabel),
         ],
       ),
     );
@@ -110,5 +124,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+}
+
+class _PoweredByFourCt extends StatelessWidget {
+  const _PoweredByFourCt({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Semantics(
+      label: label,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const ExcludeSemantics(child: AppLogo(maxWidth: 56, maxHeight: 32)),
+        ],
+      ),
+    );
   }
 }

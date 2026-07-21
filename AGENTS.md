@@ -31,6 +31,8 @@
 
 ## UI And UX
 
+- Every Flutter UI change must be designed and reviewed for both mobile and tablet form factors. Layouts must adapt across portrait, landscape, narrow mobile widths, and tablet/kiosk widths without clipped content, RenderFlex overflow warnings, or controls moving outside the visible area.
+- Before finishing any UI feature, explicitly consider responsive behavior for text wrapping, button sizes, icon visibility, spacing, scrollability, safe areas, and keyboard/input overlays on mobile and tablet.
 - Treat the feedback-device page as a tablet/kiosk-first airport user flow. It is used directly by passengers on airport feedback tablets, so the primary UX must be fast, obvious, touch-friendly, and resilient.
 - Feedback-device UI must be fully responsive across common tablet sizes and orientations, including constrained landscape viewports. Validate touch targets, text wrapping, icon visibility, and no-overflow behavior when changing this screen.
 - Keep feedback interactions low-friction: positive feedback should be one tap, negative feedback should make reason selection and submission obvious, and transient states must not block the next passenger.
@@ -38,6 +40,8 @@
 - Avoid fixed-height layouts that can overflow on smaller devices. Prefer `Expanded`, `Flexible`, `LayoutBuilder`, responsive constraints, or scrollable content where appropriate.
 - Kiosk/feedback-device screens must work in constrained landscape and tablet-like viewports without yellow/black overflow warnings.
 - Keep Material 3 styling consistent with the existing theme. Prefer reusable shared widgets when patterns repeat.
+- Use Flutter theming first for typography and styling. Prefer `Theme.of(context).textTheme`, `colorScheme`, component themes, and shared design tokens over hardcoded font sizes, colors, spacing, shapes, and visual states. Hardcoded values are allowed only for deliberate, localized exceptions such as fixed icon dimensions, asset aspect ratios, or one-off responsive constraints, and should be kept minimal.
+- New or updated components should inherit the app theme wherever possible so typography, colors, buttons, cards, inputs, dialogs, and state styling stay consistent across mobile and tablet layouts.
 - Do not add new visual assets unless they are declared in `pubspec.yaml` and verified to load.
 
 ## API And Business Rules

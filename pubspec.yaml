@@ -1,5 +1,5 @@
 name: washroom_ops
-description: "4CT Washroom Ops multi-tenant mobile app."
+description: "Multi-tenant Flutter app for airport washroom feedback and operations workflows."
 publish_to: 'none'
 
 # The following defines the version and build number for your application.
@@ -50,6 +50,7 @@ dependencies:
   connectivity_plus: ^7.2.0
   flutter_svg: ^2.3.0
   lottie: ^3.4.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +78,7 @@ flutter:
     - assets/branding/
     - assets/feedback/backgrounds/
     - assets/feedback/issues/
+    - assets/operations/
 
   fonts:
     - family: Inter

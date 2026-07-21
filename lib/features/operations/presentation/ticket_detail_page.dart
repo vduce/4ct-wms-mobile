@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations_context.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
 import '../data/operations_repository.dart';
 import '../domain/ticket_models.dart';
+import 'widgets/supervisor_ui.dart';
 
 class TicketDetailPage extends ConsumerStatefulWidget {
   const TicketDetailPage({required this.ticketId, super.key});
@@ -52,10 +53,9 @@ class _TicketDetailPageState extends ConsumerState<TicketDetailPage> {
         body: detailState.when(
           data: _buildDetail,
           loading: () => const AppLoadingDialog(),
-          error: (error, _) => ListView(
-            padding: const EdgeInsets.all(16),
+          error: (error, _) => SupervisorScrollableBody(
             children: [
-              _StatePanel(
+              SupervisorStatePanel(
                 icon: Icons.error_outline_rounded,
                 message: context.l10n.ticketDetailLoadFailed,
                 actionLabel: context.l10n.retryButton,
@@ -81,51 +81,55 @@ class _TicketDetailPageState extends ConsumerState<TicketDetailPage> {
     final l10n = context.l10n;
     _selectedStatus ??= ticket.status;
 
-    return RefreshIndicator(
+    return SupervisorScrollableBody(
+      maxWidth: 920,
       onRefresh: () async {
         ref.invalidate(ticketDetailProvider(widget.ticketId));
         await ref.read(ticketDetailProvider(widget.ticketId).future);
       },
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        children: [
-          _SummaryCard(ticket: ticket),
-          const SizedBox(height: 14),
-          if (ticket.isLocked)
-            _LockNotice(systemGenerated: ticket.isSystemGenerated)
-          else
-            _ActionPanel(
-              selectedStatus: _selectedStatus!,
-              commentController: _commentController,
-              attachments: _attachments,
-              submitting: _submitting,
-              onStatusChanged: (status) =>
-                  setState(() => _selectedStatus = status),
-              onCamera: () => _pickImage(ImageSource.camera),
-              onGallery: () => _pickImage(ImageSource.gallery),
-              onRemoveAttachment: (index) =>
-                  setState(() => _attachments.removeAt(index)),
-              onSubmit: () => _submit(ticket),
-            ),
-          const SizedBox(height: 14),
-          _AttachmentsCard(attachments: ticket.attachments),
-          const SizedBox(height: 14),
-          Text(
-            l10n.ticketTimelineTitle,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+      children: [
+        _SummaryCard(ticket: ticket),
+        const SizedBox(height: 14),
+        if (ticket.isLocked)
+          _LockNotice(systemGenerated: ticket.isSystemGenerated)
+        else
+          _ActionPanel(
+            selectedStatus: _selectedStatus!,
+            commentController: _commentController,
+            attachments: _attachments,
+            submitting: _submitting,
+            onStatusChanged: (status) =>
+                setState(() => _selectedStatus = status),
+            onCamera: () => _pickImage(ImageSource.camera),
+            onGallery: () => _pickImage(ImageSource.gallery),
+            onRemoveAttachment: (index) =>
+                setState(() => _attachments.removeAt(index)),
+            onSubmit: () => _submit(ticket),
           ),
-          const SizedBox(height: 8),
-          if (ticket.logs.isEmpty)
-            _StatePanel(
-              icon: Icons.timeline_rounded,
-              message: l10n.emptyTicketTimelineMessage,
-            )
-          else
-            ...ticket.logs.map((log) => _TimelineTile(log: log)),
-        ],
-      ),
+        const SizedBox(height: 14),
+        _AttachmentsCard(attachments: ticket.attachments),
+        const SizedBox(height: 18),
+        SupervisorSectionHeader(title: l10n.ticketTimelineTitle),
+        const SizedBox(height: 8),
+        if (ticket.logs.isEmpty)
+          SupervisorStatePanel(
+            icon: Icons.timeline_rounded,
+            message: l10n.emptyTicketTimelineMessage,
+          )
+        else
+          SupervisorSurface(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                for (var index = 0; index < ticket.logs.length; index++)
+                  _TimelineTile(
+                    log: ticket.logs[index],
+                    isLast: index == ticket.logs.length - 1,
+                  ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -210,58 +214,86 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    ticket.issue.isEmpty
-                        ? l10n.ticketCategoryFallback
-                        : ticket.issue,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
+    return SupervisorSurface(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  ticket.issue.isEmpty
+                      ? l10n.ticketCategoryFallback
+                      : ticket.issue,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ),
+              TicketStatusBadge(status: ticket.status),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = constraints.maxWidth >= 620
+                  ? (constraints.maxWidth - 16) / 2
+                  : constraints.maxWidth;
+              return Wrap(
+                spacing: 16,
+                runSpacing: 4,
+                children: [
+                  SizedBox(
+                    width: itemWidth,
+                    child: _DetailRow(
+                      icon: Icons.meeting_room_rounded,
+                      label: l10n.washroomFallback,
+                      value: ticket.washroomName.isEmpty
+                          ? ticket.washroomId
+                          : ticket.washroomName,
                     ),
                   ),
-                ),
-                _StatusBadge(status: ticket.status),
-              ],
-            ),
-            const SizedBox(height: 10),
-            _DetailRow(
-              icon: Icons.meeting_room_rounded,
-              label: l10n.washroomFallback,
-              value: ticket.washroomName.isEmpty
-                  ? ticket.washroomId
-                  : ticket.washroomName,
-            ),
-            _DetailRow(
-              icon: Icons.category_rounded,
-              label: l10n.ticketCategoryLabel,
-              value: ticket.category.isEmpty ? '-' : ticket.category,
-            ),
-            _DetailRow(
-              icon: Icons.flag_rounded,
-              label: l10n.priorityLabel,
-              value: ticket.priority,
-            ),
-            _DetailRow(
-              icon: Icons.schedule_rounded,
-              label: l10n.reportedAtLabel,
-              value: DateFormat('dd/MM/yy | hh:mm a').format(ticket.createdAt),
-            ),
-            if (ticket.assignedTo.isNotEmpty)
-              _DetailRow(
-                icon: Icons.person_rounded,
-                label: l10n.assignedToLabel,
-                value: ticket.assignedTo,
-              ),
-          ],
-        ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: _DetailRow(
+                      icon: Icons.category_rounded,
+                      label: l10n.ticketCategoryLabel,
+                      value: ticket.category.isEmpty ? '-' : ticket.category,
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: _DetailRow(
+                      icon: Icons.flag_rounded,
+                      label: l10n.priorityLabel,
+                      value: ticket.priority,
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: _DetailRow(
+                      icon: Icons.schedule_rounded,
+                      label: l10n.reportedAtLabel,
+                      value: DateFormat(
+                        'dd/MM/yy | hh:mm a',
+                      ).format(ticket.createdAt),
+                    ),
+                  ),
+                  if (ticket.assignedTo.isNotEmpty)
+                    SizedBox(
+                      width: itemWidth,
+                      child: _DetailRow(
+                        icon: Icons.person_rounded,
+                        label: l10n.assignedToLabel,
+                        value: ticket.assignedTo,
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -293,96 +325,93 @@ class _ActionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.updateTicketTitle,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<SupervisorTicketStatus>(
-              initialValue: selectedStatus,
-              decoration: InputDecoration(labelText: l10n.statusLabel),
-              items: SupervisorTicketStatus.values
-                  .map(
-                    (status) => DropdownMenuItem(
-                      value: status,
-                      child: Text(_statusLabel(context, status)),
-                    ),
-                  )
-                  .toList(),
-              onChanged: submitting
-                  ? null
-                  : (status) {
-                      if (status != null) onStatusChanged(status);
-                    },
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: commentController,
-              enabled: !submitting,
-              minLines: 3,
-              maxLines: 5,
-              decoration: InputDecoration(
-                labelText: l10n.commentLabel,
-                hintText: l10n.ticketCommentHint,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SupervisorSectionHeader(title: l10n.updateTicketTitle),
+        const SizedBox(height: 8),
+        SupervisorSurface(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DropdownButtonFormField<SupervisorTicketStatus>(
+                initialValue: selectedStatus,
+                decoration: InputDecoration(labelText: l10n.statusLabel),
+                items: SupervisorTicketStatus.values
+                    .map(
+                      (status) => DropdownMenuItem(
+                        value: status,
+                        child: Text(ticketStatusLabel(context, status)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: submitting
+                    ? null
+                    : (status) {
+                        if (status != null) onStatusChanged(status);
+                      },
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: submitting ? null : onCamera,
-                  icon: const Icon(Icons.photo_camera_rounded),
-                  label: Text(l10n.cameraButton),
-                ),
-                OutlinedButton.icon(
-                  onPressed: submitting ? null : onGallery,
-                  icon: const Icon(Icons.photo_library_rounded),
-                  label: Text(l10n.galleryButton),
-                ),
-              ],
-            ),
-            if (attachments.isNotEmpty) ...[
               const SizedBox(height: 12),
-              ...attachments.asMap().entries.map(
-                (entry) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.attach_file_rounded),
-                  title: Text(entry.value.name),
-                  subtitle: Text(_humanSize(entry.value.sizeBytes)),
-                  trailing: IconButton(
-                    tooltip: l10n.removeAttachmentTooltip,
-                    onPressed: submitting
-                        ? null
-                        : () => onRemoveAttachment(entry.key),
-                    icon: const Icon(Icons.close_rounded),
+              TextField(
+                controller: commentController,
+                enabled: !submitting,
+                minLines: 3,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  labelText: l10n.commentLabel,
+                  hintText: l10n.ticketCommentHint,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: submitting ? null : onCamera,
+                      icon: const Icon(Icons.photo_camera_rounded),
+                      label: Text(l10n.cameraButton),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: submitting ? null : onGallery,
+                      icon: const Icon(Icons.photo_library_rounded),
+                      label: Text(l10n.galleryButton),
+                    ),
+                  ),
+                ],
+              ),
+              if (attachments.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                ...attachments.asMap().entries.map(
+                  (entry) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.attach_file_rounded),
+                    title: Text(entry.value.name),
+                    subtitle: Text(_humanSize(entry.value.sizeBytes)),
+                    trailing: IconButton(
+                      tooltip: l10n.removeAttachmentTooltip,
+                      onPressed: submitting
+                          ? null
+                          : () => onRemoveAttachment(entry.key),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
                   ),
                 ),
+              ],
+              const SizedBox(height: 12),
+              SupervisorGradientButton(
+                label: l10n.updateTicketButton,
+                onPressed: submitting ? null : onSubmit,
+                icon: Icons.save_rounded,
+                loading: submitting,
               ),
             ],
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: submitting ? null : onSubmit,
-              icon: submitting
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save_rounded),
-              label: Text(l10n.updateTicketButton),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -395,7 +424,8 @@ class _LockNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Card(
+    return SupervisorSurface(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: const Icon(Icons.lock_outline_rounded),
         title: Text(
@@ -417,56 +447,89 @@ class _AttachmentsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.attachmentsTitle,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 8),
-            if (attachments.isEmpty)
-              Text(l10n.noAttachmentsMessage)
-            else
-              ...attachments.map(
-                (attachment) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.image_outlined),
-                  title: Text(attachment.name),
-                  subtitle: attachment.url.isEmpty
-                      ? null
-                      : Text(attachment.url),
-                ),
+    return SupervisorSurface(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.attachmentsTitle,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 8),
+          if (attachments.isEmpty)
+            Text(l10n.noAttachmentsMessage)
+          else
+            ...attachments.map(
+              (attachment) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.image_outlined),
+                title: Text(attachment.name),
+                subtitle: attachment.url.isEmpty ? null : Text(attachment.url),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 }
 
 class _TimelineTile extends StatelessWidget {
-  const _TimelineTile({required this.log});
+  const _TimelineTile({required this.log, required this.isLast});
 
   final SupervisorTicketLog log;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: const Icon(Icons.timeline_rounded),
-        title: Text(log.status.isEmpty ? '-' : log.status),
-        subtitle: Text(
-          [
-            DateFormat('dd/MM/yy | hh:mm a').format(log.timestamp),
-            if (log.comment.isNotEmpty) log.comment,
-          ].join('\n'),
-        ),
+    final status = normalizeTicketStatus(log.status);
+    final color = SupervisorPalette.status(status);
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 36,
+            child: Column(
+              children: [
+                TicketStatusDot(status: status, icon: ticketStatusIcon(status)),
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 1,
+                      color: color.withValues(alpha: 0.35),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 0 : 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    log.status.isEmpty ? '-' : log.status,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(DateFormat('dd/MM/yy | hh:mm a').format(log.timestamp)),
+                  if (log.comment.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    Text(log.comment),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -505,71 +568,6 @@ class _DetailRow extends StatelessWidget {
       ),
     );
   }
-}
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
-
-  final SupervisorTicketStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Chip(
-      label: Text(_statusLabel(context, status)),
-      backgroundColor: switch (status) {
-        SupervisorTicketStatus.pending => colors.secondaryContainer,
-        SupervisorTicketStatus.acknowledge => colors.primaryContainer,
-        SupervisorTicketStatus.escalated => colors.errorContainer,
-        SupervisorTicketStatus.completed => colors.tertiaryContainer,
-      },
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
-  }
-}
-
-class _StatePanel extends StatelessWidget {
-  const _StatePanel({
-    required this.icon,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
-
-  final IconData icon;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          children: [
-            Icon(icon, size: 34),
-            const SizedBox(height: 10),
-            Text(message, textAlign: TextAlign.center),
-            if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 12),
-              OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-String _statusLabel(BuildContext context, SupervisorTicketStatus status) {
-  final l10n = context.l10n;
-  return switch (status) {
-    SupervisorTicketStatus.pending => l10n.statusPending,
-    SupervisorTicketStatus.acknowledge => l10n.statusAcknowledged,
-    SupervisorTicketStatus.escalated => l10n.statusEscalated,
-    SupervisorTicketStatus.completed => l10n.statusCompleted,
-  };
 }
 
 String _extensionFor(String fileName, String mimeType) {

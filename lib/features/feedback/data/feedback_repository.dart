@@ -12,6 +12,9 @@ final feedbackRepositoryProvider = Provider<FeedbackRepository>((ref) {
 class FeedbackRepository {
   const FeedbackRepository(this._dio);
 
+  static const _mumbaiAirportLatitude = 19.0896;
+  static const _mumbaiAirportLongitude = 72.8656;
+
   final Dio _dio;
 
   Future<FeedbackWashroom?> resolveWashroom({
@@ -55,6 +58,22 @@ class FeedbackRepository {
   }
 
   Future<FeedbackMetrics> fetchMetrics(String washroomId) async {
+    FeedbackMetrics metrics;
+    try {
+      final response = await _dio.get<Map<String, Object?>>(
+        '/dashboard/feedback-screen/$washroomId',
+      );
+      metrics = FeedbackMetrics.fromJson(_unwrapData(response.data));
+    } on DioException {
+      metrics = await _fetchLegacyMetrics(washroomId);
+    }
+
+    final temperature =
+        metrics.temperatureCelsius ?? await _fetchLiveTemperatureCelsius();
+    return metrics.copyWith(temperatureCelsius: temperature);
+  }
+
+  Future<FeedbackMetrics> _fetchLegacyMetrics(String washroomId) async {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         '/dashboard/screensaver',
@@ -68,6 +87,38 @@ class FeedbackRepository {
       );
       return FeedbackMetrics.fromJson(response.data ?? {});
     }
+  }
+
+  Future<num?> _fetchLiveTemperatureCelsius() async {
+    final weatherDio = Dio(
+      BaseOptions(
+        baseUrl: 'https://api.open-meteo.com/v1',
+        connectTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 8),
+      ),
+    );
+
+    try {
+      final response = await weatherDio.get<Map<String, Object?>>(
+        '/forecast',
+        queryParameters: {
+          'latitude': _mumbaiAirportLatitude,
+          'longitude': _mumbaiAirportLongitude,
+          'current': 'temperature_2m',
+          'temperature_unit': 'celsius',
+        },
+      );
+      final current = response.data?['current'];
+      if (current is! Map) return null;
+      return _numOrNull(current['temperature_2m']);
+    } on DioException {
+      return null;
+    }
+  }
+
+  num? _numOrNull(Object? value) {
+    if (value is num) return value;
+    return num.tryParse(value?.toString() ?? '');
   }
 
   Future<void> submitFeedback({

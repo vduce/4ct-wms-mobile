@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/airport_feedback_design_tokens.dart';
 
-class AdaniGradientButton extends StatelessWidget {
-  const AdaniGradientButton({
+class AppGradientButton extends StatelessWidget {
+  const AppGradientButton({
     required this.label,
     required this.onPressed,
     this.icon,

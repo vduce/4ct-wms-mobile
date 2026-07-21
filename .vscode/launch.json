@@ -5,6 +5,7 @@
       "name": "Washroom Ops Dev",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/4ct-washroom-ops-mobile",
       "program": "lib/main.dart",
       "toolArgs": [
         "--flavor",
@@ -17,19 +18,22 @@
       "name": "Washroom Ops Dev Android Emulator",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/4ct-washroom-ops-mobile",
       "program": "lib/main.dart",
+      "deviceId": "emulator-5554",
       "toolArgs": [
         "--flavor",
         "dev",
         "--dart-define=FLAVOR=dev",
         "--dart-define=TENANT_SLUG=wms-dev",
-        "--dart-define=API_BASE_URL=http://10.0.2.2:9000/api/v1"
+        "--dart-define=API_BASE_URL=http://192.168.68.101:9000/api/v1"
       ]
     },
     {
       "name": "Washroom Ops Dev iOS Simulator",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/4ct-washroom-ops-mobile",
       "program": "lib/main.dart",
       "toolArgs": [
         "--flavor",
@@ -43,6 +47,7 @@
       "name": "Washroom Ops QA",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/4ct-washroom-ops-mobile",
       "program": "lib/main.dart",
       "toolArgs": [
         "--flavor",
@@ -55,6 +60,7 @@
       "name": "Washroom Ops Prod",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/4ct-washroom-ops-mobile",
       "program": "lib/main.dart",
       "toolArgs": [
         "--flavor",

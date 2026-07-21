@@ -11,6 +11,7 @@ import '../../../l10n/app_localizations_context.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
 import '../data/operations_repository.dart';
 import '../domain/ticket_models.dart';
+import 'widgets/supervisor_ui.dart';
 
 class TicketHistoryPage extends ConsumerStatefulWidget {
   const TicketHistoryPage({super.key});
@@ -69,25 +70,18 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
             ),
           ],
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(ticketHistoryProvider(query));
-            await ref.read(ticketHistoryProvider(query).future);
-          },
-          child: historyState.when(
-            data: _buildHistory,
-            loading: () => const AppLoadingDialog(),
-            error: (error, _) => ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _StatePanel(
-                  icon: Icons.error_outline_rounded,
-                  message: context.l10n.ticketHistoryLoadFailed,
-                  actionLabel: context.l10n.retryButton,
-                  onAction: () => ref.invalidate(ticketHistoryProvider(query)),
-                ),
-              ],
-            ),
+        body: historyState.when(
+          data: _buildHistory,
+          loading: () => const AppLoadingDialog(),
+          error: (error, _) => SupervisorScrollableBody(
+            children: [
+              SupervisorStatePanel(
+                icon: Icons.error_outline_rounded,
+                message: context.l10n.ticketHistoryLoadFailed,
+                actionLabel: context.l10n.retryButton,
+                onAction: () => ref.invalidate(ticketHistoryProvider(query)),
+              ),
+            ],
           ),
         ),
       ),
@@ -117,8 +111,12 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
             .toList()
           ..sort((a, b) => a.value.compareTo(b.value));
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+    return SupervisorScrollableBody(
+      onRefresh: () async {
+        final query = TicketHistoryQuery(fromDate: _fromDate, toDate: _toDate);
+        ref.invalidate(ticketHistoryProvider(query));
+        await ref.read(ticketHistoryProvider(query).future);
+      },
       children: [
         _FilterCard(
           fromDate: _fromDate,
@@ -135,50 +133,35 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
               setState(() => _washroomFilter = washroom),
         ),
         const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l10n.ticketHistoryResults(filtered.length),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
-            ),
-            TextButton.icon(
-              onPressed: _exporting ? null : () => _exportCsv(filtered),
-              icon: const Icon(Icons.ios_share_rounded),
-              label: Text(l10n.exportCsvButton),
-            ),
-          ],
+        SupervisorSectionHeader(
+          title: l10n.ticketHistoryResults(filtered.length),
+          trailing: OutlinedButton.icon(
+            onPressed: _exporting ? null : () => _exportCsv(filtered),
+            icon: const Icon(Icons.download_rounded, size: 18),
+            label: Text(l10n.exportCsvButton),
+          ),
         ),
         const SizedBox(height: 8),
         if (filtered.isEmpty)
-          _StatePanel(
+          SupervisorStatePanel(
             icon: Icons.manage_search_rounded,
             message: l10n.noTicketsForFilterMessage,
           )
         else
-          ...filtered.map(
-            (ticket) => Card(
-              child: ListTile(
-                leading: Icon(
-                  ticket.source == TicketSource.system
-                      ? Icons.memory_rounded
-                      : Icons.confirmation_number_outlined,
-                ),
-                title: Text(
-                  ticket.category.isEmpty
-                      ? l10n.ticketCategoryFallback
-                      : ticket.category,
-                ),
-                subtitle: Text(
-                  '${ticket.washroomLabel}\n${_statusLabel(context, ticket.status)} · ${_formatTicketTime(ticket.createdAt)}',
-                ),
-                isThreeLine: true,
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => context.go('/operations/tickets/${ticket.id}'),
-              ),
+          SupervisorSurface(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                for (var index = 0; index < filtered.length; index++) ...[
+                  _HistoryTicketRow(
+                    ticket: filtered[index],
+                    onTap: () =>
+                        context.go('/operations/tickets/${filtered[index].id}'),
+                  ),
+                  if (index < filtered.length - 1)
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                ],
+              ],
             ),
           ),
       ],
@@ -263,6 +246,70 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
   }
 }
 
+class _HistoryTicketRow extends StatelessWidget {
+  const _HistoryTicketRow({required this.ticket, required this.onTap});
+
+  final SupervisorTicket ticket;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        child: Row(
+          children: [
+            TicketStatusDot(status: ticket.status),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ticket.category.isEmpty
+                        ? l10n.ticketCategoryFallback
+                        : ticket.category,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${ticket.washroomLabel}  ·  ${ticket.shortId}  ·  ${ticketStatusLabel(context, ticket.status)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${_formatTicketTime(ticket.createdAt)}  ·  ${ticket.source == TicketSource.system ? l10n.ticketSourceSystem : l10n.ticketSourceUser}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            TicketPriorityBadge(priority: ticket.priority),
+            const SizedBox(width: 4),
+            Icon(Icons.chevron_right_rounded, color: colors.primary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _FilterCard extends StatelessWidget {
   const _FilterCard({
     required this.fromDate,
@@ -293,118 +340,180 @@ class _FilterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 860;
+        final dateFields = [
+          Expanded(
+            child: _DateFilterField(
+              label: l10n.historyFromLabel,
+              value: _displayDate(fromDate),
+              onTap: onPickFrom,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _DateFilterField(
+              label: l10n.historyToLabel,
+              value: _displayDate(toDate),
+              onTap: onPickTo,
+            ),
+          ),
+        ];
+
+        final status = SupervisorSurface(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.statusLabel,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                children: [
+                  SupervisorFilterPill(
+                    label: l10n.allStatusesLabel,
+                    selected: statusFilter == null,
+                    onPressed: () => onStatusChanged(null),
+                  ),
+                  for (final item in SupervisorTicketStatus.values)
+                    SupervisorFilterPill(
+                      label: ticketStatusLabel(context, item),
+                      selected: statusFilter == item,
+                      onPressed: () => onStatusChanged(item),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        );
+        final source = SupervisorSurface(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.ticketSourceLabel,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                children: [
+                  SupervisorFilterPill(
+                    label: l10n.allSourcesLabel,
+                    selected: sourceFilter == null,
+                    onPressed: () => onSourceChanged(null),
+                  ),
+                  SupervisorFilterPill(
+                    label: l10n.ticketSourceUser,
+                    selected: sourceFilter == TicketSource.user,
+                    onPressed: () => onSourceChanged(TicketSource.user),
+                  ),
+                  SupervisorFilterPill(
+                    label: l10n.ticketSourceSystem,
+                    selected: sourceFilter == TicketSource.system,
+                    onPressed: () => onSourceChanged(TicketSource.system),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        final washroom = SupervisorSurface(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: DropdownButtonFormField<String?>(
+            initialValue: washroomFilter,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: l10n.washroomFallback,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              fillColor: Colors.transparent,
+            ),
+            items: [
+              DropdownMenuItem(
+                value: null,
+                child: Text(l10n.allWashroomsLabel),
+              ),
+              for (final item in washroomOptions)
+                DropdownMenuItem(value: item.key, child: Text(item.value)),
+            ],
+            onChanged: onWashroomChanged,
+          ),
+        );
+
+        return Column(
           children: [
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: onPickFrom,
-                  icon: const Icon(Icons.event_rounded),
-                  label: Text(l10n.fromDateLabel(fromDate)),
-                ),
-                OutlinedButton.icon(
-                  onPressed: onPickTo,
-                  icon: const Icon(Icons.event_available_rounded),
-                  label: Text(l10n.toDateLabel(toDate)),
-                ),
-              ],
-            ),
+            Row(children: dateFields),
             const SizedBox(height: 12),
-            DropdownButtonFormField<SupervisorTicketStatus?>(
-              initialValue: statusFilter,
-              decoration: InputDecoration(labelText: l10n.statusLabel),
-              items: [
-                DropdownMenuItem(
-                  value: null,
-                  child: Text(l10n.allStatusesLabel),
-                ),
-                for (final status in SupervisorTicketStatus.values)
-                  DropdownMenuItem(
-                    value: status,
-                    child: Text(_statusLabel(context, status)),
-                  ),
-              ],
-              onChanged: onStatusChanged,
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<TicketSource?>(
-              initialValue: sourceFilter,
-              decoration: InputDecoration(labelText: l10n.ticketSourceLabel),
-              items: [
-                DropdownMenuItem(
-                  value: null,
-                  child: Text(l10n.allSourcesLabel),
-                ),
-                DropdownMenuItem(
-                  value: TicketSource.user,
-                  child: Text(l10n.ticketSourceUser),
-                ),
-                DropdownMenuItem(
-                  value: TicketSource.system,
-                  child: Text(l10n.ticketSourceSystem),
-                ),
-              ],
-              onChanged: onSourceChanged,
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String?>(
-              initialValue: washroomFilter,
-              decoration: InputDecoration(labelText: l10n.washroomFallback),
-              items: [
-                DropdownMenuItem(
-                  value: null,
-                  child: Text(l10n.allWashroomsLabel),
-                ),
-                for (final washroom in washroomOptions)
-                  DropdownMenuItem(
-                    value: washroom.key,
-                    child: Text(washroom.value),
-                  ),
-              ],
-              onChanged: onWashroomChanged,
-            ),
+            if (wide)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 2, child: status),
+                  const SizedBox(width: 12),
+                  Expanded(child: source),
+                  const SizedBox(width: 12),
+                  Expanded(child: washroom),
+                ],
+              )
+            else ...[
+              status,
+              const SizedBox(height: 10),
+              source,
+              const SizedBox(height: 10),
+              washroom,
+            ],
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
-class _StatePanel extends StatelessWidget {
-  const _StatePanel({
-    required this.icon,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
+class _DateFilterField extends StatelessWidget {
+  const _DateFilterField({
+    required this.label,
+    required this.value,
+    required this.onTap,
   });
 
-  final IconData icon;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
+  final String label;
+  final String value;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          children: [
-            Icon(icon, size: 34),
-            const SizedBox(height: 10),
-            Text(message, textAlign: TextAlign.center),
-            if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 12),
-              OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
-            ],
-          ],
-        ),
+    final colors = Theme.of(context).colorScheme;
+    return SupervisorSurface(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: Theme.of(context).textTheme.labelSmall),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.calendar_today_rounded, color: colors.primary, size: 20),
+        ],
       ),
     );
   }
@@ -430,7 +539,7 @@ String _buildCsv(BuildContext context, List<SupervisorTicket> tickets) {
       return [
         ticket.id,
         ticket.shortId,
-        _statusLabel(context, ticket.status),
+        ticketStatusLabel(context, ticket.status),
         ticket.priority,
         ticket.source == TicketSource.system
             ? context.l10n.ticketSourceSystem
@@ -452,16 +561,11 @@ String _csvCell(String value) {
   return '"$escaped"';
 }
 
-String _statusLabel(BuildContext context, SupervisorTicketStatus status) {
-  final l10n = context.l10n;
-  return switch (status) {
-    SupervisorTicketStatus.pending => l10n.statusPending,
-    SupervisorTicketStatus.acknowledge => l10n.statusAcknowledged,
-    SupervisorTicketStatus.escalated => l10n.statusEscalated,
-    SupervisorTicketStatus.completed => l10n.statusCompleted,
-  };
-}
-
 String _formatTicketTime(DateTime date) {
   return DateFormat('dd/MM/yy | hh:mm a').format(date);
+}
+
+String _displayDate(String date) {
+  final parsed = DateTime.tryParse(date);
+  return parsed == null ? date : DateFormat('dd MMM yyyy').format(parsed);
 }

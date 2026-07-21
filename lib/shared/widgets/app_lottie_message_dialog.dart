@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../app/theme/airport_feedback_design_tokens.dart';
-import 'adani_gradient_button.dart';
+import 'app_gradient_button.dart';
 
 Future<T?> showAppLottieMessageDialog<T>({
   required BuildContext context,
@@ -131,7 +131,7 @@ class AppLottieMessageDialog extends StatelessWidget {
                     SizedBox(height: phone ? 22 : 30),
                     SizedBox(
                       width: phone ? double.infinity : 220,
-                      child: AdaniGradientButton(
+                      child: AppGradientButton(
                         onPressed: onAction,
                         height: phone ? 50 : 54,
                         radius: 14,

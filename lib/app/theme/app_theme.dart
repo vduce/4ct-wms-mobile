@@ -49,9 +49,7 @@ abstract final class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: isDark
-              ? AirportFeedbackColors.darkPrimaryCyan
-              : AirportFeedbackColors.primaryPurple,
+          backgroundColor: AirportFeedbackColors.primaryPurple,
           foregroundColor: Colors.white,
           disabledBackgroundColor: colors.outlineVariant.withValues(alpha: 0.5),
           disabledForegroundColor: colors.onSurface.withValues(alpha: 0.45),
@@ -64,9 +62,7 @@ abstract final class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDark
-              ? AirportFeedbackColors.darkPrimaryCyan
-              : AirportFeedbackColors.primaryPurple,
+          backgroundColor: AirportFeedbackColors.primaryPurple,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48),
           textStyle: const TextStyle(fontWeight: FontWeight.w800),

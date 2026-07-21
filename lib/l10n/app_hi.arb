@@ -1,0 +1,268 @@
+{
+  "@@locale": "hi",
+  "appTitle": "स्मार्ट शौचालय प्रबंधन",
+  "loginSubtitle": "अपने पंजीकृत खाते पर भेजे गए ओटीपी से साइन इन करें।",
+  "poweredByLabel": "द्वारा संचालित",
+  "emailOrUsernameLabel": "ईमेल या उपयोगकर्ता नाम",
+  "otpLabel": "6 अंकों का ओटीपी",
+  "sendOtpButton": "ओटीपी भेजें",
+  "verifyOtpButton": "ओटीपी सत्यापित करें",
+  "enterEmailOrUsernameError": "ईमेल या उपयोगकर्ता नाम दर्ज करें।",
+  "otpSentMessage": "ओटीपी भेज दिया गया है।",
+  "enterSixDigitOtpError": "6 अंकों का ओटीपी दर्ज करें।",
+  "operationsTitle": "संचालन",
+  "signOutTooltip": "साइन आउट करें",
+  "defaultUserName": "उपयोगकर्ता",
+  "homeGreeting": "नमस्ते {username}",
+  "@homeGreeting": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "tenantAirportSummary": "टेनेंट {tenantId} - हवाई अड्डा {airportId}",
+  "@tenantAirportSummary": {
+    "placeholders": {
+      "tenantId": {
+        "type": "String"
+      },
+      "airportId": {
+        "type": "String"
+      }
+    }
+  },
+  "statusPending": "लंबित",
+  "statusAcknowledged": "स्वीकृत",
+  "statusEscalated": "एस्केलेट किया गया",
+  "statusCompleted": "पूर्ण",
+  "openDashboardsButton": "डैशबोर्ड खोलें",
+  "ticketsTitle": "{status} टिकट",
+  "@ticketsTitle": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketApiMappingPendingTitle": "टिकट एपीआई मैपिंग लंबित है",
+  "ticketApiMappingPendingSubtitle": "/list_tickets_feedback और /update_ticket को बनाए रखें",
+  "ticketLockRulesTitle": "सिस्टम/पूर्ण टिकट लॉक नियम",
+  "ticketLockRulesSubtitle": "स्थिति परिवर्तन, टिप्पणियां और अटैचमेंट अक्षम करें।",
+  "attachmentUploadSkeletonTitle": "अटैचमेंट अपलोड संरचना",
+  "attachmentUploadSkeletonSubtitle": "कैमरा/फाइल पिकर का उपयोग करें, फिर SAS URL पर अपलोड करें।",
+  "dashboardsTitle": "डैशबोर्ड",
+  "washroomFootfallTitle": "शौचालय फुटफॉल",
+  "negativeFeedbackHeatmapTitle": "नकारात्मक प्रतिक्रिया हीटमैप",
+  "zoneLeadResponseResolutionTitle": "ज़ोन लीड प्रतिक्रिया और समाधान",
+  "feedbackDeviceTitle": "प्रतिक्रिया डिवाइस",
+  "washroomLabel": "शौचालय {washroomId}",
+  "@washroomLabel": {
+    "placeholders": {
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "goodFeedbackButton": "अच्छा",
+  "needsAttentionButton": "अच्छा नहीं",
+  "feedbackDeviceMigrationNote": "QR, निष्क्रियता समय-सीमा, मौसम और प्रतिक्रिया कारण एपीआई MIGRATION_PLAN.md में मैप किए गए हैं।",
+  "feedbackNoWashroomError": "इस प्रतिक्रिया डिवाइस के लिए कोई शौचालय उपलब्ध नहीं है।",
+  "feedbackSubmitFailedError": "प्रतिक्रिया सबमिट नहीं हो सकी। कृपया फिर प्रयास करें।",
+  "feedbackSelectIssueError": "कृपया कम से कम एक समस्या चुनें।",
+  "feedbackKioskLabel": "प्रतिक्रिया कियोस्क",
+  "scanLabel": "स्कैन करें",
+  "feedbackLanguageEnglish": "EN",
+  "feedbackLanguageHindi": "हिं",
+  "languageSelectorTooltip": "भाषा चुनें",
+  "languageEnglish": "अंग्रेज़ी",
+  "languageHindi": "हिन्दी",
+  "feedbackWelcomePrefix": "आपका स्वागत है",
+  "feedbackAirportName": "मुंबई अंतरराष्ट्रीय हवाई अड्डा",
+  "feedbackWelcomeSubtitle": "आपकी प्रतिक्रिया हमें आपके लिए\nबेहतर अनुभव बनाने में मदद करती है।",
+  "feedbackShareFeedbackTitle": "अपनी प्रतिक्रिया साझा करें",
+  "feedbackStartSubtitle": "शुरू करने के लिए टैप करें",
+  "feedbackTapAnywhereSubtitle": "शुरू करने के लिए स्क्रीन पर कहीं भी टैप करें",
+  "feedbackTemperatureUnavailable": "--°C",
+  "feedbackQrStartLabel": "अपने फोन से स्कैन करें",
+  "feedbackQrStartSubtitle": "स्क्रीन छूने की आवश्यकता नहीं है",
+  "feedbackQrDialogTitle": "प्रतिक्रिया के लिए स्कैन करें",
+  "feedbackQrDialogMessage": "शौचालय पर प्रतिक्रिया देने के लिए इस QR कोड को अपने फोन से स्कैन करें।",
+  "feedbackQrDialogCloseButton": "बंद करें",
+  "metricAqiLabel": "AQI",
+  "metricOccupancyLabel": "उपयोग",
+  "metricCubicleOccupancyLabel": "क्यूबिकल उपयोग",
+  "metricFootfallLabel": "फुटफॉल",
+  "metricOdourLabel": "गंध",
+  "metricAqiStatusGood": "अच्छा",
+  "metricOccupancyStatusLow": "कम",
+  "metricFootfallStatusToday": "आज",
+  "metricOdourStatusNeutral": "सामान्य",
+  "feedbackInsightRealTimeTitle": "रीयल-टाइम जानकारी",
+  "feedbackInsightRealTimeSubtitle": "लाइव वातावरण मेट्रिक्स एक नज़र में",
+  "feedbackInsightCleanTitle": "स्वच्छ और विशाल",
+  "feedbackInsightCleanSubtitle": "सभी यात्रियों के लिए आरामदायक सुविधाएं",
+  "feedbackInsightAccessibleTitle": "सुलभ",
+  "feedbackInsightAccessibleSubtitle": "बहुभाषी और उपयोग में आसान",
+  "feedbackInsightVoiceTitle": "आपकी राय महत्वपूर्ण है",
+  "feedbackInsightVoiceSubtitle": "हर दिन बेहतर बनने में हमारी मदद करें",
+  "feedbackScreensaverTitle": "शौचालय में आपका अनुभव कैसा रहा?",
+  "feedbackScreensaverFallback": "अपनी प्रतिक्रिया साझा करने के लिए टैप करें",
+  "feedbackStartButton": "प्रतिक्रिया देने के लिए टैप करें",
+  "feedbackChoiceSatisfiedTitle": "अच्छा",
+  "feedbackChoiceSatisfiedSubtitle": "मेरा अनुभव बहुत अच्छा रहा",
+  "feedbackChoiceNeedsAttentionSubtitle": "कुछ ऐसा है जिसे हम बेहतर कर सकते हैं",
+  "feedbackChoiceTitle": "आज आपका अनुभव कैसा रहा?",
+  "feedbackChoiceSubtitle": "आपकी प्रतिक्रिया हमें आगे बढ़ाती है",
+  "feedbackCommentTitle": "टिप्पणी जोड़ें",
+  "feedbackCommentHint": "हमें बताएं कि किस पर ध्यान देने की आवश्यकता है",
+  "feedbackCommentSaveButton": "टिप्पणी सहेजें",
+  "feedbackNegativeTitle": "हमें खेद है कि आपका अनुभव अच्छा नहीं रहा।",
+  "feedbackNegativeSubtitle": "कृपया अपनी समस्या चुनें।",
+  "feedbackNegativeHelper": "लागू होने वाले सभी विकल्प चुनें और फिर सबमिट पर क्लिक करें।",
+  "feedbackAddCommentButton": "टिप्पणी जोड़ें",
+  "feedbackEditCommentButton": "टिप्पणी संपादित करें",
+  "feedbackCommentFieldPlaceholder": "अतिरिक्त टिप्पणियां जोड़ें...",
+  "feedbackSubmitButton": "प्रतिक्रिया सबमिट करें",
+  "feedbackEmptyReasonsMessage": "इस स्थान के लिए कोई सक्रिय प्रतिक्रिया कारण कॉन्फ़िगर नहीं किया गया है।",
+  "feedbackThanksTitle": "आपकी प्रतिक्रिया के लिए धन्यवाद",
+  "feedbackThanksPositiveSubtitle": "हमें खुशी है कि आपका अनुभव आरामदायक रहा।",
+  "feedbackThanksNegativeSubtitle": "हमारी सुविधा टीम को सूचित कर दिया गया है।",
+  "doneButton": "पूर्ण",
+  "feedbackDeviceNotReadyTitle": "प्रतिक्रिया डिवाइस तैयार नहीं है",
+  "retryButton": "फिर प्रयास करें",
+  "ticketHistoryTitle": "टिकट इतिहास",
+  "lastLoginLabel": "लॉगिन {value}",
+  "@lastLoginLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "activeShiftLabel": "शिफ्ट {value}",
+  "@activeShiftLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketStatusCardsTitle": "टिकट अवलोकन",
+  "viewHistoryButton": "इतिहास देखें",
+  "passengerFlowTitle": "यात्री प्रवाह",
+  "supervisedUnitsTitle": "पर्यवेक्षित शौचालय",
+  "supervisedUnitsCount": "{count} इकाइयां",
+  "@supervisedUnitsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cubiclesCount": "{count} क्यूबिकल",
+  "@cubiclesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "janitorScheduleTitle": "सफाईकर्मी कार्यक्रम",
+  "janitorsAssignedCount": "{count} नियुक्त",
+  "@janitorsAssignedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyWashroomsMessage": "कोई पर्यवेक्षित शौचालय नियुक्त नहीं है।",
+  "emptyScheduleMessage": "इस अवधि के लिए सफाईकर्मी कार्यक्रम उपलब्ध नहीं है।",
+  "emptyPassengerFlowMessage": "यात्री प्रवाह के अधिकतम आंकड़े उपलब्ध नहीं हैं।",
+  "supervisorTicketsLoadFailed": "पर्यवेक्षक टिकट लोड नहीं हो सके।",
+  "supervisedUnitsLoadFailed": "पर्यवेक्षित शौचालय लोड नहीं हो सके।",
+  "passengerFlowLoadFailed": "यात्री प्रवाह लोड नहीं हो सका।",
+  "noWashroomsAssignedMessage": "इस उपयोगकर्ता को कोई शौचालय नियुक्त नहीं है।",
+  "passengerCount": "{count} यात्री",
+  "@passengerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "washroomFallback": "शौचालय",
+  "userTicketsTitle": "उपयोगकर्ता टिकट",
+  "systemTicketsTitle": "सिस्टम टिकट",
+  "noTicketsForFilterMessage": "वर्तमान फिल्टर से कोई टिकट मेल नहीं खाता।",
+  "noSystemTicketsMessage": "इस स्थिति से कोई सिस्टम टिकट मेल नहीं खाता।",
+  "ticketCategoryFallback": "टिकट",
+  "priorityFallback": "सामान्य",
+  "ticketSourceUser": "उपयोगकर्ता",
+  "ticketSourceSystem": "सिस्टम",
+  "acknowledgeButton": "स्वीकार करें",
+  "ticketAcknowledgedMessage": "टिकट स्वीकार कर लिया गया है।",
+  "ticketAcknowledgeFailed": "टिकट स्वीकार नहीं किया जा सका।",
+  "ticketDetailLoadFailed": "टिकट विवरण लोड नहीं हो सका।",
+  "ticketCategoryLabel": "श्रेणी",
+  "priorityLabel": "प्राथमिकता",
+  "reportedAtLabel": "रिपोर्ट का समय",
+  "assignedToLabel": "इन्हें नियुक्त",
+  "updateTicketTitle": "टिकट अपडेट करें",
+  "statusLabel": "स्थिति",
+  "commentLabel": "टिप्पणी",
+  "ticketCommentHint": "टीम के लिए संक्षिप्त अपडेट जोड़ें",
+  "cameraButton": "कैमरा",
+  "galleryButton": "गैलरी",
+  "removeAttachmentTooltip": "अटैचमेंट हटाएं",
+  "updateTicketButton": "टिकट अपडेट करें",
+  "systemTicketLockedTitle": "सिस्टम टिकट लॉक है",
+  "completedTicketLockedTitle": "पूर्ण टिकट लॉक है",
+  "ticketLockedSubtitle": "स्थिति परिवर्तन, टिप्पणियां और अटैचमेंट अक्षम हैं।",
+  "attachmentsTitle": "अटैचमेंट",
+  "noAttachmentsMessage": "कोई अटैचमेंट नहीं जोड़ा गया है।",
+  "ticketTimelineTitle": "टिकट समयरेखा",
+  "emptyTicketTimelineMessage": "कोई टिकट अपडेट उपलब्ध नहीं है।",
+  "attachmentPickFailed": "चुना गया अटैचमेंट जोड़ा नहीं जा सका।",
+  "ticketUpdatedMessage": "टिकट अपडेट कर दिया गया है।",
+  "ticketUpdateFailed": "टिकट अपडेट नहीं किया जा सका।",
+  "exportCsvTooltip": "CSV निर्यात करें",
+  "exportCsvButton": "CSV निर्यात करें",
+  "ticketHistoryLoadFailed": "टिकट इतिहास लोड नहीं हो सका।",
+  "ticketHistoryResults": "{count} परिणाम",
+  "@ticketHistoryResults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyFromLabel": "से",
+  "historyToLabel": "तक",
+  "fromDateLabel": "{date} से",
+  "@fromDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "toDateLabel": "{date} तक",
+  "@toDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allStatusesLabel": "सभी स्थितियां",
+  "ticketSourceLabel": "स्रोत",
+  "allSourcesLabel": "सभी स्रोत",
+  "allWashroomsLabel": "सभी शौचालय",
+  "fromDateAfterToDateMessage": "आरंभ तिथि अंतिम तिथि के बाद नहीं हो सकती।",
+  "toDateBeforeFromDateMessage": "अंतिम तिथि आरंभ तिथि से पहले नहीं हो सकती।",
+  "noTicketsToExportMessage": "निर्यात के लिए कोई टिकट उपलब्ध नहीं है।",
+  "ticketHistoryExportText": "स्मार्ट वॉशरूम से CSV निर्यात",
+  "ticketHistoryExportFailed": "टिकट इतिहास निर्यात नहीं किया जा सका।"
+}

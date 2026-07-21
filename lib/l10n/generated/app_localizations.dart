@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_hi.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('hi'),
+  ];
 
   /// No description provided for @appTitle.
   ///
@@ -105,6 +109,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in with the OTP sent to your registered account.'**
   String get loginSubtitle;
+
+  /// No description provided for @poweredByLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by'**
+  String get poweredByLabel;
 
   /// No description provided for @emailOrUsernameLabel.
   ///
@@ -340,6 +350,30 @@ abstract class AppLocalizations {
   /// **'EN'**
   String get feedbackLanguageEnglish;
 
+  /// No description provided for @feedbackLanguageHindi.
+  ///
+  /// In en, this message translates to:
+  /// **'HI'**
+  String get feedbackLanguageHindi;
+
+  /// No description provided for @languageSelectorTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose language'**
+  String get languageSelectorTooltip;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageHindi.
+  ///
+  /// In en, this message translates to:
+  /// **'Hindi'**
+  String get languageHindi;
+
   /// No description provided for @feedbackWelcomePrefix.
   ///
   /// In en, this message translates to:
@@ -355,7 +389,7 @@ abstract class AppLocalizations {
   /// No description provided for @feedbackWelcomeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Your feedback helps us create a better experience for you.'**
+  /// **'Your feedback helps us create\na better experience for you.'**
   String get feedbackWelcomeSubtitle;
 
   /// No description provided for @feedbackShareFeedbackTitle.
@@ -370,11 +404,47 @@ abstract class AppLocalizations {
   /// **'Tap to get started'**
   String get feedbackStartSubtitle;
 
+  /// No description provided for @feedbackTapAnywhereSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap anywhere on screen to get started'**
+  String get feedbackTapAnywhereSubtitle;
+
+  /// No description provided for @feedbackTemperatureUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'--°C'**
+  String get feedbackTemperatureUnavailable;
+
   /// No description provided for @feedbackQrStartLabel.
   ///
   /// In en, this message translates to:
-  /// **'Scan QR code to start'**
+  /// **'Scan with your phone'**
   String get feedbackQrStartLabel;
+
+  /// No description provided for @feedbackQrStartSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No need to touch the screen'**
+  String get feedbackQrStartSubtitle;
+
+  /// No description provided for @feedbackQrDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan for Feedback'**
+  String get feedbackQrDialogTitle;
+
+  /// No description provided for @feedbackQrDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan this QR code with your phone to open restroom feedback.'**
+  String get feedbackQrDialogMessage;
+
+  /// No description provided for @feedbackQrDialogCloseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get feedbackQrDialogCloseButton;
 
   /// No description provided for @metricAqiLabel.
   ///
@@ -388,6 +458,12 @@ abstract class AppLocalizations {
   /// **'Occupancy'**
   String get metricOccupancyLabel;
 
+  /// No description provided for @metricCubicleOccupancyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cubicle Occupancy'**
+  String get metricCubicleOccupancyLabel;
+
   /// No description provided for @metricFootfallLabel.
   ///
   /// In en, this message translates to:
@@ -397,8 +473,80 @@ abstract class AppLocalizations {
   /// No description provided for @metricOdourLabel.
   ///
   /// In en, this message translates to:
-  /// **'Odour'**
+  /// **'Odor'**
   String get metricOdourLabel;
+
+  /// No description provided for @metricAqiStatusGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get metricAqiStatusGood;
+
+  /// No description provided for @metricOccupancyStatusLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get metricOccupancyStatusLow;
+
+  /// No description provided for @metricFootfallStatusToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get metricFootfallStatusToday;
+
+  /// No description provided for @metricOdourStatusNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get metricOdourStatusNeutral;
+
+  /// No description provided for @feedbackInsightRealTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-time Insights'**
+  String get feedbackInsightRealTimeTitle;
+
+  /// No description provided for @feedbackInsightRealTimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live environment metrics upfront'**
+  String get feedbackInsightRealTimeSubtitle;
+
+  /// No description provided for @feedbackInsightCleanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean & Spacious'**
+  String get feedbackInsightCleanTitle;
+
+  /// No description provided for @feedbackInsightCleanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfortable facilities for all travelers'**
+  String get feedbackInsightCleanSubtitle;
+
+  /// No description provided for @feedbackInsightAccessibleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessible'**
+  String get feedbackInsightAccessibleTitle;
+
+  /// No description provided for @feedbackInsightAccessibleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-lingual & easy to use'**
+  String get feedbackInsightAccessibleSubtitle;
+
+  /// No description provided for @feedbackInsightVoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Voice Matters'**
+  String get feedbackInsightVoiceTitle;
+
+  /// No description provided for @feedbackInsightVoiceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve every day'**
+  String get feedbackInsightVoiceSubtitle;
 
   /// No description provided for @feedbackScreensaverTitle.
   ///
@@ -847,7 +995,7 @@ abstract class AppLocalizations {
   /// No description provided for @ticketTimelineTitle.
   ///
   /// In en, this message translates to:
-  /// **'Timeline'**
+  /// **'Ticket timeline'**
   String get ticketTimelineTitle;
 
   /// No description provided for @emptyTicketTimelineMessage.
@@ -897,6 +1045,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} results'**
   String ticketHistoryResults(int count);
+
+  /// No description provided for @historyFromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get historyFromLabel;
+
+  /// No description provided for @historyToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get historyToLabel;
 
   /// No description provided for @fromDateLabel.
   ///
@@ -976,7 +1136,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['en', 'hi'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -987,6 +1147,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'hi':
+      return AppLocalizationsHi();
   }
 
   throw FlutterError(

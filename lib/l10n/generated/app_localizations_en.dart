@@ -16,6 +16,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign in with the OTP sent to your registered account.';
 
   @override
+  String get poweredByLabel => 'Powered by';
+
+  @override
   String get emailOrUsernameLabel => 'Email or username';
 
   @override
@@ -148,6 +151,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackLanguageEnglish => 'EN';
 
   @override
+  String get feedbackLanguageHindi => 'HI';
+
+  @override
+  String get languageSelectorTooltip => 'Choose language';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageHindi => 'Hindi';
+
+  @override
   String get feedbackWelcomePrefix => 'Welcome to';
 
   @override
@@ -155,7 +170,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackWelcomeSubtitle =>
-      'Your feedback helps us create a better experience for you.';
+      'Your feedback helps us create\na better experience for you.';
 
   @override
   String get feedbackShareFeedbackTitle => 'Share Your Feedback';
@@ -164,7 +179,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackStartSubtitle => 'Tap to get started';
 
   @override
-  String get feedbackQrStartLabel => 'Scan QR code to start';
+  String get feedbackTapAnywhereSubtitle =>
+      'Tap anywhere on screen to get started';
+
+  @override
+  String get feedbackTemperatureUnavailable => '--°C';
+
+  @override
+  String get feedbackQrStartLabel => 'Scan with your phone';
+
+  @override
+  String get feedbackQrStartSubtitle => 'No need to touch the screen';
+
+  @override
+  String get feedbackQrDialogTitle => 'Scan for Feedback';
+
+  @override
+  String get feedbackQrDialogMessage =>
+      'Scan this QR code with your phone to open restroom feedback.';
+
+  @override
+  String get feedbackQrDialogCloseButton => 'Close';
 
   @override
   String get metricAqiLabel => 'AQI';
@@ -173,10 +208,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricOccupancyLabel => 'Occupancy';
 
   @override
+  String get metricCubicleOccupancyLabel => 'Cubicle Occupancy';
+
+  @override
   String get metricFootfallLabel => 'Footfall';
 
   @override
-  String get metricOdourLabel => 'Odour';
+  String get metricOdourLabel => 'Odor';
+
+  @override
+  String get metricAqiStatusGood => 'Good';
+
+  @override
+  String get metricOccupancyStatusLow => 'Low';
+
+  @override
+  String get metricFootfallStatusToday => 'Today';
+
+  @override
+  String get metricOdourStatusNeutral => 'Neutral';
+
+  @override
+  String get feedbackInsightRealTimeTitle => 'Real-time Insights';
+
+  @override
+  String get feedbackInsightRealTimeSubtitle =>
+      'Live environment metrics upfront';
+
+  @override
+  String get feedbackInsightCleanTitle => 'Clean & Spacious';
+
+  @override
+  String get feedbackInsightCleanSubtitle =>
+      'Comfortable facilities for all travelers';
+
+  @override
+  String get feedbackInsightAccessibleTitle => 'Accessible';
+
+  @override
+  String get feedbackInsightAccessibleSubtitle => 'Multi-lingual & easy to use';
+
+  @override
+  String get feedbackInsightVoiceTitle => 'Your Voice Matters';
+
+  @override
+  String get feedbackInsightVoiceSubtitle => 'Help us improve every day';
 
   @override
   String get feedbackScreensaverTitle => 'How was your washroom experience?';
@@ -425,7 +501,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noAttachmentsMessage => 'No attachments have been added.';
 
   @override
-  String get ticketTimelineTitle => 'Timeline';
+  String get ticketTimelineTitle => 'Ticket timeline';
 
   @override
   String get emptyTicketTimelineMessage => 'No ticket updates are available.';
@@ -452,6 +528,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String ticketHistoryResults(int count) {
     return '$count results';
   }
+
+  @override
+  String get historyFromLabel => 'From';
+
+  @override
+  String get historyToLabel => 'To';
 
   @override
   String fromDateLabel(String date) {

@@ -4,10 +4,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../app/localization/locale_controller.dart';
 import '../../../app/theme/airport_feedback_design_tokens.dart';
 import '../../../l10n/app_localizations_context.dart';
-import '../../../shared/widgets/adani_gradient_button.dart';
+import '../../../shared/widgets/app_gradient_button.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
 import '../../../shared/widgets/app_lottie_message_dialog.dart';
 import '../../auth/data/session_controller.dart';
@@ -69,6 +72,10 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
                 _FeedbackStep.screensaver => _ScreensaverPanel(
                   key: const ValueKey('screensaver'),
                   brandingName: branding.appName,
+                  metrics: data.metrics,
+                  temperatureCelsius: data.metrics.temperatureCelsius,
+                  feedbackQrUrl: _feedbackQrUrl(data.washroom),
+                  onShowQr: () => _openQrDialog(data.washroom),
                   onStart: _showChoice,
                 ),
                 _FeedbackStep.choice => _ChoicePanel(
@@ -114,6 +121,57 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
     if (_step == _FeedbackStep.screensaver) {
       _showChoice();
     }
+  }
+
+  String? _feedbackQrUrl(FeedbackWashroom? washroom) {
+    final session = ref.read(sessionControllerProvider).session;
+    if (session == null || washroom == null) return null;
+    final base = _normalizeFeedbackBaseUrl(
+      session.webappUrl ??
+          'https://wms-prod-jai.smartdigibuild.net/#/auth/feedback',
+    );
+    return _urlWithParams(base, {
+      'tenantId': session.tenantId,
+      'airportId': session.airportId,
+      'userId': session.userId,
+      'washroomId': washroom.id,
+    });
+  }
+
+  String _normalizeFeedbackBaseUrl(String base) {
+    return base.replaceAll('#/auth/register', '#/auth/feedback');
+  }
+
+  String _urlWithParams(String base, Map<String, String> params) {
+    final hashIndex = base.indexOf('#');
+    if (hashIndex >= 0) {
+      final preHash = base.substring(0, hashIndex);
+      final fragment = base.substring(hashIndex + 1);
+      final questionIndex = fragment.indexOf('?');
+      final fragmentPath = questionIndex >= 0
+          ? fragment.substring(0, questionIndex)
+          : fragment;
+      final existingQuery = questionIndex >= 0
+          ? Uri.splitQueryString(fragment.substring(questionIndex + 1))
+          : <String, String>{};
+      final mergedQuery = {...existingQuery, ...params};
+      return '$preHash#$fragmentPath?${Uri(queryParameters: mergedQuery).query}';
+    }
+
+    final uri = Uri.parse(base);
+    return uri
+        .replace(queryParameters: {...uri.queryParameters, ...params})
+        .toString();
+  }
+
+  void _openQrDialog(FeedbackWashroom? washroom) {
+    final qrUrl = _feedbackQrUrl(washroom);
+    if (qrUrl == null) return;
+    _startIdleTimer();
+    showDialog<void>(
+      context: context,
+      builder: (context) => _FeedbackQrDialog(qrUrl: qrUrl),
+    );
   }
 
   void _startIdleTimer() {
@@ -288,16 +346,23 @@ class _KioskScaffold extends StatelessWidget {
 class _ScreensaverPanel extends StatelessWidget {
   const _ScreensaverPanel({
     required this.brandingName,
+    required this.metrics,
+    required this.temperatureCelsius,
+    required this.feedbackQrUrl,
+    required this.onShowQr,
     required this.onStart,
     super.key,
   });
 
   final String brandingName;
+  final FeedbackMetrics metrics;
+  final num? temperatureCelsius;
+  final String? feedbackQrUrl;
+  final VoidCallback onShowQr;
   final VoidCallback onStart;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark
         ? AirportFeedbackColors.darkPrimaryText
@@ -309,16 +374,10 @@ class _ScreensaverPanel extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final phone = constraints.maxWidth < 520;
-        final compact =
-            phone || constraints.maxWidth < 720 || constraints.maxHeight < 620;
-        final horizontalPadding = phone ? 22.0 : (compact ? 22.0 : 42.0);
-        final topPadding = phone ? 14.0 : (compact ? 20.0 : 34.0);
-        final contentWidth = math.min(
-          phone
-              ? constraints.maxWidth - (horizontalPadding * 2)
-              : constraints.maxWidth * (compact ? 0.74 : 0.48),
-          compact ? 390.0 : 460.0,
-        );
+        final tablet =
+            constraints.maxWidth >= 760 && constraints.maxHeight >= 480;
+        final compact = phone || constraints.maxHeight < 620;
+        final metricsItems = _buildScreensaverMetrics(context, metrics);
 
         return Stack(
           fit: StackFit.expand,
@@ -353,90 +412,331 @@ class _ScreensaverPanel extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                topPadding,
-                horizontalPadding,
-                compact ? 22 : 34,
+            if (!isDark)
+              Positioned.fill(
+                child: ColoredBox(color: Colors.white.withValues(alpha: 0.14)),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: _BrandHeader(
-                          semanticsLabel: brandingName,
-                          compact: compact,
-                        ),
-                      ),
-                      SizedBox(width: phone ? 8 : 14),
-                      _LanguagePill(compact: compact),
-                    ],
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: contentWidth),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.feedbackWelcomePrefix,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(
-                                    color: textColor,
-                                    fontSize: phone ? 18 : (compact ? 19 : 23),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              l10n.feedbackAirportName,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.displaySmall
-                                  ?.copyWith(
-                                    color: textColor,
-                                    fontSize: phone ? 31 : (compact ? 35 : 48),
-                                    height: 1.06,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                            ),
-                            SizedBox(height: phone ? 14 : (compact ? 18 : 26)),
-                            Text(
-                              l10n.feedbackWelcomeSubtitle,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    color: secondaryColor,
-                                    fontSize: phone
-                                        ? 12.5
-                                        : (compact ? 15 : 18),
-                                    height: phone ? 1.34 : 1.45,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            SizedBox(height: phone ? 68 : (compact ? 28 : 42)),
-                            _WelcomeCta(compact: compact, onPressed: onStart),
-                            SizedBox(height: phone ? 28 : (compact ? 26 : 44)),
-                            _QrStartCard(compact: compact),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+            if (tablet)
+              _TabletScreensaverHome(
+                brandingName: brandingName,
+                metrics: metricsItems,
+                onStart: onStart,
+                textColor: textColor,
+                secondaryColor: secondaryColor,
+                compact: compact,
+                temperatureCelsius: temperatureCelsius,
+                feedbackQrUrl: feedbackQrUrl,
+                onShowQr: onShowQr,
+              )
+            else
+              _MobileScreensaverHome(
+                brandingName: brandingName,
+                metrics: metricsItems,
+                onStart: onStart,
+                textColor: textColor,
+                secondaryColor: secondaryColor,
+                compact: compact,
+                temperatureCelsius: temperatureCelsius,
+                feedbackQrUrl: feedbackQrUrl,
+                onShowQr: onShowQr,
               ),
-            ),
           ],
         );
       },
+    );
+  }
+}
+
+class _MobileScreensaverHome extends StatelessWidget {
+  const _MobileScreensaverHome({
+    required this.brandingName,
+    required this.metrics,
+    required this.onStart,
+    required this.textColor,
+    required this.secondaryColor,
+    required this.compact,
+    required this.temperatureCelsius,
+    required this.feedbackQrUrl,
+    required this.onShowQr,
+  });
+
+  final String brandingName;
+  final List<_ScreensaverMetricItem> metrics;
+  final VoidCallback onStart;
+  final Color textColor;
+  final Color secondaryColor;
+  final bool compact;
+  final num? temperatureCelsius;
+  final String? feedbackQrUrl;
+  final VoidCallback onShowQr;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final height = MediaQuery.sizeOf(context).height;
+    final tight = height < 720;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, tight ? 12 : 16, 20, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _BrandHeader(
+                  semanticsLabel: brandingName,
+                  compact: true,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _HomeHeaderActions(
+                compact: true,
+                temperatureCelsius: temperatureCelsius,
+              ),
+            ],
+          ),
+          SizedBox(height: tight ? 16 : 26),
+          Text(
+            l10n.feedbackWelcomePrefix,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: textColor,
+              fontSize: tight ? 14 : 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.feedbackAirportName,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: textColor,
+              fontSize: tight ? 25 : 28,
+              height: 1.25,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          SizedBox(height: tight ? 8 : 12),
+          Text(
+            l10n.feedbackWelcomeSubtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: secondaryColor,
+              fontSize: tight ? 12 : 13.5,
+              height: 1.65,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: tight ? 16 : 24),
+          _WelcomeCta(compact: true, onPressed: onStart),
+          SizedBox(height: tight ? 10 : 14),
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
+              physics: const ClampingScrollPhysics(),
+              itemCount: metrics.length + (feedbackQrUrl == null ? 0 : 1),
+              separatorBuilder: (_, _) => SizedBox(height: tight ? 8 : 10),
+              itemBuilder: (context, index) {
+                if (feedbackQrUrl != null && index == 0) {
+                  return _DirectQrCard(
+                    qrUrl: feedbackQrUrl!,
+                    compact: true,
+                    dense: true,
+                    horizontal: true,
+                    onTap: onShowQr,
+                  );
+                }
+
+                final metricIndex = feedbackQrUrl == null ? index : index - 1;
+                return _MetricStatusCard(
+                  item: metrics[metricIndex],
+                  compact: true,
+                  horizontal: true,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabletScreensaverHome extends StatelessWidget {
+  const _TabletScreensaverHome({
+    required this.brandingName,
+    required this.metrics,
+    required this.onStart,
+    required this.textColor,
+    required this.secondaryColor,
+    required this.compact,
+    required this.temperatureCelsius,
+    required this.feedbackQrUrl,
+    required this.onShowQr,
+  });
+
+  final String brandingName;
+  final List<_ScreensaverMetricItem> metrics;
+  final VoidCallback onStart;
+  final Color textColor;
+  final Color secondaryColor;
+  final bool compact;
+  final num? temperatureCelsius;
+  final String? feedbackQrUrl;
+  final VoidCallback onShowQr;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final size = MediaQuery.sizeOf(context);
+    final shortHeight = size.height < 650;
+    final sideWidth = math.min(230.0, math.max(190.0, size.width * 0.21));
+    final dividerTopMargin = shortHeight ? 52.0 : 76.0;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24, shortHeight ? 18 : 30, 34, 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: sideWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _BrandHeader(semanticsLabel: brandingName, compact: compact),
+                SizedBox(height: shortHeight ? 18 : 28),
+                Expanded(
+                  child: Column(
+                    children: [
+                      for (final item in metrics) ...[
+                        Expanded(
+                          child: _MetricStatusCard(
+                            item: item,
+                            compact: compact,
+                            horizontal: false,
+                          ),
+                        ),
+                        if (item != metrics.last)
+                          SizedBox(height: shortHeight ? 9 : 14),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: shortHeight ? 14 : 20),
+          _TabletHomeDivider(topMargin: dividerTopMargin),
+          SizedBox(width: math.max(18.0, size.width * 0.030)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: _HomeHeaderActions(
+                    compact: compact,
+                    temperatureCelsius: temperatureCelsius,
+                  ),
+                ),
+                SizedBox(height: shortHeight ? 20 : 30),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.feedbackWelcomePrefix,
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      color: textColor,
+                                      fontSize: compact ? 17 : 22,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.feedbackAirportName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.displaySmall
+                                    ?.copyWith(
+                                      color: textColor,
+                                      fontSize: compact ? 35 : 50,
+                                      height: 1.06,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                              ),
+                              SizedBox(height: compact ? 14 : 22),
+                              Text(
+                                l10n.feedbackWelcomeSubtitle,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      color: secondaryColor,
+                                      fontSize: compact ? 14 : 17,
+                                      height: 1.45,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              SizedBox(height: compact ? 28 : 42),
+                              _WelcomeCta(
+                                compact: compact,
+                                onPressed: onStart,
+                                expanded: false,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (feedbackQrUrl != null) ...[
+                        SizedBox(width: compact ? 14 : 24),
+                        _DirectQrCard(
+                          qrUrl: feedbackQrUrl!,
+                          compact: compact,
+                          dense: shortHeight,
+                          horizontal: false,
+                          onTap: onShowQr,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                _ScreensaverInsightRow(compact: compact),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabletHomeDivider extends StatelessWidget {
+  const _TabletHomeDivider({required this.topMargin});
+
+  final double topMargin;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: 1,
+      margin: EdgeInsets.only(top: topMargin, bottom: 24),
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.10)
+          : const Color(0xFFDDE1EC).withValues(alpha: 0.76),
     );
   }
 }
@@ -451,8 +751,8 @@ class _BrandHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final phone = MediaQuery.sizeOf(context).width < 520;
-    final logoHeight = phone ? 37.0 : (compact ? 34.0 : 48.0);
-    final logoWidth = phone ? 170.0 : (compact ? 194.0 : 258.0);
+    final logoHeight = phone ? 34.0 : (compact ? 34.0 : 48.0);
+    final logoWidth = phone ? 150.0 : (compact ? 194.0 : 258.0);
 
     return Semantics(
       label: semanticsLabel,
@@ -522,10 +822,124 @@ class _AdaniWordmark extends StatelessWidget {
   }
 }
 
-class _LanguagePill extends StatelessWidget {
+class _LanguagePill extends ConsumerWidget {
   const _LanguagePill({required this.compact});
 
   final bool compact;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foreground = isDark
+        ? Colors.white
+        : AirportFeedbackColors.lightPrimaryText;
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final languageCode = Localizations.localeOf(context).languageCode;
+
+    return PopupMenuButton<Locale>(
+      tooltip: l10n.languageSelectorTooltip,
+      onSelected: (locale) =>
+          ref.read(localeControllerProvider.notifier).setLocale(locale),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: const Locale('en'),
+          child: Text(l10n.languageEnglish),
+        ),
+        PopupMenuItem(
+          value: const Locale('hi'),
+          child: Text(l10n.languageHindi),
+        ),
+      ],
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 40),
+        padding: EdgeInsets.symmetric(
+          horizontal: phone ? 8 : (compact ? 12 : 16),
+          vertical: phone ? 7 : (compact ? 9 : 11),
+        ),
+        decoration: BoxDecoration(
+          color: isDark
+              ? const Color(0xFF071B31).withValues(alpha: 0.86)
+              : Colors.white.withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: isDark ? const Color(0xFF253C5C) : const Color(0xFFE6E8EF),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.language_rounded,
+              color: foreground,
+              size: phone ? 13 : (compact ? 16 : 18),
+            ),
+            SizedBox(width: phone ? 4 : 7),
+            Text(
+              languageCode == 'hi'
+                  ? l10n.feedbackLanguageHindi
+                  : l10n.feedbackLanguageEnglish,
+              style: TextStyle(
+                color: foreground,
+                fontSize: phone ? 10 : (compact ? 12 : 13),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            SizedBox(width: phone ? 2 : 4),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: foreground,
+              size: phone ? 13 : (compact ? 16 : 18),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeHeaderActions extends StatelessWidget {
+  const _HomeHeaderActions({
+    required this.compact,
+    required this.temperatureCelsius,
+  });
+
+  final bool compact;
+  final num? temperatureCelsius;
+
+  @override
+  Widget build(BuildContext context) {
+    final phone = MediaQuery.sizeOf(context).width < 520;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _TemperaturePill(
+          compact: compact,
+          temperatureCelsius: temperatureCelsius,
+        ),
+        SizedBox(width: phone ? 5 : 8),
+        _LanguagePill(compact: compact),
+      ],
+    );
+  }
+}
+
+class _TemperaturePill extends StatelessWidget {
+  const _TemperaturePill({
+    required this.compact,
+    required this.temperatureCelsius,
+  });
+
+  final bool compact;
+  final num? temperatureCelsius;
 
   @override
   Widget build(BuildContext context) {
@@ -538,7 +952,7 @@ class _LanguagePill extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: phone ? 8 : (compact ? 12 : 16),
+        horizontal: phone ? 7 : (compact ? 10 : 13),
         vertical: phone ? 7 : (compact ? 9 : 11),
       ),
       decoration: BoxDecoration(
@@ -561,24 +975,21 @@ class _LanguagePill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.language_rounded,
+            Icons.wb_sunny_outlined,
             color: foreground,
             size: phone ? 13 : (compact ? 16 : 18),
           ),
-          SizedBox(width: phone ? 4 : 7),
+          SizedBox(width: phone ? 3 : 6),
           Text(
-            l10n.feedbackLanguageEnglish,
+            _formatTemperatureLabel(
+              temperatureCelsius,
+              fallback: l10n.feedbackTemperatureUnavailable,
+            ),
             style: TextStyle(
               color: foreground,
               fontSize: phone ? 10 : (compact ? 12 : 13),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
             ),
-          ),
-          SizedBox(width: phone ? 2 : 4),
-          Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: foreground,
-            size: phone ? 13 : (compact ? 16 : 18),
           ),
         ],
       ),
@@ -586,11 +997,365 @@ class _LanguagePill extends StatelessWidget {
   }
 }
 
+String _formatTemperatureLabel(num? value, {required String fallback}) {
+  if (value == null) return fallback;
+  return '${value.round()}°C';
+}
+
+class _ScreensaverMetricItem {
+  const _ScreensaverMetricItem({
+    required this.label,
+    required this.value,
+    required this.status,
+    required this.icon,
+    required this.color,
+    required this.progress,
+  });
+
+  final String label;
+  final String value;
+  final String status;
+  final IconData icon;
+  final Color color;
+  final double progress;
+}
+
+List<_ScreensaverMetricItem> _buildScreensaverMetrics(
+  BuildContext context,
+  FeedbackMetrics metrics,
+) {
+  final l10n = context.l10n;
+  return [
+    _ScreensaverMetricItem(
+      label: l10n.metricAqiLabel,
+      value: _formatMetricNumber(metrics.aqi, decimalPlaces: 2),
+      status: metrics.aqiStatus ?? l10n.metricAqiStatusGood,
+      icon: Icons.eco_outlined,
+      color: const Color(0xFF16B872),
+      progress: 0.74,
+    ),
+    _ScreensaverMetricItem(
+      label: l10n.metricCubicleOccupancyLabel,
+      value: metrics.occupancyLabel,
+      status: metrics.occupancyStatus ?? l10n.metricOccupancyStatusLow,
+      icon: Icons.sensor_occupied_outlined,
+      color: const Color(0xFF8C4DF2),
+      progress: _occupancyProgress(metrics),
+    ),
+    _ScreensaverMetricItem(
+      label: l10n.metricFootfallLabel,
+      value: _formatMetricNumber(metrics.footfall),
+      status: metrics.footfallStatus ?? l10n.metricFootfallStatusToday,
+      icon: Icons.sensor_door_outlined,
+      color: const Color(0xFF2E7BFF),
+      progress: 0.82,
+    ),
+    _ScreensaverMetricItem(
+      label: l10n.metricOdourLabel,
+      value: _formatOdourValue(metrics),
+      status: metrics.odourStatus ?? l10n.metricOdourStatusNeutral,
+      icon: Icons.air_rounded,
+      color: const Color(0xFFFF9D25),
+      progress: _odourProgress(metrics.odour),
+    ),
+  ];
+}
+
+String _formatMetricNumber(num? value, {int decimalPlaces = 0}) {
+  if (value == null) return '-';
+  if (decimalPlaces > 0 && value % 1 != 0) {
+    return NumberFormat.decimalPatternDigits(
+      decimalDigits: decimalPlaces,
+    ).format(value);
+  }
+  return NumberFormat.decimalPattern().format(value.round());
+}
+
+String _formatOdourValue(FeedbackMetrics metrics) {
+  final value = metrics.odour;
+  if (value == null) return '-';
+  final formatted = _formatMetricNumber(value, decimalPlaces: 2);
+  final unit = metrics.odourUnit;
+  if (unit == null || unit.trim().isEmpty) return formatted;
+  return '$formatted ${unit.trim()}';
+}
+
+double _occupancyProgress(FeedbackMetrics metrics) {
+  final occupied = metrics.occupied;
+  final total = metrics.totalOccupancy;
+  if (occupied == null || total == null || total <= 0) return 0;
+  return (occupied / total).clamp(0, 1).toDouble();
+}
+
+double _odourProgress(num? value) {
+  if (value == null) return 0;
+  return (value / 1).clamp(0, 1).toDouble();
+}
+
+class _MetricStatusCard extends StatelessWidget {
+  const _MetricStatusCard({
+    required this.item,
+    required this.compact,
+    required this.horizontal,
+  });
+
+  final _ScreensaverMetricItem item;
+  final bool compact;
+  final bool horizontal;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final foreground = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
+    final muted = isDark
+        ? AirportFeedbackColors.darkSecondaryText
+        : AirportFeedbackColors.lightSecondaryText;
+    final minHeight = horizontal ? (phone ? 58.0 : 68.0) : 0.0;
+
+    return Container(
+      constraints: BoxConstraints(minHeight: minHeight),
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontal ? 14 : 15,
+        vertical: horizontal ? 9 : (compact ? 7 : 13),
+      ),
+      decoration: BoxDecoration(
+        color: isDark
+            ? const Color(0xFF071B31).withValues(alpha: 0.82)
+            : Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? const Color(0xFF263C5B) : const Color(0xFFE7E6F1),
+        ),
+        boxShadow: isDark
+            ? const []
+            : [
+                BoxShadow(
+                  color: const Color(0xFF09183A).withValues(alpha: 0.06),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _MetricIconBadge(
+            icon: item.icon,
+            color: item.color,
+            compact: horizontal || compact,
+          ),
+          SizedBox(width: horizontal ? 12 : 14),
+          Expanded(
+            child: _MetricCardText(
+              item: item,
+              foreground: foreground,
+              muted: muted,
+              compact: compact,
+              horizontal: horizontal,
+            ),
+          ),
+          if (horizontal) ...[
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: foreground,
+              size: phone ? 20 : 22,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _MetricIconBadge extends StatelessWidget {
+  const _MetricIconBadge({
+    required this.icon,
+    required this.color,
+    required this.compact,
+  });
+
+  final IconData icon;
+  final Color color;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: compact ? 38 : 44,
+      height: compact ? 38 : 44,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.13),
+        shape: BoxShape.circle,
+      ),
+      child: IconTheme(
+        data: IconThemeData(color: color, size: compact ? 24 : 27),
+        child: Icon(icon),
+      ),
+    );
+  }
+}
+
+class _MetricCardText extends StatelessWidget {
+  const _MetricCardText({
+    required this.item,
+    required this.foreground,
+    required this.muted,
+    required this.compact,
+    required this.horizontal,
+  });
+
+  final _ScreensaverMetricItem item;
+  final Color foreground;
+  final Color muted;
+  final bool compact;
+  final bool horizontal;
+
+  @override
+  Widget build(BuildContext context) {
+    final phone = MediaQuery.sizeOf(context).width < 520;
+    final textTheme = Theme.of(context).textTheme;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tightVertical =
+            !horizontal &&
+            constraints.maxHeight.isFinite &&
+            constraints.maxHeight < 92;
+        final titleStyle =
+            (phone || tightVertical
+                    ? textTheme.labelMedium
+                    : compact
+                    ? textTheme.labelLarge
+                    : textTheme.titleSmall)
+                ?.copyWith(
+                  color: foreground,
+                  height: tightVertical ? 1.25 : 1.32,
+                  fontWeight: FontWeight.w800,
+                );
+        final valueStyle =
+            (phone
+                    ? textTheme.titleLarge
+                    : tightVertical
+                    ? textTheme.titleMedium
+                    : compact
+                    ? textTheme.titleLarge
+                    : textTheme.headlineSmall)
+                ?.copyWith(
+                  color: foreground,
+                  height: tightVertical ? 1.25 : 1.32,
+                  fontWeight: FontWeight.w900,
+                );
+        final statusStyle =
+            (phone || tightVertical
+                    ? textTheme.labelSmall
+                    : compact
+                    ? textTheme.labelMedium
+                    : textTheme.labelLarge)
+                ?.copyWith(
+                  color: item.color,
+                  height: tightVertical ? 1.25 : 1.32,
+                  fontWeight: FontWeight.w800,
+                );
+        final labelGap = horizontal
+            ? 2.0
+            : (tightVertical ? 6.0 : (compact ? 7.0 : 8.0));
+        final statusGap = tightVertical ? 8.0 : (compact ? 11.0 : 12.0);
+        final progressGap = tightVertical ? 8.0 : (compact ? 10.0 : 11.0);
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              item.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: titleStyle,
+            ),
+            SizedBox(height: labelGap),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    item.value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: valueStyle,
+                  ),
+                ),
+                if (horizontal) ...[
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: _MetricStatusText(item: item, style: statusStyle),
+                  ),
+                ],
+              ],
+            ),
+            if (!horizontal) ...[
+              SizedBox(height: statusGap),
+              _MetricStatusText(item: item, style: statusStyle),
+              SizedBox(height: progressGap),
+              _MetricProgressBar(item: item),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _MetricStatusText extends StatelessWidget {
+  const _MetricStatusText({required this.item, required this.style});
+
+  final _ScreensaverMetricItem item;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      item.status,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+}
+
+class _MetricProgressBar extends StatelessWidget {
+  const _MetricProgressBar({required this.item});
+
+  final _ScreensaverMetricItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: LinearProgressIndicator(
+        value: item.progress,
+        minHeight: 4.5,
+        backgroundColor: item.color.withValues(alpha: 0.28),
+        valueColor: AlwaysStoppedAnimation<Color>(item.color),
+      ),
+    );
+  }
+}
+
 class _WelcomeCta extends StatelessWidget {
-  const _WelcomeCta({required this.compact, required this.onPressed});
+  const _WelcomeCta({
+    required this.compact,
+    required this.onPressed,
+    this.expanded = false,
+  });
 
   final bool compact;
   final VoidCallback onPressed;
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
@@ -599,10 +1364,10 @@ class _WelcomeCta extends StatelessWidget {
     final phone = MediaQuery.sizeOf(context).width < 520;
 
     return SizedBox(
-      width: phone ? double.infinity : (compact ? 310 : 390),
-      child: AdaniGradientButton(
+      width: expanded ? double.infinity : (phone ? double.infinity : 500),
+      child: AppGradientButton(
         onPressed: onPressed,
-        height: compact ? 64 : 76,
+        height: compact ? 58 : 76,
         radius: 18,
         gradient: isDark
             ? AirportFeedbackGradients.darkWelcome
@@ -624,7 +1389,9 @@ class _WelcomeCta extends StatelessWidget {
             ),
             const SizedBox(height: 3),
             Text(
-              l10n.feedbackStartSubtitle,
+              expanded
+                  ? l10n.feedbackTapAnywhereSubtitle
+                  : l10n.feedbackStartSubtitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -708,10 +1475,20 @@ class _FeedbackCommentIconPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _QrStartCard extends StatelessWidget {
-  const _QrStartCard({required this.compact});
+class _DirectQrCard extends StatelessWidget {
+  const _DirectQrCard({
+    required this.qrUrl,
+    required this.compact,
+    required this.horizontal,
+    this.dense = false,
+    this.onTap,
+  });
 
+  final String qrUrl;
   final bool compact;
+  final bool horizontal;
+  final bool dense;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -721,40 +1498,323 @@ class _QrStartCard extends StatelessWidget {
     final foreground = isDark
         ? Colors.white
         : AirportFeedbackColors.lightPrimaryText;
+    final qrSize = horizontal
+        ? (dense ? 92.0 : 112.0)
+        : (dense ? 104.0 : (compact ? 120.0 : 148.0));
+    final cardPadding = dense ? 10.0 : (compact ? 12.0 : 16.0);
+    final qrPadding = dense ? 7.0 : 9.0;
+    final radius = BorderRadius.circular(14);
 
-    return Container(
-      width: phone ? double.infinity : (compact ? 250 : 292),
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 16 : 20,
-        vertical: compact ? 13 : 16,
-      ),
+    final qrCode = DecoratedBox(
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF081B33).withValues(alpha: 0.8)
-            : Colors.white.withValues(alpha: 0.84),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? const Color(0xFF243B5A) : const Color(0xFFE6E8EF),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(qrPadding),
+        child: QrImageView(
+          data: qrUrl,
+          version: QrVersions.auto,
+          size: qrSize,
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.white,
+          semanticsLabel: l10n.feedbackQrDialogMessage,
+          eyeStyle: const QrEyeStyle(
+            eyeShape: QrEyeShape.square,
+            color: Colors.black,
+          ),
+          dataModuleStyle: const QrDataModuleStyle(
+            dataModuleShape: QrDataModuleShape.square,
+            color: Colors.black,
+          ),
         ),
       ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.qr_code_2_rounded,
+    );
+
+    final instructions = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: horizontal
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
+      children: [
+        Text(
+          l10n.feedbackQrStartLabel,
+          maxLines: 2,
+          overflow: TextOverflow.visible,
+          textAlign: horizontal ? TextAlign.start : TextAlign.center,
+          style: TextStyle(
             color: foreground,
-            size: compact ? 30 : 36,
+            fontSize: dense ? 11.5 : (compact ? 13 : 15),
+            height: 1.2,
+            fontWeight: FontWeight.w900,
           ),
-          SizedBox(width: compact ? 12 : 16),
-          Expanded(
-            child: Text(
-              l10n.feedbackQrStartLabel,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: foreground,
-                fontSize: compact ? 13 : 15,
-                fontWeight: FontWeight.w800,
+        ),
+      ],
+    );
+
+    return SizedBox(
+      width: horizontal || phone
+          ? double.infinity
+          : qrSize + (2 * qrPadding) + (2 * cardPadding),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: radius,
+          onTap: onTap,
+          child: Ink(
+            padding: EdgeInsets.all(cardPadding),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF081B33).withValues(alpha: 0.92)
+                  : Colors.white.withValues(alpha: 0.94),
+              borderRadius: radius,
+              border: Border.all(
+                color: isDark
+                    ? const Color(0xFF243B5A)
+                    : const Color(0xFFE6E8EF),
               ),
+            ),
+            child: horizontal
+                ? Row(
+                    children: [
+                      qrCode,
+                      SizedBox(width: compact ? 12 : 16),
+                      Expanded(child: instructions),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      qrCode,
+                      SizedBox(height: dense ? 8 : 12),
+                      instructions,
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FeedbackQrDialog extends StatelessWidget {
+  const _FeedbackQrDialog({required this.qrUrl});
+
+  final String qrUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foreground = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
+    final muted = isDark
+        ? AirportFeedbackColors.darkSecondaryText
+        : AirportFeedbackColors.lightSecondaryText;
+
+    return Dialog(
+      insetPadding: const EdgeInsets.all(24),
+      backgroundColor: Colors.transparent,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: isDark
+                ? AirportFeedbackColors.darkSurface
+                : AirportFeedbackColors.lightSurface,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark ? const Color(0xFF263C5B) : const Color(0xFFE7E6F1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.14),
+                blurRadius: 32,
+                offset: const Offset(0, 16),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 22, 24, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    tooltip: l10n.feedbackQrDialogCloseButton,
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ),
+                Text(
+                  l10n.feedbackQrDialogTitle,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: foreground,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.feedbackQrDialogMessage,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: muted,
+                    height: 1.35,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: QrImageView(
+                      data: qrUrl,
+                      version: QrVersions.auto,
+                      size: 230,
+                      backgroundColor: Colors.white,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Colors.black,
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(l10n.feedbackQrDialogCloseButton),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScreensaverInsightRow extends StatelessWidget {
+  const _ScreensaverInsightRow({required this.compact});
+
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final items = [
+      _ScreensaverInsightItem(
+        icon: Icons.speed_rounded,
+        title: l10n.feedbackInsightRealTimeTitle,
+        subtitle: l10n.feedbackInsightRealTimeSubtitle,
+      ),
+      _ScreensaverInsightItem(
+        icon: Icons.bubble_chart_outlined,
+        title: l10n.feedbackInsightCleanTitle,
+        subtitle: l10n.feedbackInsightCleanSubtitle,
+      ),
+      _ScreensaverInsightItem(
+        icon: Icons.accessibility_new_rounded,
+        title: l10n.feedbackInsightAccessibleTitle,
+        subtitle: l10n.feedbackInsightAccessibleSubtitle,
+      ),
+      _ScreensaverInsightItem(
+        icon: Icons.chat_bubble_outline_rounded,
+        title: l10n.feedbackInsightVoiceTitle,
+        subtitle: l10n.feedbackInsightVoiceSubtitle,
+      ),
+    ];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        for (final item in items)
+          Expanded(
+            child: _ScreensaverInsightTile(item: item, compact: compact),
+          ),
+      ],
+    );
+  }
+}
+
+class _ScreensaverInsightItem {
+  const _ScreensaverInsightItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+}
+
+class _ScreensaverInsightTile extends StatelessWidget {
+  const _ScreensaverInsightTile({required this.item, required this.compact});
+
+  final _ScreensaverInsightItem item;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark
+        ? AirportFeedbackColors.darkPrimaryText
+        : AirportFeedbackColors.lightPrimaryText;
+    final muted = isDark
+        ? AirportFeedbackColors.darkSecondaryText
+        : AirportFeedbackColors.lightSecondaryText;
+    final accent = isDark
+        ? AirportFeedbackColors.primaryPurple
+        : AirportFeedbackColors.primaryPurple;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: compact ? 4 : 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: compact ? 44 : 54,
+            height: compact ? 44 : 54,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: isDark ? 0.26 : 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(item.icon, color: accent, size: compact ? 22 : 28),
+          ),
+          SizedBox(height: compact ? 8 : 12),
+          Text(
+            item.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: textColor,
+              fontSize: compact ? 11 : 13,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            item.subtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: muted,
+              fontSize: compact ? 9.5 : 11.5,
+              height: 1.25,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1426,9 +2486,9 @@ class _CommentSheetState extends State<_CommentSheet> {
               decoration: InputDecoration(hintText: l10n.feedbackCommentHint),
             ),
             const SizedBox(height: 16),
-            FilledButton(
+            AppGradientButton(
               onPressed: () => Navigator.of(context).pop(_controller.text),
-              child: Text(l10n.feedbackCommentSaveButton),
+              label: Text(l10n.feedbackCommentSaveButton),
             ),
           ],
         ),
@@ -1593,7 +2653,7 @@ class _NegativeFeedbackPanel extends StatelessWidget {
               SizedBox(height: phone ? 10 : (compact ? 14 : 18)),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1040),
-                child: AdaniGradientButton(
+                child: AppGradientButton(
                   onPressed: submitting ? null : onSubmit,
                   height: phone ? 52 : (compact ? 58 : 66),
                   radius: 12,
@@ -1774,7 +2834,7 @@ class _ReasonTile extends StatelessWidget {
                           size: graphicSize,
                           iconSize: phoneTile ? 20 : (compact ? 25 : 34),
                         ),
-                        SizedBox(height: phoneTile ? 3 : (compact ? 6 : 10)),
+                        SizedBox(height: phoneTile ? 3 : (compact ? 10 : 15)),
                         Text(
                           reason.reason,
                           textAlign: TextAlign.center,
@@ -1785,9 +2845,9 @@ class _ReasonTile extends StatelessWidget {
                                 color: textColor,
                                 fontSize: phoneTile
                                     ? 8.4
-                                    : (compact ? 10.5 : 12),
+                                    : (compact ? 13.5 : 16),
                                 height: phoneTile ? 1.05 : 1.12,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700,
                               ),
                         ),
                       ],
@@ -2022,9 +3082,9 @@ class _ErrorShell extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: FilledButton(
+                    child: AppGradientButton(
                       onPressed: onRetry,
-                      child: Text(l10n.retryButton),
+                      label: Text(l10n.retryButton),
                     ),
                   ),
                 ],
@@ -2050,7 +3110,9 @@ class _AirportSkylineStrip extends StatelessWidget {
 
     return IgnorePointer(
       child: Image.asset(
-        isDark ? AirportFeedbackAssets.darkAirportSkyline : AirportFeedbackAssets.lightAirportSkyline,
+        isDark
+            ? AirportFeedbackAssets.darkAirportSkyline
+            : AirportFeedbackAssets.lightAirportSkyline,
         fit: BoxFit.fill,
         alignment: Alignment.bottomCenter,
       ),
