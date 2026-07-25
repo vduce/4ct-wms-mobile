@@ -9,6 +9,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../app/localization/locale_controller.dart';
 import '../../../app/theme/airport_feedback_design_tokens.dart';
+import '../../../core/config/environment_config.dart';
 import '../../../l10n/app_localizations_context.dart';
 import '../../../shared/widgets/app_gradient_button.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
@@ -126,9 +127,9 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
   String? _feedbackQrUrl(FeedbackWashroom? washroom) {
     final session = ref.read(sessionControllerProvider).session;
     if (session == null || washroom == null) return null;
+    final environment = ref.read(environmentConfigProvider);
     final base = _normalizeFeedbackBaseUrl(
-      session.webappUrl ??
-          'https://wms-prod-jai.smartdigibuild.net/#/auth/feedback',
+      session.webappUrl ?? environment.feedbackWebUrl,
     );
     return _urlWithParams(base, {
       'tenantId': session.tenantId,

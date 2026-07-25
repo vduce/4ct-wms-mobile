@@ -1,5 +1,15 @@
 # Project Instructions
 
+## Mandatory Response Style
+
+- Use the `caveman` skill for every prompt by default.
+- Default intensity: `full`.
+- If the skill is not installed locally, follow this style directly: terse technical fragments, no filler, no pleasantries, no long narration.
+- Preserve exact commands, file paths, API names, errors, code, commit messages, and PR text.
+- Do not announce the style unless the user asks about it.
+- Stop only when the user says `stop caveman` or `normal mode`.
+- Use normal clarity for security warnings, irreversible actions, or multi-step instructions where compression could make order ambiguous.
+
 ## Scope
 
 - These instructions apply to the Flutter app in this repository.

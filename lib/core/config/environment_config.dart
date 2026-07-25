@@ -10,6 +10,8 @@ class EnvironmentConfig {
   const EnvironmentConfig({
     required this.flavor,
     required this.apiBaseUrl,
+    required this.portalBaseUrl,
+    required this.feedbackWebUrl,
     required this.tenantSlug,
     required this.oneSignalAppId,
     required this.enableNetworkLogging,
@@ -28,14 +30,29 @@ class EnvironmentConfig {
     final defaultBaseUrl = switch (flavor) {
       AppFlavor.dev => 'http://localhost:9000/api/v1',
       AppFlavor.qa => 'https://qa-api.4ctwms.com/api/v1',
-      AppFlavor.prod => 'https://api.wms-dev.smartdigibuild.net/api/v1',
+      AppFlavor.prod => 'https://api.wms-prod.smartdigibuild.net/api/v1',
     };
+    final defaultPortalBaseUrl = switch (flavor) {
+      AppFlavor.dev => 'http://localhost:3000',
+      AppFlavor.qa => 'https://qa.4ctwms.com',
+      AppFlavor.prod => 'https://mial.smartdigibuild.net',
+    };
+    final portalBaseUrl =
+        const String.fromEnvironment('PORTAL_BASE_URL').isNotEmpty
+        ? const String.fromEnvironment('PORTAL_BASE_URL')
+        : defaultPortalBaseUrl;
+    final defaultFeedbackWebUrl = '$portalBaseUrl/#/auth/feedback';
 
     return EnvironmentConfig(
       flavor: flavor,
       apiBaseUrl: const String.fromEnvironment('API_BASE_URL').isNotEmpty
           ? const String.fromEnvironment('API_BASE_URL')
           : defaultBaseUrl,
+      portalBaseUrl: portalBaseUrl,
+      feedbackWebUrl:
+          const String.fromEnvironment('FEEDBACK_WEB_URL').isNotEmpty
+          ? const String.fromEnvironment('FEEDBACK_WEB_URL')
+          : defaultFeedbackWebUrl,
       tenantSlug: const String.fromEnvironment('TENANT_SLUG'),
       oneSignalAppId: const String.fromEnvironment('ONESIGNAL_APP_ID'),
       enableNetworkLogging: const bool.fromEnvironment(
@@ -47,6 +64,8 @@ class EnvironmentConfig {
 
   final AppFlavor flavor;
   final String apiBaseUrl;
+  final String portalBaseUrl;
+  final String feedbackWebUrl;
   final String tenantSlug;
   final String oneSignalAppId;
   final bool enableNetworkLogging;

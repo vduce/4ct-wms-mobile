@@ -61,10 +61,15 @@ Optional defines:
 
 ```sh
 --dart-define=API_BASE_URL=https://example.com/api/v1
+--dart-define=PORTAL_BASE_URL=https://mial.smartdigibuild.net
+--dart-define=FEEDBACK_WEB_URL=https://mial.smartdigibuild.net/#/auth/feedback
 --dart-define=TENANT_SLUG=tenant-slug
 --dart-define=ONESIGNAL_APP_ID=your-app-id
 --dart-define=ENABLE_NETWORK_LOGGING=false
 ```
+
+PROD defaults to `https://api.wms-prod.smartdigibuild.net/api/v1` and
+`https://mial.smartdigibuild.net` when `FLAVOR=prod`.
 
 Android flavors are configured in `android/app/build.gradle.kts`.
 Prod uses `com.fourct.washroomops`; dev and qa add `.dev` and `.qa` suffixes so they can be installed alongside prod. iOS currently uses the prod bundle ID and should get separate Xcode schemes before store/TestFlight distribution.
