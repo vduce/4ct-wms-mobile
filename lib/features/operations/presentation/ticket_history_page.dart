@@ -112,6 +112,7 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
           ..sort((a, b) => a.value.compareTo(b.value));
 
     return SupervisorScrollableBody(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       onRefresh: () async {
         final query = TicketHistoryQuery(fromDate: _fromDate, toDate: _toDate);
         ref.invalidate(ticketHistoryProvider(query));
@@ -132,38 +133,46 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
           onWashroomChanged: (washroom) =>
               setState(() => _washroomFilter = washroom),
         ),
-        const SizedBox(height: 14),
-        SupervisorSectionHeader(
-          title: l10n.ticketHistoryResults(filtered.length),
-          trailing: OutlinedButton.icon(
-            onPressed: _exporting ? null : () => _exportCsv(filtered),
-            icon: const Icon(Icons.download_rounded, size: 18),
-            label: Text(l10n.exportCsvButton),
-          ),
+        const SizedBox(height: 28),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.ticketHistoryResults(filtered.length),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            SizedBox(
+              width: 138,
+              child: SupervisorOutlinedButton(
+                label: l10n.exportCsvButton,
+                icon: Icons.download_rounded,
+                loading: _exporting,
+                height: 44,
+                onPressed: _exporting ? null : () => _exportCsv(filtered),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 14),
         if (filtered.isEmpty)
-          SupervisorStatePanel(
+          SupervisorDottedStatePanel(
             icon: Icons.manage_search_rounded,
             message: l10n.noTicketsForFilterMessage,
           )
         else
-          SupervisorSurface(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                for (var index = 0; index < filtered.length; index++) ...[
-                  _HistoryTicketRow(
-                    ticket: filtered[index],
-                    onTap: () =>
-                        context.go('/operations/tickets/${filtered[index].id}'),
-                  ),
-                  if (index < filtered.length - 1)
-                    const Divider(height: 1, indent: 16, endIndent: 16),
-                ],
-              ],
+          for (final ticket in filtered)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: SupervisorSurface(
+                padding: EdgeInsets.zero,
+                radius: 16,
+                onTap: () => context.go('/operations/tickets/${ticket.id}'),
+                child: _HistoryTicketRow(ticket: ticket),
+              ),
             ),
-          ),
       ],
     );
   }
@@ -247,64 +256,162 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
 }
 
 class _HistoryTicketRow extends StatelessWidget {
-  const _HistoryTicketRow({required this.ticket, required this.onTap});
+  const _HistoryTicketRow({required this.ticket});
 
   final SupervisorTicket ticket;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 700;
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: wide ? 20 : 14,
+            vertical: wide ? 16 : 14,
+          ),
+          child: wide
+              ? _WideHistoryTicket(ticket: ticket)
+              : _MobileHistoryTicket(ticket: ticket),
+        );
+      },
+    );
+  }
+}
+
+class _WideHistoryTicket extends StatelessWidget {
+  const _WideHistoryTicket({required this.ticket});
+
+  final SupervisorTicket ticket;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-        child: Row(
+    return Row(
+      children: [
+        _HistoryStatusDot(status: ticket.status),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _historyTicketTitle(context, ticket),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${ticket.washroomLabel} · ${ticket.shortId} · '
+                '${ticketStatusLabel(context, ticket.status)} · '
+                '${_formatTicketTime(ticket.createdAt)} · '
+                '${_historySourceLabel(context, ticket)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 14),
+        TicketPriorityBadge(priority: ticket.priority),
+        const SizedBox(width: 16),
+        Icon(
+          Icons.chevron_right_rounded,
+          color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+        ),
+      ],
+    );
+  }
+}
+
+class _MobileHistoryTicket extends StatelessWidget {
+  const _MobileHistoryTicket({required this.ticket});
+
+  final SupervisorTicket ticket;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            TicketStatusDot(status: ticket.status),
-            const SizedBox(width: 12),
+            _HistoryStatusDot(status: ticket.status),
+            const SizedBox(width: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    ticket.category.isEmpty
-                        ? l10n.ticketCategoryFallback
-                        : ticket.category,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '${ticket.washroomLabel}  ·  ${ticket.shortId}  ·  ${ticketStatusLabel(context, ticket.status)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '${_formatTicketTime(ticket.createdAt)}  ·  ${ticket.source == TicketSource.system ? l10n.ticketSourceSystem : l10n.ticketSourceUser}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+              child: Text(
+                _historyTicketTitle(context, ticket),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(width: 8),
             TicketPriorityBadge(priority: ticket.priority),
-            const SizedBox(width: 4),
-            Icon(Icons.chevron_right_rounded, color: colors.primary),
           ],
         ),
+        const SizedBox(height: 9),
+        Padding(
+          padding: const EdgeInsets.only(left: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${ticket.washroomLabel} · ${ticket.shortId} · '
+                '${ticketStatusLabel(context, ticket.status)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${_formatTicketTime(ticket.createdAt)} · '
+                '${_historySourceLabel(context, ticket)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HistoryStatusDot extends StatelessWidget {
+  const _HistoryStatusDot({required this.status});
+
+  final SupervisorTicketStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = SupervisorPalette.status(status);
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
     );
   }
@@ -342,7 +449,7 @@ class _FilterCard extends StatelessWidget {
     final l10n = context.l10n;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 860;
+        final wide = constraints.maxWidth >= 800;
         final dateFields = [
           Expanded(
             child: _DateFilterField(
@@ -361,119 +468,136 @@ class _FilterCard extends StatelessWidget {
           ),
         ];
 
-        final status = SupervisorSurface(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.statusLabel,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 7,
-                runSpacing: 7,
-                children: [
-                  SupervisorFilterPill(
-                    label: l10n.allStatusesLabel,
-                    selected: statusFilter == null,
-                    onPressed: () => onStatusChanged(null),
-                  ),
-                  for (final item in SupervisorTicketStatus.values)
-                    SupervisorFilterPill(
-                      label: ticketStatusLabel(context, item),
-                      selected: statusFilter == item,
-                      onPressed: () => onStatusChanged(item),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        );
-        final source = SupervisorSurface(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.ticketSourceLabel,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 7,
-                runSpacing: 7,
-                children: [
-                  SupervisorFilterPill(
-                    label: l10n.allSourcesLabel,
-                    selected: sourceFilter == null,
-                    onPressed: () => onSourceChanged(null),
-                  ),
-                  SupervisorFilterPill(
-                    label: l10n.ticketSourceUser,
-                    selected: sourceFilter == TicketSource.user,
-                    onPressed: () => onSourceChanged(TicketSource.user),
-                  ),
-                  SupervisorFilterPill(
-                    label: l10n.ticketSourceSystem,
-                    selected: sourceFilter == TicketSource.system,
-                    onPressed: () => onSourceChanged(TicketSource.system),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-        final washroom = SupervisorSurface(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: DropdownButtonFormField<String?>(
-            initialValue: washroomFilter,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: l10n.washroomFallback,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              fillColor: Colors.transparent,
+        final status = _FilterGroup(
+          label: l10n.statusLabel,
+          children: [
+            SupervisorFilterPill(
+              label: l10n.allStatusesLabel,
+              selected: statusFilter == null,
+              onPressed: () => onStatusChanged(null),
             ),
-            items: [
-              DropdownMenuItem(
-                value: null,
-                child: Text(l10n.allWashroomsLabel),
+            for (final item in SupervisorTicketStatus.values)
+              SupervisorFilterPill(
+                label: ticketStatusLabel(context, item),
+                selected: statusFilter == item,
+                onPressed: () => onStatusChanged(item),
               ),
-              for (final item in washroomOptions)
-                DropdownMenuItem(value: item.key, child: Text(item.value)),
-            ],
-            onChanged: onWashroomChanged,
-          ),
+          ],
+        );
+        final source = _FilterGroup(
+          label: l10n.ticketSourceLabel,
+          children: [
+            SupervisorFilterPill(
+              label: l10n.allSourcesLabel,
+              selected: sourceFilter == null,
+              onPressed: () => onSourceChanged(null),
+            ),
+            SupervisorFilterPill(
+              label: l10n.ticketSourceUser,
+              selected: sourceFilter == TicketSource.user,
+              onPressed: () => onSourceChanged(TicketSource.user),
+            ),
+            SupervisorFilterPill(
+              label: l10n.ticketSourceSystem,
+              selected: sourceFilter == TicketSource.system,
+              onPressed: () => onSourceChanged(TicketSource.system),
+            ),
+          ],
+        );
+        final washroom = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _FilterLabel(label: l10n.washroomFallback),
+            const SizedBox(height: 9),
+            SupervisorSurface(
+              radius: 14,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+              child: DropdownButtonFormField<String?>(
+                initialValue: washroomFilter,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: null,
+                    child: Text(l10n.allWashroomsLabel),
+                  ),
+                  for (final item in washroomOptions)
+                    DropdownMenuItem(value: item.key, child: Text(item.value)),
+                ],
+                onChanged: onWashroomChanged,
+              ),
+            ),
+          ],
         );
 
         return Column(
           children: [
             Row(children: dateFields),
-            const SizedBox(height: 12),
+            SizedBox(height: wide ? 22 : 18),
             if (wide)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 2, child: status),
-                  const SizedBox(width: 12),
-                  Expanded(child: source),
-                  const SizedBox(width: 12),
-                  Expanded(child: washroom),
+                  Expanded(flex: 5, child: status),
+                  const SizedBox(width: 22),
+                  Expanded(flex: 3, child: source),
+                  const SizedBox(width: 22),
+                  Expanded(flex: 3, child: washroom),
                 ],
               )
             else ...[
               status,
-              const SizedBox(height: 10),
+              const SizedBox(height: 18),
               source,
-              const SizedBox(height: 10),
+              const SizedBox(height: 18),
               washroom,
             ],
           ],
         );
       },
+    );
+  }
+}
+
+class _FilterGroup extends StatelessWidget {
+  const _FilterGroup({required this.label, required this.children});
+
+  final String label;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _FilterLabel(label: label),
+        const SizedBox(height: 9),
+        Wrap(spacing: 8, runSpacing: 8, children: children),
+      ],
+    );
+  }
+}
+
+class _FilterLabel extends StatelessWidget {
+  const _FilterLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Text(
+      label,
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+        color: colors.onSurfaceVariant,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 }
@@ -494,7 +618,8 @@ class _DateFilterField extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return SupervisorSurface(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      radius: 14,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
           Expanded(
@@ -505,9 +630,11 @@ class _DateFilterField extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(
                     context,
-                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -562,7 +689,19 @@ String _csvCell(String value) {
 }
 
 String _formatTicketTime(DateTime date) {
-  return DateFormat('dd/MM/yy | hh:mm a').format(date);
+  return DateFormat('dd MMM yyyy, hh:mm a').format(date);
+}
+
+String _historyTicketTitle(BuildContext context, SupervisorTicket ticket) {
+  return ticket.category.isEmpty
+      ? context.l10n.ticketCategoryFallback
+      : ticket.category;
+}
+
+String _historySourceLabel(BuildContext context, SupervisorTicket ticket) {
+  return ticket.source == TicketSource.system
+      ? context.l10n.ticketSourceSystemGenerated
+      : context.l10n.ticketSourceUserReported;
 }
 
 String _displayDate(String date) {

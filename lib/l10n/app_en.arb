@@ -12,6 +12,9 @@
   "enterSixDigitOtpError": "Enter a 6 digit OTP.",
   "operationsTitle": "Operations",
   "signOutTooltip": "Sign out",
+  "openNavigationTooltip": "Open navigation",
+  "notificationsTooltip": "Notifications",
+  "noNotificationsMessage": "No new notifications.",
   "defaultUserName": "User",
   "homeGreeting": "Hi {username}",
   "@homeGreeting": {
@@ -32,7 +35,7 @@
       }
     }
   },
-  "statusPending": "Pending",
+  "statusPending": "New",
   "statusAcknowledged": "Acknowledged",
   "statusEscalated": "Escalated",
   "statusCompleted": "Completed",
@@ -152,6 +155,15 @@
   "viewHistoryButton": "View history",
   "passengerFlowTitle": "Passenger flow",
   "supervisedUnitsTitle": "Supervised washrooms",
+  "viewAllButton": "View all",
+  "ticketDeltaFromYesterday": "{delta} from yesterday",
+  "@ticketDeltaFromYesterday": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
   "supervisedUnitsCount": "{count} units",
   "@supervisedUnitsCount": {
     "placeholders": {
@@ -201,6 +213,9 @@
   "priorityFallback": "Normal",
   "ticketSourceUser": "User",
   "ticketSourceSystem": "System",
+  "ticketSourceUserReported": "User reported",
+  "ticketSourceSystemGenerated": "System generated",
+  "filterTicketsTooltip": "Filter tickets",
   "acknowledgeButton": "Acknowledge",
   "ticketAcknowledgedMessage": "Ticket acknowledged.",
   "ticketAcknowledgeFailed": "Could not acknowledge ticket.",
@@ -256,9 +271,9 @@
       }
     }
   },
-  "allStatusesLabel": "All statuses",
+  "allStatusesLabel": "All",
   "ticketSourceLabel": "Source",
-  "allSourcesLabel": "All sources",
+  "allSourcesLabel": "All",
   "allWashroomsLabel": "All washrooms",
   "fromDateAfterToDateMessage": "From date cannot be after To date.",
   "toDateBeforeFromDateMessage": "To date cannot be before From date.",

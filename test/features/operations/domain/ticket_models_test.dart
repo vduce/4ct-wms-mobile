@@ -45,4 +45,41 @@ void main() {
       expect(ticket.isLocked, isFalse);
     });
   });
+
+  group('ticket dashboard comparisons', () {
+    test('compares status counts for today and yesterday', () {
+      final tickets = SupervisorTicketList.fromJson({
+        'tickets': [
+          {
+            'ticketId': 'pending-today-1',
+            'status': 'Pending',
+            'createdAt': '2026-07-24T08:00:00',
+          },
+          {
+            'ticketId': 'pending-today-2',
+            'status': 'Pending',
+            'createdAt': '2026-07-24T09:00:00',
+          },
+          {
+            'ticketId': 'pending-yesterday',
+            'status': 'Pending',
+            'createdAt': '2026-07-23T08:00:00',
+          },
+          {
+            'ticketId': 'completed-yesterday',
+            'status': 'Completed',
+            'createdAt': '2026-07-23T10:00:00',
+          },
+        ],
+      });
+
+      final deltas = tickets.countDeltasFromYesterday(
+        now: DateTime(2026, 7, 24, 12),
+      );
+
+      expect(deltas[SupervisorTicketStatus.pending], 1);
+      expect(deltas[SupervisorTicketStatus.completed], -1);
+      expect(deltas[SupervisorTicketStatus.acknowledge], 0);
+    });
+  });
 }

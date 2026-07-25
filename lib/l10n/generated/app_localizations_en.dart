@@ -46,6 +46,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOutTooltip => 'Sign out';
 
   @override
+  String get openNavigationTooltip => 'Open navigation';
+
+  @override
+  String get notificationsTooltip => 'Notifications';
+
+  @override
+  String get noNotificationsMessage => 'No new notifications.';
+
+  @override
   String get defaultUserName => 'User';
 
   @override
@@ -59,7 +68,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statusPending => 'Pending';
+  String get statusPending => 'New';
 
   @override
   String get statusAcknowledged => 'Acknowledged';
@@ -360,6 +369,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supervisedUnitsTitle => 'Supervised washrooms';
 
   @override
+  String get viewAllButton => 'View all';
+
+  @override
+  String ticketDeltaFromYesterday(String delta) {
+    return '$delta from yesterday';
+  }
+
+  @override
   String supervisedUnitsCount(int count) {
     return '$count units';
   }
@@ -435,6 +452,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ticketSourceSystem => 'System';
+
+  @override
+  String get ticketSourceUserReported => 'User reported';
+
+  @override
+  String get ticketSourceSystemGenerated => 'System generated';
+
+  @override
+  String get filterTicketsTooltip => 'Filter tickets';
 
   @override
   String get acknowledgeButton => 'Acknowledge';
@@ -546,13 +572,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get allStatusesLabel => 'All statuses';
+  String get allStatusesLabel => 'All';
 
   @override
   String get ticketSourceLabel => 'Source';
 
   @override
-  String get allSourcesLabel => 'All sources';
+  String get allSourcesLabel => 'All';
 
   @override
   String get allWashroomsLabel => 'All washrooms';

@@ -3109,13 +3109,14 @@ class _AirportSkylineStrip extends StatelessWidget {
     }
 
     return IgnorePointer(
-      child: Image.asset(
+      child: Container(),
+      /*child: Image.asset(
         isDark
             ? AirportFeedbackAssets.darkAirportSkyline
             : AirportFeedbackAssets.lightAirportSkyline,
         fit: BoxFit.fill,
         alignment: Alignment.bottomCenter,
-      ),
+      ),*/
     );
   }
 }

@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/theme/adani_design_tokens.dart';
 import '../../../l10n/app_localizations_context.dart';
+import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
 import '../../../shared/widgets/stat_card.dart';
 import '../../auth/data/session_controller.dart';
+import '../../tenant/data/tenant_controller.dart';
 import '../data/operations_repository.dart';
 import '../domain/ticket_models.dart';
 import 'widgets/supervisor_ui.dart';
@@ -30,15 +33,36 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
         : l10n.defaultUserName;
     final ticketState = ref.watch(todaysSupervisorTicketsProvider);
     final washroomState = ref.watch(supervisedWashroomsProvider);
+    final tenantContext = ref.watch(tenantControllerProvider).context;
+    final locationSummary = [
+      session?.airportId,
+      tenantContext?.terminalId,
+      tenantContext?.zoneId,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' · ');
 
     return Scaffold(
+      drawer: const _OperationsDrawer(),
       appBar: AppBar(
-        title: Text(l10n.operationsTitle),
+        leadingWidth: 72,
+        leading: Builder(
+          builder: (context) => IconButton(
+            tooltip: l10n.openNavigationTooltip,
+            onPressed: Scaffold.of(context).openDrawer,
+            icon: const Icon(Icons.menu_rounded, size: 30),
+          ),
+        ),
+        titleSpacing: 0,
+        title: Text(
+          l10n.operationsTitle,
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
         actions: [
           IconButton(
-            tooltip: l10n.ticketHistoryTitle,
-            onPressed: () => context.go('/operations/ticket-history'),
-            icon: const Icon(Icons.history_rounded),
+            tooltip: l10n.notificationsTooltip,
+            onPressed: () => _showSnack(l10n.noNotificationsMessage),
+            icon: const _NotificationIcon(),
           ),
           IconButton(
             tooltip: l10n.signOutTooltip,
@@ -58,10 +82,7 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
           _HeroPanel(
             username: username,
             role: session?.roleDisplayName ?? session?.role ?? '',
-            tenantSummary: l10n.tenantAirportSummary(
-              session?.tenantId ?? '-',
-              session?.airportId ?? '-',
-            ),
+            tenantSummary: locationSummary,
             lastLogin: _formatDateTime(session?.lastLogin),
             shiftLabel: ticketState.asData?.value.shiftLabel ?? '-',
           ),
@@ -143,6 +164,87 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
   }
 }
 
+class _NotificationIcon extends StatelessWidget {
+  const _NotificationIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const Icon(Icons.notifications_none_rounded, size: 28),
+        Positioned(
+          top: 1,
+          right: 1,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: AdaniColors.error,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OperationsDrawer extends ConsumerWidget {
+  const _OperationsDrawer();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 18),
+            const _BrandTile(size: 54),
+            const SizedBox(height: 28),
+            ListTile(
+              leading: const Icon(Icons.home_outlined),
+              title: Text(l10n.operationsTitle),
+              selected: true,
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/operations/home');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history_rounded),
+              title: Text(l10n.ticketHistoryTitle),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/operations/ticket-history');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard_outlined),
+              title: Text(l10n.dashboardsTitle),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/operations/dashboard');
+              },
+            ),
+            const Spacer(),
+            ListTile(
+              leading: const Icon(Icons.logout_rounded),
+              title: Text(l10n.signOutTooltip),
+              onTap: () {
+                Navigator.of(context).pop();
+                ref.read(sessionControllerProvider.notifier).signOut();
+              },
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _HeroPanel extends StatelessWidget {
   const _HeroPanel({
     required this.username,
@@ -161,73 +263,151 @@ class _HeroPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final colors = Theme.of(context).colorScheme;
-    final surface = Color.alphaBlend(
-      colors.primary.withValues(alpha: 0.045),
-      colors.surface,
-    );
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     return SupervisorSurface(
-      padding: const EdgeInsets.all(18),
-      color: surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      padding: EdgeInsets.zero,
+      radius: 16,
+      color: isDark ? AdaniColors.darkHero : AdaniColors.lightHero,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+          final summary = [
+            if (role.trim().isNotEmpty) role.trim(),
+            if (tenantSummary.trim().isNotEmpty) tenantSummary.trim(),
+          ].join(' · ');
+          return Stack(
+            clipBehavior: Clip.antiAlias,
             children: [
-              Expanded(
+              Positioned(
+                top: isWide ? -80 : -54,
+                right: isWide ? -38 : -64,
+                child: Container(
+                  width: isWide ? 260 : 178,
+                  height: isWide ? 260 : 178,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        (isDark
+                                ? AdaniColors.darkHeroAccent
+                                : AdaniColors.lightHeroAccent)
+                            .withValues(alpha: isDark ? 0.55 : 0.66),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isWide ? 30 : 18,
+                  vertical: isWide ? 26 : 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.homeGreeting(username),
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            color: colors.primary,
-                            fontWeight: FontWeight.w800,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.homeGreeting(username),
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: colors.primary,
+                                  fontSize: isWide ? null : 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: isWide ? 7 : 4),
+                              Text(
+                                summary,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style:
+                                    (isWide
+                                            ? theme.textTheme.bodyMedium
+                                            : theme.textTheme.bodySmall)
+                                        ?.copyWith(
+                                          color: colors.onSurfaceVariant,
+                                        ),
+                              ),
+                            ],
                           ),
+                        ),
+                        const SizedBox(width: 16),
+                        _BrandTile(size: isWide ? 86 : 64),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      role.isEmpty ? tenantSummary : '$role · $tenantSummary',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: colors.onSurfaceVariant),
-                    ),
+                    SizedBox(height: isWide ? 24 : 16),
+                    if (isWide)
+                      Row(
+                        children: [
+                          Flexible(
+                            child: _InfoChip(
+                              icon: Icons.login_rounded,
+                              label: l10n.lastLoginLabel(lastLogin),
+                            ),
+                          ),
+                          const SizedBox(width: 34),
+                          Flexible(
+                            child: _InfoChip(
+                              icon: Icons.schedule_rounded,
+                              label: l10n.activeShiftLabel(shiftLabel),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _InfoChip(
+                            icon: Icons.login_rounded,
+                            label: l10n.lastLoginLabel(lastLogin),
+                          ),
+                          const SizedBox(height: 8),
+                          _InfoChip(
+                            icon: Icons.schedule_rounded,
+                            label: l10n.activeShiftLabel(shiftLabel),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  gradient: SupervisorPalette.actionGradient,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.admin_panel_settings_rounded,
-                  color: Colors.white,
-                  size: 23,
-                ),
-              ),
             ],
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _InfoChip(
-                icon: Icons.login_rounded,
-                label: l10n.lastLoginLabel(lastLogin),
-              ),
-              _InfoChip(
-                icon: Icons.schedule_rounded,
-                label: l10n.activeShiftLabel(shiftLabel),
-              ),
-            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _BrandTile extends StatelessWidget {
+  const _BrandTile({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: AdaniGradients.action,
+        borderRadius: BorderRadius.circular(13),
+        boxShadow: [
+          BoxShadow(
+            color: AdaniColors.purpleBright.withValues(alpha: 0.22),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
+      clipBehavior: Clip.antiAlias,
+      alignment: Alignment.center,
+      child: AdaniBrandMark(size: size),
     );
   }
 }
@@ -241,6 +421,7 @@ class _TicketStatsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final counts = data.counts;
+    final deltas = data.countDeltasFromYesterday();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -248,47 +429,83 @@ class _TicketStatsGrid extends StatelessWidget {
         const SizedBox(height: 10),
         LayoutBuilder(
           builder: (context, constraints) {
-            final childAspectRatio = constraints.maxWidth >= 760
-                ? 1.45
-                : constraints.maxWidth < 420
-                ? 0.82
-                : 1.1;
+            final isWide = constraints.maxWidth >= 760;
             return GridView.count(
-              crossAxisCount: constraints.maxWidth >= 760 ? 4 : 2,
+              crossAxisCount: isWide ? 4 : 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: childAspectRatio,
+              mainAxisExtent: isWide ? 150 : 142,
               children: [
                 StatCard(
                   label: l10n.statusPending,
-                  value: '${counts[SupervisorTicketStatus.pending] ?? 0}',
+                  value: _twoDigits(
+                    counts[SupervisorTicketStatus.pending] ?? 0,
+                  ),
                   icon: ticketStatusIcon(SupervisorTicketStatus.pending),
                   accentColor: SupervisorPalette.pending,
+                  changeText: _deltaLabel(
+                    context,
+                    deltas[SupervisorTicketStatus.pending] ?? 0,
+                  ),
+                  changeColor: _deltaColor(
+                    SupervisorTicketStatus.pending,
+                    deltas[SupervisorTicketStatus.pending] ?? 0,
+                  ),
                   onTap: () => context.go('/operations/tickets?status=Pending'),
                 ),
                 StatCard(
                   label: l10n.statusAcknowledged,
-                  value: '${counts[SupervisorTicketStatus.acknowledge] ?? 0}',
+                  value: _twoDigits(
+                    counts[SupervisorTicketStatus.acknowledge] ?? 0,
+                  ),
                   icon: ticketStatusIcon(SupervisorTicketStatus.acknowledge),
                   accentColor: SupervisorPalette.acknowledged,
+                  changeText: _deltaLabel(
+                    context,
+                    deltas[SupervisorTicketStatus.acknowledge] ?? 0,
+                  ),
+                  changeColor: _deltaColor(
+                    SupervisorTicketStatus.acknowledge,
+                    deltas[SupervisorTicketStatus.acknowledge] ?? 0,
+                  ),
                   onTap: () =>
                       context.go('/operations/tickets?status=Acknowledge'),
                 ),
                 StatCard(
                   label: l10n.statusEscalated,
-                  value: '${counts[SupervisorTicketStatus.escalated] ?? 0}',
+                  value: _twoDigits(
+                    counts[SupervisorTicketStatus.escalated] ?? 0,
+                  ),
                   icon: ticketStatusIcon(SupervisorTicketStatus.escalated),
                   accentColor: SupervisorPalette.escalated,
+                  changeText: _deltaLabel(
+                    context,
+                    deltas[SupervisorTicketStatus.escalated] ?? 0,
+                  ),
+                  changeColor: _deltaColor(
+                    SupervisorTicketStatus.escalated,
+                    deltas[SupervisorTicketStatus.escalated] ?? 0,
+                  ),
                   onTap: () =>
                       context.go('/operations/tickets?status=Escalated'),
                 ),
                 StatCard(
                   label: l10n.statusCompleted,
-                  value: '${counts[SupervisorTicketStatus.completed] ?? 0}',
+                  value: _twoDigits(
+                    counts[SupervisorTicketStatus.completed] ?? 0,
+                  ),
                   icon: ticketStatusIcon(SupervisorTicketStatus.completed),
                   accentColor: SupervisorPalette.completed,
+                  changeText: _deltaLabel(
+                    context,
+                    deltas[SupervisorTicketStatus.completed] ?? 0,
+                  ),
+                  changeColor: _deltaColor(
+                    SupervisorTicketStatus.completed,
+                    deltas[SupervisorTicketStatus.completed] ?? 0,
+                  ),
                   onTap: () =>
                       context.go('/operations/tickets?status=Completed'),
                 ),
@@ -315,21 +532,36 @@ class _QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Column(
-      children: [
-        SupervisorGradientButton(
-          label: l10n.viewHistoryButton,
-          onPressed: onOpenHistory,
-          icon: Icons.manage_search_rounded,
-        ),
-        const SizedBox(height: 10),
-        SupervisorOutlinedButton(
-          label: l10n.passengerFlowTitle,
-          onPressed: loadingPeaks ? null : onOpenPassengerFlow,
-          icon: Icons.groups_rounded,
-          loading: loadingPeaks,
-        ),
-      ],
+    final historyButton = SupervisorGradientButton(
+      label: l10n.viewHistoryButton,
+      onPressed: onOpenHistory,
+      icon: Icons.history_rounded,
+    );
+    final passengerButton = SupervisorOutlinedButton(
+      label: l10n.passengerFlowTitle,
+      onPressed: loadingPeaks ? null : onOpenPassengerFlow,
+      icon: Icons.groups_outlined,
+      loading: loadingPeaks,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 700) {
+          return Row(
+            children: [
+              Expanded(child: historyButton),
+              const SizedBox(width: 18),
+              Expanded(child: passengerButton),
+            ],
+          );
+        }
+        return Column(
+          children: [
+            historyButton,
+            const SizedBox(height: 12),
+            passengerButton,
+          ],
+        );
+      },
     );
   }
 }
@@ -347,19 +579,144 @@ class _WashroomSection extends StatelessWidget {
       children: [
         SupervisorSectionHeader(
           title: l10n.supervisedUnitsTitle,
-          trailing: Text(l10n.supervisedUnitsCount(washrooms.length)),
+          trailing: TextButton(
+            onPressed: () => _showAllWashrooms(context),
+            child: Text(l10n.viewAllButton),
+          ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         if (washrooms.isEmpty)
-          SupervisorStatePanel(
-            icon: Icons.info_outline_rounded,
-            message: l10n.emptyWashroomsMessage,
-            compact: true,
-          )
+          _WashroomEmptyState(message: l10n.emptyWashroomsMessage)
         else
           ...washrooms.map((washroom) => _WashroomTile(washroom: washroom)),
       ],
     );
+  }
+
+  Future<void> _showAllWashrooms(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.supervisedUnitsTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              if (washrooms.isEmpty)
+                _WashroomEmptyState(message: context.l10n.emptyWashroomsMessage)
+              else
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: washrooms
+                        .map((washroom) => _WashroomTile(washroom: washroom))
+                        .toList(),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WashroomEmptyState extends StatelessWidget {
+  const _WashroomEmptyState({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = colors.primary.withValues(alpha: isDark ? 0.34 : 0.24);
+    return CustomPaint(
+      foregroundPainter: _DottedRoundedBorderPainter(
+        color: borderColor,
+        radius: 16,
+      ),
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 82),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        decoration: BoxDecoration(
+          color: colors.surface.withValues(alpha: isDark ? 0.84 : 0.94),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.info_outline_rounded,
+              size: 21,
+              color: colors.onSurfaceVariant.withValues(alpha: 0.65),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.72),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DottedRoundedBorderPainter extends CustomPainter {
+  const _DottedRoundedBorderPainter({
+    required this.color,
+    required this.radius,
+  });
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const dotRadius = 1.0;
+    const dotSpacing = 5.0;
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Offset.zero & size,
+          Radius.circular(radius),
+        ).deflate(dotRadius),
+      );
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    for (final metric in path.computeMetrics()) {
+      for (
+        var distance = 0.0;
+        distance < metric.length;
+        distance += dotSpacing
+      ) {
+        final tangent = metric.getTangentForOffset(distance);
+        if (tangent != null) {
+          canvas.drawCircle(tangent.position, dotRadius, paint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DottedRoundedBorderPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.radius != radius;
   }
 }
 
@@ -512,7 +869,7 @@ class _InfoChip extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: colors.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ),
@@ -538,6 +895,19 @@ class _LoadingPanel extends StatelessWidget {
 String _formatDateTime(DateTime? date) {
   if (date == null) return '-';
   return DateFormat('dd MMM yyyy, h:mm a').format(date);
+}
+
+String _twoDigits(int value) => value.toString().padLeft(2, '0');
+
+String _deltaLabel(BuildContext context, int delta) {
+  final signedDelta = delta >= 0 ? '+$delta' : '$delta';
+  return context.l10n.ticketDeltaFromYesterday(signedDelta);
+}
+
+Color _deltaColor(SupervisorTicketStatus status, int delta) {
+  if (delta < 0) return AdaniColors.error;
+  if (status == SupervisorTicketStatus.escalated) return AdaniColors.warning;
+  return AdaniColors.success;
 }
 
 String _shiftTime(SupervisorRoster roster) {

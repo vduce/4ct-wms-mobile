@@ -39,10 +39,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/splash', builder: (_, _) => const SplashPage()),
       GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
       ShellRoute(
-        builder: (_, state, child) => TenantScopePage(
-          showFooter: !state.uri.path.startsWith('/feedback/'),
-          child: child,
-        ),
+        builder: (_, _, child) => TenantScopePage(child: child),
         routes: [
           GoRoute(
             path: '/operations/home',

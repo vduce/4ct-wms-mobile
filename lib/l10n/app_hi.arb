@@ -12,6 +12,9 @@
   "enterSixDigitOtpError": "6 अंकों का ओटीपी दर्ज करें।",
   "operationsTitle": "संचालन",
   "signOutTooltip": "साइन आउट करें",
+  "openNavigationTooltip": "नेविगेशन खोलें",
+  "notificationsTooltip": "सूचनाएं",
+  "noNotificationsMessage": "कोई नई सूचना नहीं है।",
   "defaultUserName": "उपयोगकर्ता",
   "homeGreeting": "नमस्ते {username}",
   "@homeGreeting": {
@@ -32,7 +35,7 @@
       }
     }
   },
-  "statusPending": "लंबित",
+  "statusPending": "नया",
   "statusAcknowledged": "स्वीकृत",
   "statusEscalated": "एस्केलेट किया गया",
   "statusCompleted": "पूर्ण",
@@ -152,6 +155,8 @@
   "viewHistoryButton": "इतिहास देखें",
   "passengerFlowTitle": "यात्री प्रवाह",
   "supervisedUnitsTitle": "पर्यवेक्षित शौचालय",
+  "viewAllButton": "सभी देखें",
+  "ticketDeltaFromYesterday": "कल से {delta}",
   "supervisedUnitsCount": "{count} इकाइयां",
   "@supervisedUnitsCount": {
     "placeholders": {
@@ -201,6 +206,9 @@
   "priorityFallback": "सामान्य",
   "ticketSourceUser": "उपयोगकर्ता",
   "ticketSourceSystem": "सिस्टम",
+  "ticketSourceUserReported": "उपयोगकर्ता द्वारा रिपोर्ट",
+  "ticketSourceSystemGenerated": "सिस्टम द्वारा जनरेट",
+  "filterTicketsTooltip": "टिकट फ़िल्टर करें",
   "acknowledgeButton": "स्वीकार करें",
   "ticketAcknowledgedMessage": "टिकट स्वीकार कर लिया गया है।",
   "ticketAcknowledgeFailed": "टिकट स्वीकार नहीं किया जा सका।",
@@ -256,9 +264,9 @@
       }
     }
   },
-  "allStatusesLabel": "सभी स्थितियां",
+  "allStatusesLabel": "सभी",
   "ticketSourceLabel": "स्रोत",
-  "allSourcesLabel": "सभी स्रोत",
+  "allSourcesLabel": "सभी",
   "allWashroomsLabel": "सभी शौचालय",
   "fromDateAfterToDateMessage": "आरंभ तिथि अंतिम तिथि के बाद नहीं हो सकती।",
   "toDateBeforeFromDateMessage": "अंतिम तिथि आरंभ तिथि से पहले नहीं हो सकती।",

@@ -46,6 +46,15 @@ class AppLocalizationsHi extends AppLocalizations {
   String get signOutTooltip => 'साइन आउट करें';
 
   @override
+  String get openNavigationTooltip => 'नेविगेशन खोलें';
+
+  @override
+  String get notificationsTooltip => 'सूचनाएं';
+
+  @override
+  String get noNotificationsMessage => 'कोई नई सूचना नहीं है।';
+
+  @override
   String get defaultUserName => 'उपयोगकर्ता';
 
   @override
@@ -59,7 +68,7 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get statusPending => 'लंबित';
+  String get statusPending => 'नया';
 
   @override
   String get statusAcknowledged => 'स्वीकृत';
@@ -364,6 +373,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String get supervisedUnitsTitle => 'पर्यवेक्षित शौचालय';
 
   @override
+  String get viewAllButton => 'सभी देखें';
+
+  @override
+  String ticketDeltaFromYesterday(String delta) {
+    return 'कल से $delta';
+  }
+
+  @override
   String supervisedUnitsCount(int count) {
     return '$count इकाइयां';
   }
@@ -438,6 +455,15 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get ticketSourceSystem => 'सिस्टम';
+
+  @override
+  String get ticketSourceUserReported => 'उपयोगकर्ता द्वारा रिपोर्ट';
+
+  @override
+  String get ticketSourceSystemGenerated => 'सिस्टम द्वारा जनरेट';
+
+  @override
+  String get filterTicketsTooltip => 'टिकट फ़िल्टर करें';
 
   @override
   String get acknowledgeButton => 'स्वीकार करें';
@@ -549,13 +575,13 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get allStatusesLabel => 'सभी स्थितियां';
+  String get allStatusesLabel => 'सभी';
 
   @override
   String get ticketSourceLabel => 'स्रोत';
 
   @override
-  String get allSourcesLabel => 'सभी स्रोत';
+  String get allSourcesLabel => 'सभी';
 
   @override
   String get allWashroomsLabel => 'सभी शौचालय';

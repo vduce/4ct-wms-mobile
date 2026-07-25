@@ -48,6 +48,16 @@ class _TicketsPageState extends ConsumerState<TicketsPage> {
           title: Text(
             l10n.ticketsTitle(ticketStatusLabel(context, _activeStatus)),
           ),
+          actions: [
+            IconButton(
+              tooltip: l10n.filterTicketsTooltip,
+              onPressed: ticketsState.asData == null
+                  ? null
+                  : () => _showStatusFilter(ticketsState.asData!.value.counts),
+              icon: const Icon(Icons.filter_list_rounded),
+            ),
+            const SizedBox(width: 8),
+          ],
         ),
         body: ticketsState.when(
           data: _buildTickets,
@@ -75,6 +85,43 @@ class _TicketsPageState extends ConsumerState<TicketsPage> {
     context.go('/operations/home');
   }
 
+  void _changeStatus(SupervisorTicketStatus status) {
+    setState(() => _activeStatus = status);
+    context.go('/operations/tickets?status=${ticketStatusApiValue(status)}');
+  }
+
+  Future<void> _showStatusFilter(
+    Map<SupervisorTicketStatus, int> counts,
+  ) async {
+    final selected = await showModalBottomSheet<SupervisorTicketStatus>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+          children: [
+            for (final status in SupervisorTicketStatus.values)
+              ListTile(
+                leading: Icon(
+                  ticketStatusIcon(status),
+                  color: SupervisorPalette.status(status),
+                ),
+                title: Text(ticketStatusLabel(context, status)),
+                trailing: Text('${counts[status] ?? 0}'),
+                selected: status == _activeStatus,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                onTap: () => Navigator.of(context).pop(status),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (selected != null && mounted) _changeStatus(selected);
+  }
+
   Widget _buildTickets(SupervisorTicketList data) {
     final l10n = context.l10n;
     final matching = data.tickets
@@ -89,6 +136,8 @@ class _TicketsPageState extends ConsumerState<TicketsPage> {
         .toList();
 
     return SupervisorScrollableBody(
+      maxWidth: 780,
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 32),
       onRefresh: () async {
         ref.invalidate(todaysSupervisorTicketsProvider);
         await ref.read(todaysSupervisorTicketsProvider.future);
@@ -97,38 +146,31 @@ class _TicketsPageState extends ConsumerState<TicketsPage> {
         _StatusTabs(
           activeStatus: _activeStatus,
           counts: data.counts,
-          onChanged: (status) {
-            setState(() => _activeStatus = status);
-            context.go(
-              '/operations/tickets?status=${ticketStatusApiValue(status)}',
-            );
-          },
+          onChanged: _changeStatus,
         ),
-        const SizedBox(height: 14),
-        SupervisorSectionHeader(
+        const SizedBox(height: 28),
+        _TicketSectionHeader(
           title: l10n.userTicketsTitle,
-          trailing: Text('${userTickets.length}'),
+          count: userTickets.length,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         if (userTickets.isEmpty)
-          SupervisorStatePanel(
+          SupervisorDottedStatePanel(
             icon: Icons.inbox_outlined,
             message: l10n.noTicketsForFilterMessage,
-            compact: true,
           )
         else
           ...userTickets.map(_ticketCard),
-        const SizedBox(height: 18),
-        SupervisorSectionHeader(
+        const SizedBox(height: 26),
+        _TicketSectionHeader(
           title: l10n.systemTicketsTitle,
-          trailing: Text('${systemTickets.length}'),
+          count: systemTickets.length,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         if (systemTickets.isEmpty)
-          SupervisorStatePanel(
+          SupervisorDottedStatePanel(
             icon: Icons.memory_rounded,
             message: l10n.noSystemTicketsMessage,
-            compact: true,
           )
         else
           ...systemTickets.map(_ticketCard),
@@ -137,105 +179,53 @@ class _TicketsPageState extends ConsumerState<TicketsPage> {
   }
 
   Widget _ticketCard(SupervisorTicket ticket) {
-    final l10n = context.l10n;
     final canAcknowledge =
         ticket.status == SupervisorTicketStatus.pending &&
         !ticket.isSystemGenerated;
     final isBusy = _acknowledging.contains(ticket.id);
-    final colors = Theme.of(context).colorScheme;
     final accent = SupervisorPalette.status(ticket.status);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
+      padding: const EdgeInsets.only(bottom: 12),
       child: SupervisorSurface(
         padding: EdgeInsets.zero,
+        radius: 16,
         onTap: () => context.go('/operations/tickets/${ticket.id}'),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              Container(width: 4, color: accent),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: accent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          _washroomIcon(ticket.washroomType),
-                          color: accent,
-                          size: 20,
-                        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 700;
+            return IntrinsicHeight(
+              child: Row(
+                children: [
+                  Container(width: 5, color: accent),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        wide ? 20 : 14,
+                        wide ? 16 : 14,
+                        wide ? 14 : 12,
+                        wide ? 16 : 14,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ticket.category.isEmpty
-                                  ? l10n.ticketCategoryFallback
-                                  : ticket.category,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall
-                                  ?.copyWith(fontWeight: FontWeight.w800),
+                      child: wide
+                          ? _WideTicketCardContent(
+                              ticket: ticket,
+                              accent: accent,
+                              canAcknowledge: canAcknowledge,
+                              isBusy: isBusy,
+                              onAcknowledge: () => _acknowledge(ticket),
+                            )
+                          : _MobileTicketCardContent(
+                              ticket: ticket,
+                              accent: accent,
+                              canAcknowledge: canAcknowledge,
+                              isBusy: isBusy,
+                              onAcknowledge: () => _acknowledge(ticket),
                             ),
-                            const SizedBox(height: 3),
-                            Text(
-                              '${ticket.washroomLabel}  ·  ${ticket.shortId}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: colors.onSurfaceVariant),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              '${_formatTicketTime(ticket.createdAt)}  ·  ${ticket.isSystemGenerated ? l10n.ticketSourceSystem : l10n.ticketSourceUser}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: colors.onSurfaceVariant),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      TicketPriorityBadge(priority: ticket.priority),
-                      const SizedBox(width: 4),
-                      if (canAcknowledge)
-                        isBusy
-                            ? const SizedBox.square(
-                                dimension: 30,
-                                child: Padding(
-                                  padding: EdgeInsets.all(6),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
-                            : IconButton(
-                                tooltip: l10n.acknowledgeButton,
-                                onPressed: () => _acknowledge(ticket),
-                                icon: const Icon(Icons.done_rounded),
-                              )
-                      else
-                        Icon(
-                          ticket.isLocked
-                              ? Icons.lock_outline_rounded
-                              : Icons.chevron_right_rounded,
-                          color: colors.primary,
-                        ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -280,23 +270,272 @@ class _StatusTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (final status in SupervisorTicketStatus.values) ...[
-            SupervisorFilterPill(
-              label:
-                  '${ticketStatusLabel(context, status)} (${counts[status] ?? 0})',
-              selected: activeStatus == status,
-              icon: ticketStatusIcon(status),
-              onPressed: () => onChanged(status),
-            ),
-            if (status != SupervisorTicketStatus.values.last)
-              const SizedBox(width: 8),
-          ],
-        ],
+    final tabs = <Widget>[
+      for (final status in SupervisorTicketStatus.values) ...[
+        SupervisorFilterPill(
+          label:
+              '${ticketStatusLabel(context, status)} (${counts[status] ?? 0})',
+          selected: activeStatus == status,
+          height: 48,
+          horizontalPadding: 20,
+          onPressed: () => onChanged(status),
+        ),
+        if (status != SupervisorTicketStatus.values.last)
+          const SizedBox(width: 10),
+      ],
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 700) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: tabs,
+          );
+        }
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: tabs),
+        );
+      },
+    );
+  }
+}
+
+class _TicketSectionHeader extends StatelessWidget {
+  const _TicketSectionHeader({required this.title, required this.count});
+
+  final String title;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ),
+        Text(
+          '$count',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: count == 0
+                ? colors.onSurfaceVariant.withValues(alpha: 0.48)
+                : colors.primary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TicketIcon extends StatelessWidget {
+  const _TicketIcon({required this.ticket, required this.accent});
+
+  final SupervisorTicket ticket;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
       ),
+      child: Icon(_ticketIcon(ticket), color: accent, size: 24),
+    );
+  }
+}
+
+class _WideTicketCardContent extends StatelessWidget {
+  const _WideTicketCardContent({
+    required this.ticket,
+    required this.accent,
+    required this.canAcknowledge,
+    required this.isBusy,
+    required this.onAcknowledge,
+  });
+
+  final SupervisorTicket ticket;
+  final Color accent;
+  final bool canAcknowledge;
+  final bool isBusy;
+  final VoidCallback onAcknowledge;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        _TicketIcon(ticket: ticket, accent: accent),
+        const SizedBox(width: 18),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _ticketTitle(context, ticket),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                '${ticket.washroomLabel} · ${ticket.shortId} · '
+                '${_formatTicketTime(ticket.createdAt)} · '
+                '${_ticketSourceLabel(context, ticket)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 14),
+        TicketPriorityBadge(priority: ticket.priority),
+        const SizedBox(width: 10),
+        if (canAcknowledge)
+          _AcknowledgeControl(loading: isBusy, onPressed: onAcknowledge)
+        else
+          Icon(
+            ticket.isLocked
+                ? Icons.lock_outline_rounded
+                : Icons.chevron_right_rounded,
+            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+          ),
+      ],
+    );
+  }
+}
+
+class _MobileTicketCardContent extends StatelessWidget {
+  const _MobileTicketCardContent({
+    required this.ticket,
+    required this.accent,
+    required this.canAcknowledge,
+    required this.isBusy,
+    required this.onAcknowledge,
+  });
+
+  final SupervisorTicket ticket;
+  final Color accent;
+  final bool canAcknowledge;
+  final bool isBusy;
+  final VoidCallback onAcknowledge;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _TicketIcon(ticket: ticket, accent: accent),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _ticketTitle(context, ticket),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  TicketPriorityBadge(priority: ticket.priority),
+                ],
+              ),
+              const SizedBox(height: 7),
+              Text(
+                '${ticket.washroomLabel} · ${ticket.shortId}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${_formatTicketTime(ticket.createdAt)} · '
+                      '${_ticketSourceLabel(context, ticket)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  if (canAcknowledge) ...[
+                    const SizedBox(width: 4),
+                    _AcknowledgeControl(
+                      loading: isBusy,
+                      onPressed: onAcknowledge,
+                      compact: true,
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AcknowledgeControl extends StatelessWidget {
+  const _AcknowledgeControl({
+    required this.loading,
+    required this.onPressed,
+    this.compact = false,
+  });
+
+  final bool loading;
+  final VoidCallback onPressed;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return SizedBox.square(
+        dimension: compact ? 26 : 34,
+        child: const Padding(
+          padding: EdgeInsets.all(6),
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+    return IconButton(
+      tooltip: context.l10n.acknowledgeButton,
+      constraints: BoxConstraints.tightFor(
+        width: compact ? 28 : 36,
+        height: compact ? 28 : 36,
+      ),
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      onPressed: onPressed,
+      icon: Icon(Icons.done_rounded, size: compact ? 18 : 21),
     );
   }
 }
@@ -315,7 +554,35 @@ int _priorityRank(String priority) {
 }
 
 String _formatTicketTime(DateTime date) {
-  return DateFormat('dd/MM/yy | hh:mm a').format(date);
+  return DateFormat('dd MMM yyyy, hh:mm a').format(date);
+}
+
+String _ticketTitle(BuildContext context, SupervisorTicket ticket) {
+  return ticket.category.isEmpty
+      ? context.l10n.ticketCategoryFallback
+      : ticket.category;
+}
+
+String _ticketSourceLabel(BuildContext context, SupervisorTicket ticket) {
+  return ticket.isSystemGenerated
+      ? context.l10n.ticketSourceSystemGenerated
+      : context.l10n.ticketSourceUserReported;
+}
+
+IconData _ticketIcon(SupervisorTicket ticket) {
+  final category = normalizeLoose(ticket.category);
+  if (category.contains('bin') ||
+      category.contains('waste') ||
+      category.contains('trash')) {
+    return Icons.delete_outline_rounded;
+  }
+  if (category.contains('water') || category.contains('leak')) {
+    return Icons.water_drop_outlined;
+  }
+  if (category.contains('soap') || category.contains('dispenser')) {
+    return Icons.soap_outlined;
+  }
+  return _washroomIcon(ticket.washroomType);
 }
 
 IconData _washroomIcon(SupervisorWashroomType type) {

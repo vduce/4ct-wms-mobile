@@ -9,10 +9,7 @@ abstract final class AirportFeedbackAssets {
       'assets/feedback/backgrounds/light_airport_background.png';
   static const darkAirportBackground =
       'assets/feedback/backgrounds/dark_airport_background.png';
-  static const darkAirportSkyline =
-      'assets/feedback/backgrounds/airport_skyline_dark_line.png';
-  static const lightAirportSkyline =
-      'assets/feedback/backgrounds/airport_skyline_light_line.png';
+
 
   static const slipperyFloor = 'assets/feedback/issues/slippery_floor.png';
   static const noSoap = 'assets/feedback/issues/no_soap.png';

@@ -170,6 +170,24 @@ abstract class AppLocalizations {
   /// **'Sign out'**
   String get signOutTooltip;
 
+  /// No description provided for @openNavigationTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open navigation'**
+  String get openNavigationTooltip;
+
+  /// No description provided for @notificationsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTooltip;
+
+  /// No description provided for @noNotificationsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No new notifications.'**
+  String get noNotificationsMessage;
+
   /// No description provided for @defaultUserName.
   ///
   /// In en, this message translates to:
@@ -191,7 +209,7 @@ abstract class AppLocalizations {
   /// No description provided for @statusPending.
   ///
   /// In en, this message translates to:
-  /// **'Pending'**
+  /// **'New'**
   String get statusPending;
 
   /// No description provided for @statusAcknowledged.
@@ -740,6 +758,18 @@ abstract class AppLocalizations {
   /// **'Supervised washrooms'**
   String get supervisedUnitsTitle;
 
+  /// No description provided for @viewAllButton.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAllButton;
+
+  /// No description provided for @ticketDeltaFromYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} from yesterday'**
+  String ticketDeltaFromYesterday(String delta);
+
   /// No description provided for @supervisedUnitsCount.
   ///
   /// In en, this message translates to:
@@ -865,6 +895,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System'**
   String get ticketSourceSystem;
+
+  /// No description provided for @ticketSourceUserReported.
+  ///
+  /// In en, this message translates to:
+  /// **'User reported'**
+  String get ticketSourceUserReported;
+
+  /// No description provided for @ticketSourceSystemGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'System generated'**
+  String get ticketSourceSystemGenerated;
+
+  /// No description provided for @filterTicketsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter tickets'**
+  String get filterTicketsTooltip;
 
   /// No description provided for @acknowledgeButton.
   ///
@@ -1073,7 +1121,7 @@ abstract class AppLocalizations {
   /// No description provided for @allStatusesLabel.
   ///
   /// In en, this message translates to:
-  /// **'All statuses'**
+  /// **'All'**
   String get allStatusesLabel;
 
   /// No description provided for @ticketSourceLabel.
@@ -1085,7 +1133,7 @@ abstract class AppLocalizations {
   /// No description provided for @allSourcesLabel.
   ///
   /// In en, this message translates to:
-  /// **'All sources'**
+  /// **'All'**
   String get allSourcesLabel;
 
   /// No description provided for @allWashroomsLabel.

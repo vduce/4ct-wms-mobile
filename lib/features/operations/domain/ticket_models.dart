@@ -106,6 +106,34 @@ class SupervisorTicketList {
     return result;
   }
 
+  Map<SupervisorTicketStatus, int> countDeltasFromYesterday({DateTime? now}) {
+    final localNow = (now ?? DateTime.now()).toLocal();
+    final today = DateTime(localNow.year, localNow.month, localNow.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final todayCounts = _countsForLocalDay(today);
+    final yesterdayCounts = _countsForLocalDay(yesterday);
+    return {
+      for (final status in SupervisorTicketStatus.values)
+        status: (todayCounts[status] ?? 0) - (yesterdayCounts[status] ?? 0),
+    };
+  }
+
+  Map<SupervisorTicketStatus, int> _countsForLocalDay(DateTime day) {
+    final result = {
+      for (final status in SupervisorTicketStatus.values) status: 0,
+    };
+    for (final ticket in tickets) {
+      final local = ticket.createdAt.toLocal();
+      if (local.year != day.year ||
+          local.month != day.month ||
+          local.day != day.day) {
+        continue;
+      }
+      result[ticket.status] = (result[ticket.status] ?? 0) + 1;
+    }
+    return result;
+  }
+
   String get shiftLabel {
     final latest = rosters
         .where((roster) => roster.shiftStart != null && roster.shiftEnd != null)
