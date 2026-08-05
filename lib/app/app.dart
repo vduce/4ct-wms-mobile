@@ -6,6 +6,7 @@ import '../l10n/generated/app_localizations.dart';
 import 'localization/locale_controller.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_mode_controller.dart';
 
 class WashroomOpsApp extends ConsumerWidget {
   const WashroomOpsApp({super.key});
@@ -15,13 +16,14 @@ class WashroomOpsApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final branding = ref.watch(tenantControllerProvider).branding;
     final locale = ref.watch(localeControllerProvider);
+    final preferredThemeMode = ref.watch(themeModeControllerProvider);
 
     return MaterialApp.router(
       title: branding.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(branding),
       darkTheme: AppTheme.dark(branding),
-      themeMode: branding.themeMode,
+      themeMode: preferredThemeMode ?? branding.themeMode,
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

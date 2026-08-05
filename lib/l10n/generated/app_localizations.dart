@@ -380,6 +380,18 @@ abstract class AppLocalizations {
   /// **'Choose language'**
   String get languageSelectorTooltip;
 
+  /// No description provided for @switchToLightModeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to light mode'**
+  String get switchToLightModeTooltip;
+
+  /// No description provided for @switchToDarkModeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to dark mode'**
+  String get switchToDarkModeTooltip;
+
   /// No description provided for @languageEnglish.
   ///
   /// In en, this message translates to:
@@ -463,6 +475,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get feedbackQrDialogCloseButton;
+
+  /// No description provided for @feedbackVideoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Airport experience video'**
+  String get feedbackVideoLabel;
+
+  /// No description provided for @feedbackVideoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Video unavailable'**
+  String get feedbackVideoUnavailable;
+
+  /// No description provided for @feedbackVideoPlayTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Play video'**
+  String get feedbackVideoPlayTooltip;
+
+  /// No description provided for @feedbackVideoPauseTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause video'**
+  String get feedbackVideoPauseTooltip;
 
   /// No description provided for @metricAqiLabel.
   ///

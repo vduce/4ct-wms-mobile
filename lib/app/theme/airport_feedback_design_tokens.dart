@@ -6,10 +6,9 @@ abstract final class AirportFeedbackAssets {
   static const successAnimation = 'assets/animation/success.json';
 
   static const lightAirportBackground =
-      'assets/feedback/backgrounds/light_airport_background.png';
+      'assets/branding/airport_background_light.png';
   static const darkAirportBackground =
-      'assets/feedback/backgrounds/dark_airport_background.png';
-
+      'assets/branding/airport_background_dark.png';
 
   static const slipperyFloor = 'assets/feedback/issues/slippery_floor.png';
   static const noSoap = 'assets/feedback/issues/no_soap.png';

@@ -166,6 +166,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageSelectorTooltip => 'Choose language';
 
   @override
+  String get switchToLightModeTooltip => 'Switch to light mode';
+
+  @override
+  String get switchToDarkModeTooltip => 'Switch to dark mode';
+
+  @override
   String get languageEnglish => 'English';
 
   @override
@@ -209,6 +215,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackQrDialogCloseButton => 'Close';
+
+  @override
+  String get feedbackVideoLabel => 'Airport experience video';
+
+  @override
+  String get feedbackVideoUnavailable => 'Video unavailable';
+
+  @override
+  String get feedbackVideoPlayTooltip => 'Play video';
+
+  @override
+  String get feedbackVideoPauseTooltip => 'Pause video';
 
   @override
   String get metricAqiLabel => 'AQI';

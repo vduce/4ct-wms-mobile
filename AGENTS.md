@@ -26,6 +26,13 @@
 ## Flutter Patterns
 
 - Keep the feature-first structure under `lib/features/<feature>/data`, `domain`, and `presentation`.
+- Keep route-level `*_page.dart` files focused on page orchestration: provider/controller interaction, lifecycle, navigation, and composition of screen widgets. Do not place an entire multi-step flow's visual implementation in one page file.
+- Put page-specific visual components under `lib/features/<feature>/presentation/widgets/`. Group multi-step flows by screen or responsibility, with one primary widget per file and private helper widgets kept beside that primary widget.
+- Extract a widget when it has its own lifecycle/controller, represents a distinct screen or dialog/sheet, is reused, needs focused tests, or makes its parent hard to scan. As a review signal, reconsider any UI file approaching 400 lines; split by cohesive responsibility, not arbitrary line count.
+- Pass immutable display data and callbacks into presentation widgets. Keep repositories, Dio calls, submission rules, and Riverpod state mutation in page/controllers/providers rather than leaf widgets.
+- Keep feature-specific widgets inside their feature. Move a widget to `lib/shared/widgets/` only after it is genuinely used across features and has no feature-domain dependency.
+- Use normal Dart imports for manually maintained component files; do not use `part` files to hide oversized UI modules. Cross-file widget classes may be public but should only be imported by their owning feature; keep implementation helpers private.
+- Keep structural refactors behavior-preserving. Separate component extraction from visual redesign or business-rule changes so review and rollback remain safe.
 - Use Riverpod providers/controllers for app state and dependency injection. Do not instantiate repositories, Dio clients, storage clients, or controllers directly inside widgets.
 - Keep network access in repositories/services. Widgets should call providers/controllers and render state.
 - Use `go_router` for navigation and role/auth redirects.

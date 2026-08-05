@@ -38,6 +38,7 @@ class UserSession {
   bool get isSupervisor =>
       normalizedRole == 'zone_lead' ||
       normalizedRole == 'shift_incharge' ||
+      normalizedRole == 'supervisor' ||
       role == 'Zone-lead' ||
       role == 'Shift-Incharge';
 }

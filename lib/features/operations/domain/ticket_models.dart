@@ -54,6 +54,31 @@ class SupervisorTicketList {
     required this.rosters,
   });
 
+  factory SupervisorTicketList.fromCanonicalApiResponse(
+    Map<String, Object?> response, {
+    required String userId,
+  }) {
+    final rawTickets = response['data'];
+    if (rawTickets is! List) {
+      throw const FormatException('Tickets response must contain a data list.');
+    }
+
+    final tickets = <Map<String, Object?>>[];
+    for (final item in rawTickets) {
+      if (item is! Map) {
+        throw const FormatException(
+          'Tickets response contains an invalid item.',
+        );
+      }
+      tickets.add(Map<String, Object?>.from(item));
+    }
+
+    return SupervisorTicketList.fromJson({
+      'userId': userId,
+      'tickets': tickets,
+    });
+  }
+
   factory SupervisorTicketList.fromJson(Map<String, Object?> json) {
     final rostersBlock = _map(json['rosters']);
     final rosterRows = _list(

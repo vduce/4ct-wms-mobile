@@ -12,6 +12,7 @@ class EnvironmentConfig {
     required this.apiBaseUrl,
     required this.portalBaseUrl,
     required this.feedbackWebUrl,
+    required this.feedbackVideoUrl,
     required this.tenantSlug,
     required this.oneSignalAppId,
     required this.enableNetworkLogging,
@@ -53,6 +54,11 @@ class EnvironmentConfig {
           const String.fromEnvironment('FEEDBACK_WEB_URL').isNotEmpty
           ? const String.fromEnvironment('FEEDBACK_WEB_URL')
           : defaultFeedbackWebUrl,
+      feedbackVideoUrl: const String.fromEnvironment(
+        'FEEDBACK_VIDEO_URL',
+        defaultValue:
+            'https://stgfcwashroomnewprod01.blob.core.windows.net/app-artifacts-prod/assets/mumbai-passenger-feedback-animation-final.mp4',
+      ),
       tenantSlug: const String.fromEnvironment('TENANT_SLUG'),
       oneSignalAppId: const String.fromEnvironment('ONESIGNAL_APP_ID'),
       enableNetworkLogging: const bool.fromEnvironment(
@@ -66,6 +72,7 @@ class EnvironmentConfig {
   final String apiBaseUrl;
   final String portalBaseUrl;
   final String feedbackWebUrl;
+  final String feedbackVideoUrl;
   final String tenantSlug;
   final String oneSignalAppId;
   final bool enableNetworkLogging;

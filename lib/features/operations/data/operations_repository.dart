@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -81,21 +79,22 @@ class OperationsRepository {
     required String endTime,
   }) async {
     final response = await _dio.get<Map<String, Object?>>(
-      '/list_tickets_feedback',
+      '/tickets',
       queryParameters: {
-        'userId': userId,
-        'startTime': startTime,
-        'endTime': endTime,
+        'startDate': startTime,
+        'endDate': endTime,
+        'page': 1,
+        'limit': 100,
       },
     );
-    return SupervisorTicketList.fromJson(response.data ?? {});
+    return SupervisorTicketList.fromCanonicalApiResponse(
+      response.data ?? <String, Object?>{},
+      userId: userId,
+    );
   }
 
   Future<SupervisorTicketDetail> fetchTicketDetail(String ticketId) async {
-    final response = await _dio.get<Map<String, Object?>>(
-      '/get_ticket_by_id',
-      queryParameters: {'ticketId': ticketId},
-    );
+    final response = await _dio.get<Map<String, Object?>>('/tickets/$ticketId');
     return SupervisorTicketDetail.fromJson(_unwrapData(response.data));
   }
 
@@ -104,8 +103,7 @@ class OperationsRepository {
       ids.map((id) async {
         try {
           final response = await _dio.get<Map<String, Object?>>(
-            '/get_washroom',
-            queryParameters: {'id': id},
+            '/washrooms/$id',
           );
           return SupervisorWashroom.fromJson(_unwrapData(response.data));
         } catch (_) {
@@ -164,43 +162,19 @@ class OperationsRepository {
     required String comment,
     required List<LocalTicketAttachment> attachments,
   }) async {
-    final response = await _dio.put<Map<String, Object?>>(
-      '/update_ticket',
-      data: {
-        'ticketId': ticketId,
-        'status': ticketStatusApiValue(status),
-        if (comment.trim().isNotEmpty) 'comment': comment.trim(),
-        'attachments': attachments.map((item) => item.name).toList(),
-      },
-    );
-    final urls = _stringList(response.data?['attachment_urls']);
-    await _uploadAttachments(attachments, urls);
-  }
-
-  Future<void> _uploadAttachments(
-    List<LocalTicketAttachment> attachments,
-    List<String> urls,
-  ) async {
-    final uploads = attachments.length < urls.length
-        ? attachments.length
-        : urls.length;
-    final uploadDio = Dio();
-    for (var i = 0; i < uploads; i += 1) {
-      final file = File(attachments[i].path);
-      if (!file.existsSync()) continue;
-      await uploadDio.putUri<void>(
-        Uri.parse(urls[i]),
-        data: file.openRead(),
-        options: Options(
-          headers: {
-            'x-ms-blob-type': 'BlockBlob',
-            'Content-Type': attachments[i].mimeType.isEmpty
-                ? 'application/octet-stream'
-                : attachments[i].mimeType,
-          },
-        ),
+    if (attachments.isNotEmpty) {
+      throw UnsupportedError(
+        'Ticket attachments are not supported by the canonical API.',
       );
     }
+
+    await _dio.patch<Map<String, Object?>>(
+      '/tickets/$ticketId/status',
+      data: {
+        'ticketStatus': ticketStatusApiValue(status),
+        if (comment.trim().isNotEmpty) 'notes': comment.trim(),
+      },
+    );
   }
 
   Map<String, Object?> _unwrapData(Map<String, Object?>? responseData) {
@@ -208,11 +182,6 @@ class OperationsRepository {
     final data = raw['data'];
     if (data is Map) return Map<String, Object?>.from(data);
     return raw;
-  }
-
-  List<String> _stringList(Object? value) {
-    if (value is List) return value.map((item) => item.toString()).toList();
-    return const [];
   }
 }
 

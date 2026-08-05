@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:washroom_ops/features/auth/domain/user_session.dart';
 import 'package:washroom_ops/features/operations/domain/ticket_models.dart';
 
 void main() {
@@ -81,5 +82,22 @@ void main() {
       expect(deltas[SupervisorTicketStatus.completed], -1);
       expect(deltas[SupervisorTicketStatus.acknowledge], 0);
     });
+  });
+
+  test('recognizes canonical supervisor role', () {
+    const session = UserSession(
+      userId: 'user-1',
+      tenantId: 'tenant-1',
+      airportId: 'airport-1',
+      username: 'Supervisor',
+      role: 'supervisor',
+      email: 'supervisor@example.com',
+      lastLogin: null,
+      washroomIds: [],
+      authToken: 'token',
+      refreshToken: 'refresh-token',
+    );
+
+    expect(session.isSupervisor, isTrue);
   });
 }

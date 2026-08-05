@@ -160,10 +160,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get feedbackLanguageEnglish => 'EN';
 
   @override
-  String get feedbackLanguageHindi => 'हिं';
+  String get feedbackLanguageHindi => 'हिन्दी';
 
   @override
   String get languageSelectorTooltip => 'भाषा चुनें';
+
+  @override
+  String get switchToLightModeTooltip => 'लाइट मोड पर जाएं';
+
+  @override
+  String get switchToDarkModeTooltip => 'डार्क मोड पर जाएं';
 
   @override
   String get languageEnglish => 'अंग्रेज़ी';
@@ -209,6 +215,18 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get feedbackQrDialogCloseButton => 'बंद करें';
+
+  @override
+  String get feedbackVideoLabel => 'हवाई अड्डे के अनुभव का वीडियो';
+
+  @override
+  String get feedbackVideoUnavailable => 'वीडियो उपलब्ध नहीं है';
+
+  @override
+  String get feedbackVideoPlayTooltip => 'वीडियो चलाएं';
+
+  @override
+  String get feedbackVideoPauseTooltip => 'वीडियो रोकें';
 
   @override
   String get metricAqiLabel => 'AQI';
