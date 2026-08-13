@@ -622,4 +622,71 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get ticketHistoryExportFailed =>
       'टिकट इतिहास निर्यात नहीं किया जा सका।';
+
+  @override
+  String get notificationsTitle => 'सूचनाएं';
+
+  @override
+  String get notificationsEmptyMessage => 'अभी कोई सूचना नहीं है।';
+
+  @override
+  String get markAllReadTooltip => 'सभी को पढ़ा हुआ चिह्नित करें';
+
+  @override
+  String get clearNotificationsTooltip => 'सभी हटाएं';
+
+  @override
+  String get notificationTicketAssignedTitle => 'नया टिकट सौंपा गया';
+
+  @override
+  String notificationTicketAssignedBody(String ticketId, String washroomId) {
+    return 'टिकट $ticketId को $washroomId पर आपके ध्यान की आवश्यकता है।';
+  }
+
+  @override
+  String get notificationTicketEscalatedTitle => 'टिकट बढ़ाया गया';
+
+  @override
+  String notificationTicketEscalatedBody(String ticketId, String washroomId) {
+    return '$washroomId पर टिकट $ticketId को बढ़ा दिया गया है।';
+  }
+
+  @override
+  String get notificationTicketAcknowledgedTitle => 'टिकट स्वीकृत';
+
+  @override
+  String notificationTicketAcknowledgedBody(String ticketId) {
+    return 'टिकट $ticketId स्वीकार कर लिया गया है।';
+  }
+
+  @override
+  String get notificationTicketCompletedTitle => 'टिकट पूर्ण हुआ';
+
+  @override
+  String notificationTicketCompletedBody(String ticketId) {
+    return 'टिकट $ticketId पूरा हो गया है।';
+  }
+
+  @override
+  String get notificationFeedbackNegativeTitle =>
+      'नकारात्मक प्रतिक्रिया प्राप्त हुई';
+
+  @override
+  String notificationFeedbackNegativeBody(String washroomId) {
+    return 'एक यात्री ने $washroomId पर समस्या की सूचना दी है।';
+  }
+
+  @override
+  String get notificationShiftReminderTitle => 'शिफ्ट अनुस्मारक';
+
+  @override
+  String notificationShiftReminderBody(String shiftLabel) {
+    return 'आपकी शिफ्ट $shiftLabel शुरू होने वाली है।';
+  }
+
+  @override
+  String get notificationGeneralTitle => 'नई सूचना';
+
+  @override
+  String get notificationGeneralBody => 'आपके लिए एक नया अपडेट है।';
 }

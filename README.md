@@ -51,21 +51,40 @@ lib/
 
 Environment config is centralized in `EnvironmentConfig` and read from Dart defines.
 
+Per-flavor config lives in `env/*.env` (dotenv format) and is loaded with Flutter's
+built-in `--dart-define-from-file` flag. Edit the file to configure a flavor:
+
 ```sh
-flutter run --flavor dev --dart-define=FLAVOR=dev
-flutter run --flavor qa --dart-define=FLAVOR=qa
-flutter run --flavor prod --dart-define=FLAVOR=prod
+# .vscode/launch.json already wires these up for F5 debugging.
+flutter run --flavor dev  --dart-define-from-file=env/dev.env
+flutter run --flavor qa   --dart-define-from-file=env/qa.env
+flutter run --flavor prod --dart-define-from-file=env/prod.env
+
+# Production scripts:
+./scripts/run-prod.sh
+./scripts/build-prod-android.sh
 ```
 
-Optional defines:
+Env files hold these keys (all become `String.fromEnvironment`/`bool.fromEnvironment`
+constants):
 
 ```sh
---dart-define=API_BASE_URL=https://example.com/api/v1
---dart-define=PORTAL_BASE_URL=https://mial.smartdigibuild.net
---dart-define=FEEDBACK_WEB_URL=https://mial.smartdigibuild.net/#/auth/feedback
---dart-define=TENANT_SLUG=tenant-slug
---dart-define=ONESIGNAL_APP_ID=your-app-id
---dart-define=ENABLE_NETWORK_LOGGING=false
+FLAVOR=prod
+TENANT_SLUG=mial
+API_BASE_URL=https://api.wms-prod.smartdigibuild.net/api/v1
+PORTAL_BASE_URL=https://mial.smartdigibuild.net
+FEEDBACK_WEB_URL="https://mial.smartdigibuild.net/#/auth/feedback" # optional (quote values containing #)
+FEEDBACK_VIDEO_URL=...                                             # optional
+ONESIGNAL_APP_ID=your-one-signal-app-id                            # required for push
+ENABLE_NETWORK_LOGGING=false
+```
+
+Individual `--dart-define=KEY=VALUE` args (or `KEY=VALUE ./scripts/run-prod.sh`)
+override the file, e.g.:
+
+```sh
+flutter run --flavor dev --dart-define-from-file=env/dev.env \
+  --dart-define=API_BASE_URL=http://localhost:9000/api/v1
 ```
 
 PROD defaults to `https://api.wms-prod.smartdigibuild.net/api/v1` and

@@ -1207,6 +1207,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not export ticket history.'**
   String get ticketHistoryExportFailed;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet.'**
+  String get notificationsEmptyMessage;
+
+  /// No description provided for @markAllReadTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllReadTooltip;
+
+  /// No description provided for @clearNotificationsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearNotificationsTooltip;
+
+  /// No description provided for @notificationTicketAssignedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New ticket assigned'**
+  String get notificationTicketAssignedTitle;
+
+  /// No description provided for @notificationTicketAssignedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket {ticketId} needs your attention at {washroomId}.'**
+  String notificationTicketAssignedBody(String ticketId, String washroomId);
+
+  /// No description provided for @notificationTicketEscalatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket escalated'**
+  String get notificationTicketEscalatedTitle;
+
+  /// No description provided for @notificationTicketEscalatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket {ticketId} at {washroomId} has been escalated.'**
+  String notificationTicketEscalatedBody(String ticketId, String washroomId);
+
+  /// No description provided for @notificationTicketAcknowledgedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket acknowledged'**
+  String get notificationTicketAcknowledgedTitle;
+
+  /// No description provided for @notificationTicketAcknowledgedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket {ticketId} has been acknowledged.'**
+  String notificationTicketAcknowledgedBody(String ticketId);
+
+  /// No description provided for @notificationTicketCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket completed'**
+  String get notificationTicketCompletedTitle;
+
+  /// No description provided for @notificationTicketCompletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket {ticketId} has been completed.'**
+  String notificationTicketCompletedBody(String ticketId);
+
+  /// No description provided for @notificationFeedbackNegativeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative feedback received'**
+  String get notificationFeedbackNegativeTitle;
+
+  /// No description provided for @notificationFeedbackNegativeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A passenger reported an issue at {washroomId}.'**
+  String notificationFeedbackNegativeBody(String washroomId);
+
+  /// No description provided for @notificationShiftReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift reminder'**
+  String get notificationShiftReminderTitle;
+
+  /// No description provided for @notificationShiftReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shift {shiftLabel} is about to start.'**
+  String notificationShiftReminderBody(String shiftLabel);
+
+  /// No description provided for @notificationGeneralTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New notification'**
+  String get notificationGeneralTitle;
+
+  /// No description provided for @notificationGeneralBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have a new update.'**
+  String get notificationGeneralBody;
 }
 
 class _AppLocalizationsDelegate

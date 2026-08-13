@@ -616,4 +616,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ticketHistoryExportFailed => 'Could not export ticket history.';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsEmptyMessage => 'No notifications yet.';
+
+  @override
+  String get markAllReadTooltip => 'Mark all as read';
+
+  @override
+  String get clearNotificationsTooltip => 'Clear all';
+
+  @override
+  String get notificationTicketAssignedTitle => 'New ticket assigned';
+
+  @override
+  String notificationTicketAssignedBody(String ticketId, String washroomId) {
+    return 'Ticket $ticketId needs your attention at $washroomId.';
+  }
+
+  @override
+  String get notificationTicketEscalatedTitle => 'Ticket escalated';
+
+  @override
+  String notificationTicketEscalatedBody(String ticketId, String washroomId) {
+    return 'Ticket $ticketId at $washroomId has been escalated.';
+  }
+
+  @override
+  String get notificationTicketAcknowledgedTitle => 'Ticket acknowledged';
+
+  @override
+  String notificationTicketAcknowledgedBody(String ticketId) {
+    return 'Ticket $ticketId has been acknowledged.';
+  }
+
+  @override
+  String get notificationTicketCompletedTitle => 'Ticket completed';
+
+  @override
+  String notificationTicketCompletedBody(String ticketId) {
+    return 'Ticket $ticketId has been completed.';
+  }
+
+  @override
+  String get notificationFeedbackNegativeTitle => 'Negative feedback received';
+
+  @override
+  String notificationFeedbackNegativeBody(String washroomId) {
+    return 'A passenger reported an issue at $washroomId.';
+  }
+
+  @override
+  String get notificationShiftReminderTitle => 'Shift reminder';
+
+  @override
+  String notificationShiftReminderBody(String shiftLabel) {
+    return 'Your shift $shiftLabel is about to start.';
+  }
+
+  @override
+  String get notificationGeneralTitle => 'New notification';
+
+  @override
+  String get notificationGeneralBody => 'You have a new update.';
 }

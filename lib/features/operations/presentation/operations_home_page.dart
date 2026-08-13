@@ -9,6 +9,7 @@ import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
 import '../../../shared/widgets/stat_card.dart';
 import '../../auth/data/session_controller.dart';
+import '../../notifications/data/notification_inbox_controller.dart';
 import '../../tenant/data/tenant_controller.dart';
 import '../data/operations_repository.dart';
 import '../domain/ticket_models.dart';
@@ -61,7 +62,7 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
         actions: [
           IconButton(
             tooltip: l10n.notificationsTooltip,
-            onPressed: () => _showSnack(l10n.noNotificationsMessage),
+            onPressed: () => context.go('/notifications'),
             icon: const _NotificationIcon(),
           ),
           IconButton(
@@ -164,27 +165,29 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
   }
 }
 
-class _NotificationIcon extends StatelessWidget {
+class _NotificationIcon extends ConsumerWidget {
   const _NotificationIcon();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unread = ref.watch(notificationInboxControllerProvider).unreadCount;
     return Stack(
       clipBehavior: Clip.none,
       children: [
         const Icon(Icons.notifications_none_rounded, size: 28),
-        Positioned(
-          top: 1,
-          right: 1,
-          child: Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: AdaniColors.error,
-              shape: BoxShape.circle,
+        if (unread > 0)
+          Positioned(
+            top: 1,
+            right: 1,
+            child: Container(
+              width: 9,
+              height: 9,
+              decoration: const BoxDecoration(
+                color: AdaniColors.error,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -218,6 +221,14 @@ class _OperationsDrawer extends ConsumerWidget {
               onTap: () {
                 Navigator.of(context).pop();
                 context.go('/operations/ticket-history');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_outlined),
+              title: Text(l10n.notificationsTitle),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/notifications');
               },
             ),
             ListTile(

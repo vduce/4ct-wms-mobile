@@ -285,5 +285,71 @@
   "toDateBeforeFromDateMessage": "To date cannot be before From date.",
   "noTicketsToExportMessage": "No tickets are available to export.",
   "ticketHistoryExportText": "CSV export from Smart Washroom",
-  "ticketHistoryExportFailed": "Could not export ticket history."
+  "ticketHistoryExportFailed": "Could not export ticket history.",
+  "notificationsTitle": "Notifications",
+  "notificationsEmptyMessage": "No notifications yet.",
+  "markAllReadTooltip": "Mark all as read",
+  "clearNotificationsTooltip": "Clear all",
+  "notificationTicketAssignedTitle": "New ticket assigned",
+  "notificationTicketAssignedBody": "Ticket {ticketId} needs your attention at {washroomId}.",
+  "@notificationTicketAssignedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      },
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTicketEscalatedTitle": "Ticket escalated",
+  "notificationTicketEscalatedBody": "Ticket {ticketId} at {washroomId} has been escalated.",
+  "@notificationTicketEscalatedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      },
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTicketAcknowledgedTitle": "Ticket acknowledged",
+  "notificationTicketAcknowledgedBody": "Ticket {ticketId} has been acknowledged.",
+  "@notificationTicketAcknowledgedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTicketCompletedTitle": "Ticket completed",
+  "notificationTicketCompletedBody": "Ticket {ticketId} has been completed.",
+  "@notificationTicketCompletedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFeedbackNegativeTitle": "Negative feedback received",
+  "notificationFeedbackNegativeBody": "A passenger reported an issue at {washroomId}.",
+  "@notificationFeedbackNegativeBody": {
+    "placeholders": {
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationShiftReminderTitle": "Shift reminder",
+  "notificationShiftReminderBody": "Your shift {shiftLabel} is about to start.",
+  "@notificationShiftReminderBody": {
+    "placeholders": {
+      "shiftLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationGeneralTitle": "New notification",
+  "notificationGeneralBody": "You have a new update."
 }

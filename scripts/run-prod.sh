@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Base config comes from env/prod.env (edit that file to configure).
+# Optional per-run overrides via shell env / extra args:
+#   TENANT_SLUG=foo ./scripts/run-prod.sh
+#   ./scripts/run-prod.sh --dart-define=API_BASE_URL=...
+# A --dart-define passed on the command line takes precedence over the file.
+
+DEFINES=(--dart-define-from-file=env/prod.env)
+if [[ -n "${TENANT_SLUG:-}" ]]; then DEFINES+=(--dart-define=TENANT_SLUG="$TENANT_SLUG"); fi
+if [[ -n "${API_BASE_URL:-}" ]]; then DEFINES+=(--dart-define=API_BASE_URL="$API_BASE_URL"); fi
+if [[ -n "${PORTAL_BASE_URL:-}" ]]; then DEFINES+=(--dart-define=PORTAL_BASE_URL="$PORTAL_BASE_URL"); fi
+if [[ -n "${ONESIGNAL_APP_ID:-}" ]]; then DEFINES+=(--dart-define=ONESIGNAL_APP_ID="$ONESIGNAL_APP_ID"); fi
+
 flutter run \
   --flavor prod \
-  --dart-define=FLAVOR=prod \
-  --dart-define=TENANT_SLUG="${TENANT_SLUG:-mial}" \
-  --dart-define=API_BASE_URL="${API_BASE_URL:-https://api.wms-prod.smartdigibuild.net/api/v1}" \
-  --dart-define=PORTAL_BASE_URL="${PORTAL_BASE_URL:-https://mial.smartdigibuild.net}" \
+  "${DEFINES[@]}" \
   "$@"

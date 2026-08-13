@@ -7,6 +7,7 @@ import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/splash_page.dart';
 import '../../features/dashboard/presentation/dashboard_page.dart';
 import '../../features/feedback/presentation/feedback_device_page.dart';
+import '../../features/notifications/presentation/notifications_page.dart';
 import '../../features/operations/presentation/operations_home_page.dart';
 import '../../features/operations/presentation/ticket_history_page.dart';
 import '../../features/operations/presentation/ticket_detail_page.dart';
@@ -62,6 +63,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/operations/dashboard',
             builder: (_, _) => const DashboardPage(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (_, _) => const NotificationsPage(),
           ),
           GoRoute(
             path: '/feedback/screensaver',

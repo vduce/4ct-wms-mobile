@@ -1,39 +1,169 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
+import '../../../app/router/app_router.dart';
 import '../../../core/config/environment_config.dart';
 import '../../../core/logging/app_logger.dart';
+import '../../../core/storage/secure_storage.dart';
+import '../../../core/storage/session_keys.dart';
+import '../../auth/data/auth_repository.dart';
+import '../../auth/data/session_controller.dart';
+import '../../auth/domain/user_session.dart';
+import '../domain/notification_models.dart';
+import 'notification_inbox_controller.dart';
 
-final notificationServiceProvider = Provider<NotificationService>((ref) {
-  return NotificationService(
+final oneSignalServiceProvider = Provider<OneSignalService>((ref) {
+  return OneSignalService(
     ref.watch(environmentConfigProvider),
     ref.watch(appLoggerProvider),
+    ref,
   );
 });
 
-class NotificationService {
-  const NotificationService(this._config, this._logger);
+/// Shared OneSignal setup for Android and iOS. Initializes from
+/// `EnvironmentConfig.oneSignalAppId`, requests permission, normalizes push
+/// into [AppNotification] for the shared inbox, routes clicks via go_router
+/// and keeps the backend push token + OneSignal user in sync with the session.
+/// Rendering copy is delegated to `NotificationTemplateService`.
+class OneSignalService {
+  OneSignalService(this._config, this._logger, this._ref);
 
   final EnvironmentConfig _config;
   final AppLogger _logger;
+  final Ref _ref;
+
+  bool _initialized = false;
 
   Future<void> initialize() async {
+    if (_initialized) return;
     if (_config.oneSignalAppId.isEmpty) {
       _logger.warning('OneSignal App ID is not configured for this flavor.');
       return;
     }
 
-    OneSignal.initialize(_config.oneSignalAppId);
-    await OneSignal.Notifications.requestPermission(true);
+    OneSignal.Debug.setLogLevel(
+      _config.enableNetworkLogging ? OSLogLevel.verbose : OSLogLevel.error,
+    );
+    await OneSignal.initialize(_config.oneSignalAppId);
+    _initialized = true;
 
+    _registerForegroundListener();
+    _registerClickListener();
+    _registerSubscriptionObserver();
+    _registerPermissionObserver();
+
+    await _requestPermission();
+  }
+
+  Future<bool> _requestPermission() async {
+    final granted = await OneSignal.Notifications.requestPermission(true);
+    _logger.info('OneSignal push permission granted: $granted');
+    return granted;
+  }
+
+  void _registerForegroundListener() {
     OneSignal.Notifications.addForegroundWillDisplayListener((event) {
-      _logger.info('Foreground notification: ${event.notification.title}');
+      final notification = event.notification;
+      _storeInInbox(notification);
       event.notification.display();
     });
+  }
 
+  void _registerClickListener() {
     OneSignal.Notifications.addClickListener((event) {
-      _logger.info('Notification opened: ${event.notification.additionalData}');
-      // TODO: parse deep link payloads and route through go_router.
+      final notification = event.notification;
+      _storeInInbox(notification);
+      _handleDeepLink(notification);
     });
+  }
+
+  void _registerSubscriptionObserver() {
+    OneSignal.User.pushSubscription.addObserver((state) {
+      final token = state.current.token ?? state.current.id;
+      if (token != null && token.isNotEmpty) {
+        unawaited(_onPushTokenChanged(token));
+      }
+    });
+  }
+
+  void _registerPermissionObserver() {
+    OneSignal.Notifications.addPermissionObserver((permission) {
+      _logger.info('OneSignal push permission changed: $permission');
+    });
+  }
+
+  Future<void> _onPushTokenChanged(String token) async {
+    await _ref.read(secureStorageProvider).write(SessionKeys.pushToken, token);
+    final session = _ref.read(sessionControllerProvider).session;
+    if (session != null) {
+      await _syncPushToken(session, token);
+    }
+  }
+
+  Future<void> _syncPushToken(UserSession session, String token) async {
+    try {
+      await _ref
+          .read(authRepositoryProvider)
+          .updatePushToken(userId: session.userId, token: token);
+    } catch (error, stackTrace) {
+      _logger.warning('Failed to sync push token.', error, stackTrace);
+    }
+  }
+
+  /// Associates the OneSignal user with the authenticated user id.
+  Future<void> login(String externalId) async {
+    if (!_initialized || externalId.isEmpty) return;
+    try {
+      await OneSignal.login(externalId);
+      _logger.info('OneSignal user logged in: $externalId');
+    } catch (error, stackTrace) {
+      _logger.warning('OneSignal login failed.', error, stackTrace);
+    }
+  }
+
+  /// Detaches the OneSignal user on sign out.
+  Future<void> logout() async {
+    if (!_initialized) return;
+    try {
+      await OneSignal.logout();
+      _logger.info('OneSignal user logged out.');
+    } catch (error, stackTrace) {
+      _logger.warning('OneSignal logout failed.', error, stackTrace);
+    }
+  }
+
+  void _storeInInbox(OSNotification notification) {
+    final data = notification.additionalData ?? <String, dynamic>{};
+    final appNotification = AppNotification.fromOneSignalPayload(
+      Map<String, Object?>.from(data),
+      id: notification.notificationId.isNotEmpty
+          ? notification.notificationId
+          : DateTime.now().millisecondsSinceEpoch.toString(),
+      fallbackTitle: notification.title,
+      fallbackBody: notification.body,
+    );
+    unawaited(
+      _ref
+          .read(notificationInboxControllerProvider.notifier)
+          .add(appNotification),
+    );
+  }
+
+  void _handleDeepLink(OSNotification notification) {
+    final data = notification.additionalData ?? <String, dynamic>{};
+    final deepLink =
+        data['deepLink']?.toString() ??
+        data['route']?.toString() ??
+        data['screen']?.toString();
+    if (deepLink == null || deepLink.isEmpty) return;
+
+    try {
+      _ref.read(appRouterProvider).go(deepLink);
+    } catch (error, stackTrace) {
+      _logger.warning('Invalid deep link from notification: $deepLink');
+      _logger.warning('', error, stackTrace);
+    }
   }
 }

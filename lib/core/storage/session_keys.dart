@@ -12,5 +12,6 @@ abstract final class SessionKeys {
   static const washroomIds = 'washroomIds';
   static const webappUrl = 'webappUrl';
   static const pushToken = 'NotiToken';
+  static const notificationInbox = 'notificationInbox';
   static const cachedBranding = 'cachedBranding';
 }

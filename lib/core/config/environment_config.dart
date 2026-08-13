@@ -29,12 +29,12 @@ class EnvironmentConfig {
     );
 
     final defaultBaseUrl = switch (flavor) {
-      AppFlavor.dev => 'http://localhost:9000/api/v1',
+      AppFlavor.dev => 'https://api.wms-dev.smartdigibuild.net/api/v1',
       AppFlavor.qa => 'https://qa-api.4ctwms.com/api/v1',
       AppFlavor.prod => 'https://api.wms-prod.smartdigibuild.net/api/v1',
     };
     final defaultPortalBaseUrl = switch (flavor) {
-      AppFlavor.dev => 'http://localhost:3000',
+      AppFlavor.dev => 'https://api.wms-dev.smartdigibuild.net',
       AppFlavor.qa => 'https://qa.4ctwms.com',
       AppFlavor.prod => 'https://mial.smartdigibuild.net',
     };

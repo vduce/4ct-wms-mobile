@@ -278,5 +278,71 @@
   "toDateBeforeFromDateMessage": "अंतिम तिथि आरंभ तिथि से पहले नहीं हो सकती।",
   "noTicketsToExportMessage": "निर्यात के लिए कोई टिकट उपलब्ध नहीं है।",
   "ticketHistoryExportText": "स्मार्ट वॉशरूम से CSV निर्यात",
-  "ticketHistoryExportFailed": "टिकट इतिहास निर्यात नहीं किया जा सका।"
+  "ticketHistoryExportFailed": "टिकट इतिहास निर्यात नहीं किया जा सका।",
+  "notificationsTitle": "सूचनाएं",
+  "notificationsEmptyMessage": "अभी कोई सूचना नहीं है।",
+  "markAllReadTooltip": "सभी को पढ़ा हुआ चिह्नित करें",
+  "clearNotificationsTooltip": "सभी हटाएं",
+  "notificationTicketAssignedTitle": "नया टिकट सौंपा गया",
+  "notificationTicketAssignedBody": "टिकट {ticketId} को {washroomId} पर आपके ध्यान की आवश्यकता है।",
+  "@notificationTicketAssignedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      },
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTicketEscalatedTitle": "टिकट बढ़ाया गया",
+  "notificationTicketEscalatedBody": "{washroomId} पर टिकट {ticketId} को बढ़ा दिया गया है।",
+  "@notificationTicketEscalatedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      },
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTicketAcknowledgedTitle": "टिकट स्वीकृत",
+  "notificationTicketAcknowledgedBody": "टिकट {ticketId} स्वीकार कर लिया गया है।",
+  "@notificationTicketAcknowledgedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTicketCompletedTitle": "टिकट पूर्ण हुआ",
+  "notificationTicketCompletedBody": "टिकट {ticketId} पूरा हो गया है।",
+  "@notificationTicketCompletedBody": {
+    "placeholders": {
+      "ticketId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFeedbackNegativeTitle": "नकारात्मक प्रतिक्रिया प्राप्त हुई",
+  "notificationFeedbackNegativeBody": "एक यात्री ने {washroomId} पर समस्या की सूचना दी है।",
+  "@notificationFeedbackNegativeBody": {
+    "placeholders": {
+      "washroomId": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationShiftReminderTitle": "शिफ्ट अनुस्मारक",
+  "notificationShiftReminderBody": "आपकी शिफ्ट {shiftLabel} शुरू होने वाली है।",
+  "@notificationShiftReminderBody": {
+    "placeholders": {
+      "shiftLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationGeneralTitle": "नई सूचना",
+  "notificationGeneralBody": "आपके लिए एक नया अपडेट है।"
 }
