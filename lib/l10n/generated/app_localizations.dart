@@ -170,6 +170,24 @@ abstract class AppLocalizations {
   /// **'Sign out'**
   String get signOutTooltip;
 
+  /// No description provided for @signOutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of your account?'**
+  String get signOutConfirmTitle;
+
+  /// No description provided for @signOutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ll need to sign in again before continuing your washroom operations.'**
+  String get signOutConfirmMessage;
+
+  /// No description provided for @staySignedInButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay signed in'**
+  String get staySignedInButton;
+
   /// No description provided for @openNavigationTooltip.
   ///
   /// In en, this message translates to:
@@ -758,17 +776,29 @@ abstract class AppLocalizations {
   /// **'Ticket history'**
   String get ticketHistoryTitle;
 
-  /// No description provided for @lastLoginLabel.
+  /// No description provided for @lastLoginTitle.
   ///
   /// In en, this message translates to:
-  /// **'Login {value}'**
-  String lastLoginLabel(String value);
+  /// **'Last login'**
+  String get lastLoginTitle;
 
-  /// No description provided for @activeShiftLabel.
+  /// No description provided for @currentShiftTitle.
   ///
   /// In en, this message translates to:
-  /// **'Shift {value}'**
-  String activeShiftLabel(String value);
+  /// **'Current shift'**
+  String get currentShiftTitle;
+
+  /// No description provided for @notAvailableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get notAvailableLabel;
+
+  /// No description provided for @shiftNotScheduledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not scheduled'**
+  String get shiftNotScheduledLabel;
 
   /// No description provided for @ticketStatusCardsTitle.
   ///
@@ -853,6 +883,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load supervisor tickets.'**
   String get supervisorTicketsLoadFailed;
+
+  /// No description provided for @supervisorRostersLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load today’s shift schedule.'**
+  String get supervisorRostersLoadFailed;
 
   /// No description provided for @supervisedUnitsLoadFailed.
   ///

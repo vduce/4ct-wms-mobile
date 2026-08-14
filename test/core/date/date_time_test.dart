@@ -27,6 +27,15 @@ void main() {
     );
   });
 
+  test('converts tenant-local calendar time to a UTC instant', () {
+    final value = tenantLocalDateTimeToUtc(
+      value: DateTime.utc(2026, 8, 15, 23, 59, 59, 999),
+      timeZone: 'Asia/Kolkata',
+    );
+
+    expect(value, DateTime.utc(2026, 8, 15, 18, 29, 59, 999));
+  });
+
   test('maps supported 12-hour backend settings to an intl pattern', () {
     final settings = AppDateTimeSettings.fromJson({
       'timezone': 'UTC',

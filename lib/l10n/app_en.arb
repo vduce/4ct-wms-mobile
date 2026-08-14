@@ -12,6 +12,9 @@
   "enterSixDigitOtpError": "Enter a 6 digit OTP.",
   "operationsTitle": "Operations",
   "signOutTooltip": "Sign out",
+  "signOutConfirmTitle": "Sign out of your account?",
+  "signOutConfirmMessage": "You’ll need to sign in again before continuing your washroom operations.",
+  "staySignedInButton": "Stay signed in",
   "openNavigationTooltip": "Open navigation",
   "notificationsTooltip": "Notifications",
   "noNotificationsMessage": "No new notifications.",
@@ -141,22 +144,10 @@
   "feedbackDeviceNotReadyTitle": "Feedback device is not ready",
   "retryButton": "Retry",
   "ticketHistoryTitle": "Ticket history",
-  "lastLoginLabel": "Login {value}",
-  "@lastLoginLabel": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "activeShiftLabel": "Shift {value}",
-  "@activeShiftLabel": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
+  "lastLoginTitle": "Last login",
+  "currentShiftTitle": "Current shift",
+  "notAvailableLabel": "Not available",
+  "shiftNotScheduledLabel": "Not scheduled",
   "ticketStatusCardsTitle": "Ticket overview",
   "viewHistoryButton": "View history",
   "passengerFlowTitle": "Passenger flow",
@@ -199,6 +190,7 @@
   "emptyScheduleMessage": "No janitor schedule is available for this window.",
   "emptyPassengerFlowMessage": "No passenger flow peaks are available.",
   "supervisorTicketsLoadFailed": "Could not load supervisor tickets.",
+  "supervisorRostersLoadFailed": "Could not load today’s shift schedule.",
   "supervisedUnitsLoadFailed": "Could not load supervised washrooms.",
   "passengerFlowLoadFailed": "Could not load passenger flow.",
   "noWashroomsAssignedMessage": "No washrooms are assigned to this user.",

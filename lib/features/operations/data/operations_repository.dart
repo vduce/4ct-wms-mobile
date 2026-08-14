@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/date/date_time.dart';
 import '../../../core/network/dio_provider.dart';
 import '../../auth/data/session_controller.dart';
+import '../../tenant/data/tenant_controller.dart';
 import '../domain/ticket_models.dart';
 
 final operationsRepositoryProvider = Provider<OperationsRepository>((ref) {
@@ -13,7 +15,12 @@ final todaysSupervisorTicketsProvider =
     FutureProvider.autoDispose<SupervisorTicketList>((ref) async {
       final session = ref.watch(sessionControllerProvider).session;
       if (session == null) return _emptyTicketList();
-      final range = DateRange.todayOperationalWindow();
+      final dateTimeSettings = ref
+          .watch(tenantControllerProvider)
+          .dateTimeSettings;
+      final range = DateRange.todayOperationalWindow(
+        dateTimeSettings: dateTimeSettings,
+      );
       return ref
           .read(operationsRepositoryProvider)
           .fetchTickets(
@@ -30,6 +37,32 @@ final supervisedWashroomsProvider =
       return ref
           .read(operationsRepositoryProvider)
           .fetchWashrooms(session.washroomIds);
+    });
+
+final supervisedRostersProvider =
+    FutureProvider.autoDispose<List<SupervisorRoster>>((ref) async {
+      final session = ref.watch(sessionControllerProvider).session;
+      if (session == null) return const [];
+      final dateTimeSettings = ref
+          .watch(tenantControllerProvider)
+          .dateTimeSettings;
+      final range = DateRange.todayOperationalWindow(
+        dateTimeSettings: dateTimeSettings,
+      );
+      final tenantStart = tenantDateTimeFromUtc(
+        value: range.start,
+        timeZone: dateTimeSettings.timeZone,
+      );
+      final tenantEnd = tenantDateTimeFromUtc(
+        value: range.end,
+        timeZone: dateTimeSettings.timeZone,
+      );
+      return ref
+          .read(operationsRepositoryProvider)
+          .fetchSupervisedRosters(
+            startDate: _dateKey(tenantStart),
+            endDate: _dateKey(tenantEnd),
+          );
     });
 
 final ticketDetailProvider = FutureProvider.autoDispose
@@ -114,6 +147,32 @@ class OperationsRepository {
     return results.whereType<SupervisorWashroom>().toList();
   }
 
+  Future<List<SupervisorRoster>> fetchSupervisedRosters({
+    required String startDate,
+    required String endDate,
+  }) async {
+    final response = await _dio.get<Map<String, Object?>>(
+      '/rosters/supervised-units',
+      queryParameters: {'startDate': startDate, 'endDate': endDate},
+    );
+    final rows = response.data?['data'];
+    if (rows is! List) {
+      throw const FormatException(
+        'Supervised rosters response must contain a data list.',
+      );
+    }
+    final rosters = <SupervisorRoster>[];
+    for (final item in rows) {
+      if (item is! Map) {
+        throw const FormatException(
+          'Supervised rosters response contains an invalid item.',
+        );
+      }
+      rosters.add(SupervisorRoster.fromJson(Map<String, Object?>.from(item)));
+    }
+    return rosters;
+  }
+
   Future<List<PassengerPeak>> fetchPassengerPeaks({
     required List<String> washroomIds,
     required DateRange range,
@@ -183,6 +242,12 @@ class OperationsRepository {
     if (data is Map) return Map<String, Object?>.from(data);
     return raw;
   }
+}
+
+String _dateKey(DateTime value) {
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+  return '${value.year}-$month-$day';
 }
 
 SupervisorTicketList _emptyTicketList() {

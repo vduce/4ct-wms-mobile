@@ -46,6 +46,17 @@ class AppLocalizationsHi extends AppLocalizations {
   String get signOutTooltip => 'साइन आउट करें';
 
   @override
+  String get signOutConfirmTitle =>
+      'क्या आप अपने खाते से साइन आउट करना चाहते हैं?';
+
+  @override
+  String get signOutConfirmMessage =>
+      'वॉशरूम संचालन जारी रखने से पहले आपको फिर से साइन इन करना होगा।';
+
+  @override
+  String get staySignedInButton => 'साइन इन रहें';
+
+  @override
   String get openNavigationTooltip => 'नेविगेशन खोलें';
 
   @override
@@ -369,14 +380,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get ticketHistoryTitle => 'टिकट इतिहास';
 
   @override
-  String lastLoginLabel(String value) {
-    return 'लॉगिन $value';
-  }
+  String get lastLoginTitle => 'पिछला लॉगिन';
 
   @override
-  String activeShiftLabel(String value) {
-    return 'शिफ्ट $value';
-  }
+  String get currentShiftTitle => 'वर्तमान शिफ्ट';
+
+  @override
+  String get notAvailableLabel => 'उपलब्ध नहीं';
+
+  @override
+  String get shiftNotScheduledLabel => 'निर्धारित नहीं';
 
   @override
   String get ticketStatusCardsTitle => 'टिकट अवलोकन';
@@ -429,6 +442,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get supervisorTicketsLoadFailed => 'पर्यवेक्षक टिकट लोड नहीं हो सके।';
+
+  @override
+  String get supervisorRostersLoadFailed =>
+      'आज की शिफ्ट समय-सारणी लोड नहीं हो सकी।';
 
   @override
   String get supervisedUnitsLoadFailed => 'पर्यवेक्षित शौचालय लोड नहीं हो सके।';

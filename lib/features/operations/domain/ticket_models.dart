@@ -9,11 +9,38 @@ enum SupervisorWashroomType { male, female, handicapped, unisex, unknown }
 class DateRange {
   const DateRange({required this.start, required this.end});
 
-  factory DateRange.todayOperationalWindow() {
-    final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day - 1);
-    final end = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
-    return DateRange(start: start, end: end);
+  factory DateRange.todayOperationalWindow({
+    required AppDateTimeSettings dateTimeSettings,
+    DateTime? now,
+  }) {
+    final tenantNow = tenantDateTimeFromUtc(
+      value: (now ?? DateTime.now()).toUtc(),
+      timeZone: dateTimeSettings.timeZone,
+    );
+    final startLocal = DateTime.utc(
+      tenantNow.year,
+      tenantNow.month,
+      tenantNow.day - 1,
+    );
+    final endLocal = DateTime.utc(
+      tenantNow.year,
+      tenantNow.month,
+      tenantNow.day,
+      23,
+      59,
+      59,
+      999,
+    );
+    return DateRange(
+      start: tenantLocalDateTimeToUtc(
+        value: startLocal,
+        timeZone: dateTimeSettings.timeZone,
+      ),
+      end: tenantLocalDateTimeToUtc(
+        value: endLocal,
+        timeZone: dateTimeSettings.timeZone,
+      ),
+    );
   }
 
   factory DateRange.fromDateKeys(String fromYmd, String toYmd) {
@@ -124,24 +151,39 @@ class SupervisorTicketList {
     return result;
   }
 
-  Map<SupervisorTicketStatus, int> countDeltasFromYesterday({DateTime? now}) {
-    final localNow = (now ?? DateTime.now()).toLocal();
-    final today = DateTime(localNow.year, localNow.month, localNow.day);
+  Map<SupervisorTicketStatus, int> countDeltasFromYesterday({
+    required AppDateTimeSettings dateTimeSettings,
+    DateTime? now,
+  }) {
+    final tenantNow = tenantDateTimeFromUtc(
+      value: (now ?? DateTime.now()).toUtc(),
+      timeZone: dateTimeSettings.timeZone,
+    );
+    final today = DateTime.utc(tenantNow.year, tenantNow.month, tenantNow.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final todayCounts = _countsForLocalDay(today);
-    final yesterdayCounts = _countsForLocalDay(yesterday);
+    final todayCounts = _countsForTenantDay(today, dateTimeSettings.timeZone);
+    final yesterdayCounts = _countsForTenantDay(
+      yesterday,
+      dateTimeSettings.timeZone,
+    );
     return {
       for (final status in SupervisorTicketStatus.values)
         status: (todayCounts[status] ?? 0) - (yesterdayCounts[status] ?? 0),
     };
   }
 
-  Map<SupervisorTicketStatus, int> _countsForLocalDay(DateTime day) {
+  Map<SupervisorTicketStatus, int> _countsForTenantDay(
+    DateTime day,
+    String timeZone,
+  ) {
     final result = {
       for (final status in SupervisorTicketStatus.values) status: 0,
     };
     for (final ticket in tickets) {
-      final local = ticket.createdAt.toLocal();
+      final local = tenantDateTimeFromUtc(
+        value: ticket.createdAt,
+        timeZone: timeZone,
+      );
       if (local.year != day.year ||
           local.month != day.month ||
           local.day != day.day) {

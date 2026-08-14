@@ -29,6 +29,34 @@ DateTime? parseBackendUtcDate(Object? value) {
   return DateTime.tryParse(hasTimezoneOffset ? normalized : '${normalized}Z');
 }
 
+DateTime tenantDateTimeFromUtc({
+  required DateTime value,
+  required String timeZone,
+}) {
+  return time_zone.TZDateTime.from(
+    value.toUtc(),
+    AppDateTimeFormatter._resolveLocation(timeZone),
+  );
+}
+
+DateTime tenantLocalDateTimeToUtc({
+  required DateTime value,
+  required String timeZone,
+}) {
+  final location = AppDateTimeFormatter._resolveLocation(timeZone);
+  return time_zone.TZDateTime(
+    location,
+    value.year,
+    value.month,
+    value.day,
+    value.hour,
+    value.minute,
+    value.second,
+    value.millisecond,
+    value.microsecond,
+  ).toUtc();
+}
+
 class AppDateTimeSettings {
   const AppDateTimeSettings({
     required this.timeZone,

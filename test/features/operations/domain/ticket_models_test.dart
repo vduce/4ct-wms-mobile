@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:washroom_ops/core/date/date_time.dart';
 import 'package:washroom_ops/features/auth/domain/user_session.dart';
 import 'package:washroom_ops/features/operations/domain/ticket_models.dart';
 
 void main() {
+  setUpAll(initializeAppDateAndTime);
+
   group('ticket status normalization', () {
     test('maps backend variants to canonical supervisor statuses', () {
       expect(
@@ -43,6 +46,35 @@ void main() {
       expect(range.startIsoUtc, localStart.toUtc().toIso8601String());
       expect(range.endIsoUtc, localEnd.toUtc().toIso8601String());
     });
+
+    test('builds the operational window from the tenant timezone', () {
+      final range = DateRange.todayOperationalWindow(
+        dateTimeSettings: AppDateTimeSettings.defaults,
+        now: DateTime.utc(2026, 8, 15, 10),
+      );
+
+      expect(range.start, DateTime.utc(2026, 8, 13, 18, 30));
+      expect(range.end, DateTime.utc(2026, 8, 15, 18, 29, 59, 999));
+    });
+
+    test(
+      'uses the tenant calendar date when device and tenant dates differ',
+      () {
+        const settings = AppDateTimeSettings(
+          timeZone: 'America/New_York',
+          locale: 'en',
+          dateFormat: 'DD.MM.YYYY',
+          timeFormat: '24-hour',
+        );
+        final range = DateRange.todayOperationalWindow(
+          dateTimeSettings: settings,
+          now: DateTime.utc(2026, 8, 15, 1),
+        );
+
+        expect(range.start, DateTime.utc(2026, 8, 13, 4));
+        expect(range.end, DateTime.utc(2026, 8, 15, 3, 59, 59, 999));
+      },
+    );
 
     test('derives completion time and duration from the ticket log', () {
       final detail = SupervisorTicketDetail.fromJson({
@@ -120,6 +152,7 @@ void main() {
       });
 
       final deltas = tickets.countDeltasFromYesterday(
+        dateTimeSettings: AppDateTimeSettings.defaults,
         now: DateTime(2026, 7, 24, 12),
       );
 

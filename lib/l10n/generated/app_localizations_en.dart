@@ -46,6 +46,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOutTooltip => 'Sign out';
 
   @override
+  String get signOutConfirmTitle => 'Sign out of your account?';
+
+  @override
+  String get signOutConfirmMessage =>
+      'You’ll need to sign in again before continuing your washroom operations.';
+
+  @override
+  String get staySignedInButton => 'Stay signed in';
+
+  @override
   String get openNavigationTooltip => 'Open navigation';
 
   @override
@@ -365,14 +375,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ticketHistoryTitle => 'Ticket history';
 
   @override
-  String lastLoginLabel(String value) {
-    return 'Login $value';
-  }
+  String get lastLoginTitle => 'Last login';
 
   @override
-  String activeShiftLabel(String value) {
-    return 'Shift $value';
-  }
+  String get currentShiftTitle => 'Current shift';
+
+  @override
+  String get notAvailableLabel => 'Not available';
+
+  @override
+  String get shiftNotScheduledLabel => 'Not scheduled';
 
   @override
   String get ticketStatusCardsTitle => 'Ticket overview';
@@ -426,6 +438,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get supervisorTicketsLoadFailed =>
       'Could not load supervisor tickets.';
+
+  @override
+  String get supervisorRostersLoadFailed =>
+      'Could not load today’s shift schedule.';
 
   @override
   String get supervisedUnitsLoadFailed =>

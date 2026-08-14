@@ -12,6 +12,9 @@
   "enterSixDigitOtpError": "6 अंकों का ओटीपी दर्ज करें।",
   "operationsTitle": "संचालन",
   "signOutTooltip": "साइन आउट करें",
+  "signOutConfirmTitle": "क्या आप अपने खाते से साइन आउट करना चाहते हैं?",
+  "signOutConfirmMessage": "वॉशरूम संचालन जारी रखने से पहले आपको फिर से साइन इन करना होगा।",
+  "staySignedInButton": "साइन इन रहें",
   "openNavigationTooltip": "नेविगेशन खोलें",
   "notificationsTooltip": "सूचनाएं",
   "noNotificationsMessage": "कोई नई सूचना नहीं है।",
@@ -141,22 +144,10 @@
   "feedbackDeviceNotReadyTitle": "प्रतिक्रिया डिवाइस तैयार नहीं है",
   "retryButton": "फिर प्रयास करें",
   "ticketHistoryTitle": "टिकट इतिहास",
-  "lastLoginLabel": "लॉगिन {value}",
-  "@lastLoginLabel": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "activeShiftLabel": "शिफ्ट {value}",
-  "@activeShiftLabel": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
+  "lastLoginTitle": "पिछला लॉगिन",
+  "currentShiftTitle": "वर्तमान शिफ्ट",
+  "notAvailableLabel": "उपलब्ध नहीं",
+  "shiftNotScheduledLabel": "निर्धारित नहीं",
   "ticketStatusCardsTitle": "टिकट अवलोकन",
   "viewHistoryButton": "इतिहास देखें",
   "passengerFlowTitle": "यात्री प्रवाह",
@@ -192,6 +183,7 @@
   "emptyScheduleMessage": "इस अवधि के लिए सफाईकर्मी कार्यक्रम उपलब्ध नहीं है।",
   "emptyPassengerFlowMessage": "यात्री प्रवाह के अधिकतम आंकड़े उपलब्ध नहीं हैं।",
   "supervisorTicketsLoadFailed": "पर्यवेक्षक टिकट लोड नहीं हो सके।",
+  "supervisorRostersLoadFailed": "आज की शिफ्ट समय-सारणी लोड नहीं हो सकी।",
   "supervisedUnitsLoadFailed": "पर्यवेक्षित शौचालय लोड नहीं हो सके।",
   "passengerFlowLoadFailed": "यात्री प्रवाह लोड नहीं हो सका।",
   "noWashroomsAssignedMessage": "इस उपयोगकर्ता को कोई शौचालय नियुक्त नहीं है।",

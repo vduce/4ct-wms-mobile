@@ -50,6 +50,22 @@
 
 - Every Flutter UI change must be designed and reviewed for both mobile and tablet form factors. Layouts must adapt across portrait, landscape, narrow mobile widths, and tablet/kiosk widths without clipped content, RenderFlex overflow warnings, or controls moving outside the visible area.
 - Before finishing any UI feature, explicitly consider responsive behavior for text wrapping, button sizes, icon visibility, spacing, scrollability, safe areas, and keyboard/input overlays on mobile and tablet.
+
+### Default Screen Design Language
+
+- Use the refined operations-home visual language as the default baseline for every new or updated app screen unless the user supplies a different reference or explicitly requests another style.
+- Use active tenant branding and existing theme/design tokens. For ADANI-branded screens, prefer restrained gradient accents, soft brand-tinted surfaces, clear white space, subtle borders/shadows, and the existing ADANI color tokens. Never hardcode tenant IDs or customer-specific behavior into reusable UI.
+- Keep app bars visually restrained. Prefer theme `titleMedium` or a light `titleLarge` with `FontWeight.w500`; avoid oversized or heavily bold page titles.
+- Give primary cards a clear hierarchy: one prominent human-readable title or name, an optional compact role/status pill, a restrained brand mark, then grouped supporting metadata. Avoid dense single-line summaries.
+- Never expose raw tenant, airport, location, zone, washroom, user, or Mongo ObjectIds as display content when a readable name exists. Resolve the name through existing data providers; when unavailable, omit the identifier or show a localized honest fallback.
+- Render date/time metadata for quick scanning: time as the primary value and date as secondary context. Render shifts as shift name plus formatted start/end time. Show explicit loading, unavailable, and not-scheduled states instead of a bare dash.
+- Use compact overview/KPI cards: two columns on mobile and four on sufficiently wide tablet layouts, neutral or lightly tinted surfaces, a thin semantic accent, compact icon treatment, natural-number counts, clear labels, and secondary trend/context text. Avoid oversized empty card space and decorative zero-padding such as `00`.
+- Preserve approved visual signatures across nearby screens, especially the background swirl and established action-button gradients, unless the user explicitly asks to change them.
+- Keep decoration purposeful. Prefer consistent 16-24px rounded surfaces, subtle elevation, readable contrast, and uncluttered spacing over excessive gradients, shadows, badges, or competing accent colors.
+- Make hero metadata responsive: side-by-side when content has enough width, stacked when constrained. Ensure labels and values remain readable rather than forcing truncation merely to preserve a row.
+- Adapt this language to each screen's task instead of cloning one layout everywhere. Operational screens should remain information-dense and fast to scan; passenger/kiosk screens should remain touch-first and low-friction.
+- Before finishing a visual change, inspect it on a real or representative mobile portrait viewport and a tablet/constrained-landscape viewport. Confirm no overflow, clipped labels, hidden actions, or unreadable dark-mode contrast.
+
 - Treat the feedback-device page as a tablet/kiosk-first airport user flow. It is used directly by passengers on airport feedback tablets, so the primary UX must be fast, obvious, touch-friendly, and resilient.
 - Feedback-device UI must be fully responsive across common tablet sizes and orientations, including constrained landscape viewports. Validate touch targets, text wrapping, icon visibility, and no-overflow behavior when changing this screen.
 - Keep feedback interactions low-friction: positive feedback should be one tap, negative feedback should make reason selection and submission obvious, and transient states must not block the next passenger.
