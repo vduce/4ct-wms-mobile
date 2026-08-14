@@ -81,9 +81,9 @@ class OneSignalService {
 
   void _registerSubscriptionObserver() {
     OneSignal.User.pushSubscription.addObserver((state) {
-      final token = state.current.token ?? state.current.id;
-      if (token != null && token.isNotEmpty) {
-        unawaited(_onPushTokenChanged(token));
+      final playerId = state.current.id ?? state.current.token;
+      if (playerId != null && playerId.isNotEmpty) {
+        unawaited(_onPushTokenChanged(playerId));
       }
     });
   }
@@ -114,9 +114,18 @@ class OneSignalService {
 
   /// Associates the OneSignal user with the authenticated user id.
   Future<void> login(String externalId) async {
-    if (!_initialized || externalId.isEmpty) return;
+    if (externalId.isEmpty) return;
+    if (!_initialized) await initialize();
+    if (!_initialized) return;
     try {
       await OneSignal.login(externalId);
+      final playerId = await _ref
+          .read(secureStorageProvider)
+          .read(SessionKeys.pushToken);
+      if (playerId != null && playerId.isNotEmpty) {
+        final session = _ref.read(sessionControllerProvider).session;
+        if (session != null) await _syncPushToken(session, playerId);
+      }
       _logger.info('OneSignal user logged in: $externalId');
     } catch (error, stackTrace) {
       _logger.warning('OneSignal login failed.', error, stackTrace);

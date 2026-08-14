@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/date/date_time.dart';
+
 class TenantContext {
   const TenantContext({
     required this.tenantId,
@@ -86,27 +88,43 @@ class TenantBranding {
   }
 }
 
+class TenantPresentationSettings {
+  const TenantPresentationSettings({
+    required this.branding,
+    required this.dateTimeSettings,
+  });
+
+  final TenantBranding branding;
+  final AppDateTimeSettings dateTimeSettings;
+}
+
 class TenantState {
   const TenantState({
     required this.branding,
+    required this.dateTimeSettings,
     this.context,
     this.isLoading = false,
   });
 
-  factory TenantState.initial() =>
-      TenantState(branding: TenantBranding.default4ct());
+  factory TenantState.initial() => TenantState(
+    branding: TenantBranding.default4ct(),
+    dateTimeSettings: AppDateTimeSettings.defaults,
+  );
 
   final TenantBranding branding;
+  final AppDateTimeSettings dateTimeSettings;
   final TenantContext? context;
   final bool isLoading;
 
   TenantState copyWith({
     TenantBranding? branding,
+    AppDateTimeSettings? dateTimeSettings,
     TenantContext? context,
     bool? isLoading,
   }) {
     return TenantState(
       branding: branding ?? this.branding,
+      dateTimeSettings: dateTimeSettings ?? this.dateTimeSettings,
       context: context ?? this.context,
       isLoading: isLoading ?? this.isLoading,
     );

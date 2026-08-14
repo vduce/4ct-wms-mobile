@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/date/date_time.dart';
 import '../../domain/notification_models.dart';
 
 /// One row in the local notifications list. Displays the
@@ -102,7 +102,7 @@ class NotificationListCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      _formatTime(notification.receivedAt),
+                      context.formatAppDateTime(notification.receivedAt),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
@@ -116,7 +116,4 @@ class NotificationListCard extends StatelessWidget {
       ),
     );
   }
-
-  String _formatTime(DateTime date) =>
-      DateFormat('dd MMM, h:mm a').format(date);
 }

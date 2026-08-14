@@ -33,7 +33,7 @@ void main() {
         ticketType: 'User',
         assignedUserRole: 'Zone-lead',
         logs: const [],
-        washroomName: 'Arrival family care washroom',
+        washroomName: 'E7 Belt 14 (ARRIVAL SIDE) Family Care 1',
         washroomType: SupervisorWashroomType.unisex,
       ),
     ],
@@ -119,6 +119,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Bin overflowing'), findsOneWidget);
+      expect(
+        find.text('E7 Belt 14 (ARRIVAL SIDE) Family Care 1'),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
 
@@ -165,7 +169,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.text('Ticket Details'), findsOneWidget);
       expect(find.textContaining('Bin overflowing'), findsOneWidget);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -900));
+      await tester.pumpAndSettle();
+      expect(find.text('Update ticket'), findsWidgets);
+      expect(find.text('0/500'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

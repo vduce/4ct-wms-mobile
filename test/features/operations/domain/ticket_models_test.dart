@@ -11,12 +11,57 @@ void main() {
       );
       expect(
         normalizeTicketStatus('Approval'),
-        SupervisorTicketStatus.completed,
+        SupervisorTicketStatus.acknowledge,
       );
       expect(
         normalizeTicketStatus('on escalation'),
         SupervisorTicketStatus.escalated,
       );
+    });
+  });
+
+  group('ticket dates and duration', () {
+    test('keeps ticket number and description as separate fields', () {
+      final detail = SupervisorTicketDetail.fromJson({
+        'ticketNumber': 'TKT-20260813-0001',
+        'sourceRuleName': 'DEV-FIX-VERIFY 04',
+        'reasonType': 'Cleaning',
+        'description': 'Date boundary/list check: verify timezone.',
+      });
+
+      expect(detail.ticketNumber, 'TKT-20260813-0001');
+      expect(detail.sourceRuleName, 'DEV-FIX-VERIFY 04');
+      expect(detail.description, 'Date boundary/list check: verify timezone.');
+      expect(detail.category, 'Cleaning');
+    });
+
+    test('serializes local date ranges as the correct UTC instants', () {
+      final range = DateRange.fromDateKeys('2026-08-13', '2026-08-13');
+      final localStart = DateTime(2026, 8, 13);
+      final localEnd = DateTime(2026, 8, 13, 23, 59, 59, 999);
+
+      expect(range.startIsoUtc, localStart.toUtc().toIso8601String());
+      expect(range.endIsoUtc, localEnd.toUtc().toIso8601String());
+    });
+
+    test('derives completion time and duration from the ticket log', () {
+      final detail = SupervisorTicketDetail.fromJson({
+        'ticketId': 'ticket-1',
+        'ticketStatus': 'Completed',
+        'createdAt': '2026-08-13T08:00:00Z',
+        'ticketLog': [
+          {'status': 'Pending', 'changedAt': '2026-08-13T08:00:00Z'},
+          {
+            'status': 'Completed',
+            'changedAt': '2026-08-13T09:45:00Z',
+            'notes': 'Resolved',
+          },
+        ],
+      });
+
+      expect(detail.completedAt, DateTime.parse('2026-08-13T09:45:00Z'));
+      expect(detail.elapsedDuration, const Duration(hours: 1, minutes: 45));
+      expect(detail.logs.first.comment, 'Resolved');
     });
   });
 

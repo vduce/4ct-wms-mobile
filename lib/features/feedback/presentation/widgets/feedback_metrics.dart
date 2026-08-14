@@ -238,7 +238,7 @@ class _MetricCardText extends StatelessWidget {
                 ?.copyWith(
                   color: foreground,
                   height: tightVertical ? 1.25 : 1.32,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w500,
                 );
         final valueStyle =
             (phone
@@ -251,7 +251,7 @@ class _MetricCardText extends StatelessWidget {
                 ?.copyWith(
                   color: foreground,
                   height: tightVertical ? 1.25 : 1.32,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 );
         final statusStyle =
             (phone || tightVertical
@@ -262,7 +262,7 @@ class _MetricCardText extends StatelessWidget {
                 ?.copyWith(
                   color: item.color,
                   height: tightVertical ? 1.25 : 1.32,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w500,
                 );
         final labelGap = horizontal
             ? 2.0

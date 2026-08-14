@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import '../../../core/date/date_time.dart';
 
 enum SupervisorTicketStatus { pending, acknowledge, escalated, completed }
 
@@ -28,20 +28,13 @@ class DateRange {
   final DateTime start;
   final DateTime end;
 
-  String get startIsoUtc => _legacyUtcIso(start);
-  String get endIsoUtc => _legacyUtcIso(end);
+  String get startIsoUtc => start.toUtc().toIso8601String();
+  String get endIsoUtc => end.toUtc().toIso8601String();
 
   static DateTime? _parseDateKey(String value) {
     final parts = value.split('-').map(int.tryParse).toList();
     if (parts.length != 3 || parts.any((item) => item == null)) return null;
     return DateTime(parts[0]!, parts[1]!, parts[2]!);
-  }
-
-  static String _legacyUtcIso(DateTime local) {
-    return DateTime.fromMillisecondsSinceEpoch(
-      local.millisecondsSinceEpoch - local.timeZoneOffset.inMilliseconds,
-      isUtc: true,
-    ).toIso8601String();
   }
 }
 
@@ -159,16 +152,13 @@ class SupervisorTicketList {
     return result;
   }
 
-  String get shiftLabel {
-    final latest = rosters
+  SupervisorRoster? get latestShiftRoster {
+    return rosters
         .where((roster) => roster.shiftStart != null && roster.shiftEnd != null)
         .fold<SupervisorRoster?>(null, (current, roster) {
           if (current == null) return roster;
           return roster.shiftEnd!.isAfter(current.shiftEnd!) ? roster : current;
         });
-    if (latest?.shiftStart == null || latest?.shiftEnd == null) return '-';
-    final time = DateFormat.jm();
-    return '${time.format(latest!.shiftStart!)} - ${time.format(latest.shiftEnd!)}';
   }
 
   int get uniqueJanitors {
@@ -220,7 +210,7 @@ class SupervisorTicket {
           ? 'Medium'
           : _string(json['priority']),
       description: _string(json['description'] ?? json['ticket']),
-      createdAt: parseBackendDate(json['createdAt']) ?? DateTime.now(),
+      createdAt: parseBackendUtcDate(json['createdAt']) ?? DateTime.now(),
       tenantId: _string(json['tenantId']),
       airportId: _string(json['airportId'] ?? json['locationId']),
       userId: _string(json['userId']),
@@ -301,6 +291,9 @@ class SupervisorTicketDetail {
     required this.assignedTo,
     required this.ticketType,
     required this.logs,
+    this.description = '',
+    this.sourceRuleName = '',
+    this.updatedAt,
   });
 
   factory SupervisorTicketDetail.fromJson(Map<String, Object?> json) {
@@ -337,13 +330,16 @@ class SupervisorTicketDetail {
       issue: _string(
         json['ticket'] ?? json['description'] ?? json['reasonType'],
       ),
+      description: _string(json['description']),
+      sourceRuleName: _string(json['sourceRuleName'] ?? json['ruleName']),
       status: normalizeTicketStatus(
         _string(json['ticketStatus'] ?? json['status']),
       ),
-      createdAt: parseBackendDate(json['createdAt']) ?? DateTime.now(),
+      createdAt: parseBackendUtcDate(json['createdAt']) ?? DateTime.now(),
       assignedTo: assignedTo,
       ticketType: _string(json['ticketType']),
       logs: logs,
+      updatedAt: parseBackendUtcDate(json['updatedAt']),
     );
   }
 
@@ -355,17 +351,44 @@ class SupervisorTicketDetail {
   final String category;
   final String priority;
   final String issue;
+  final String description;
+  final String sourceRuleName;
   final SupervisorTicketStatus status;
   final DateTime createdAt;
   final String assignedTo;
   final String ticketType;
   final List<SupervisorTicketLog> logs;
+  final DateTime? updatedAt;
 
   bool get isSystemGenerated =>
       normalizeLoose(ticketType) == 'system_generated';
 
   bool get isLocked =>
       isSystemGenerated || status == SupervisorTicketStatus.completed;
+
+  DateTime? get completedAt {
+    final completionTimes = logs
+        .where(
+          (log) =>
+              normalizeTicketStatus(log.status) ==
+              SupervisorTicketStatus.completed,
+        )
+        .map((log) => log.timestamp)
+        .toList();
+    if (completionTimes.isEmpty) {
+      return status == SupervisorTicketStatus.completed ? updatedAt : null;
+    }
+    return completionTimes.reduce(
+      (earliest, candidate) =>
+          candidate.isBefore(earliest) ? candidate : earliest,
+    );
+  }
+
+  Duration get elapsedDuration {
+    final end = completedAt ?? DateTime.now();
+    final duration = end.difference(createdAt);
+    return duration.isNegative ? Duration.zero : duration;
+  }
 
   List<SupervisorTicketAttachment> get attachments {
     return logs.expand((log) => log.attachments).toList();
@@ -400,7 +423,7 @@ class SupervisorTicketLog {
     return SupervisorTicketLog(
       status: _string(json['ticket_log'] ?? json['status']),
       timestamp:
-          parseBackendDate(json['timestamp'] ?? json['changedAt']) ??
+          parseBackendUtcDate(json['timestamp'] ?? json['changedAt']) ??
           DateTime.now(),
       comment: _string(json['comment'] ?? json['notes']),
       zoneLeadName: _string(json['zone_lead_Name']).isEmpty
@@ -456,8 +479,8 @@ class SupervisorRoster {
       id: _string(json['rosterId'] ?? json['id'] ?? json['_id']),
       date: _string(json['date']),
       shift: _string(json['shift']),
-      shiftStart: parseBackendDate(json['shiftStart']),
-      shiftEnd: parseBackendDate(json['shiftEnd']),
+      shiftStart: parseBackendUtcDate(json['shiftStart']),
+      shiftEnd: parseBackendUtcDate(json['shiftEnd']),
       washroomId: _string(json['washroomId']),
       washroomName: _string(json['washroomName']),
       washroomType: parseWashroomType(_string(json['washroomType'])),
@@ -551,8 +574,7 @@ SupervisorTicketStatus normalizeTicketStatus(String raw) {
     'escalated' ||
     'escalate' ||
     'on_escalation' => SupervisorTicketStatus.escalated,
-    'approval' ||
-    'approved' ||
+    'approval' || 'approved' => SupervisorTicketStatus.acknowledge,
     'completed' ||
     'complete' ||
     'closed' ||
@@ -594,13 +616,6 @@ SupervisorWashroomType parseWashroomType(String raw) {
     return SupervisorWashroomType.male;
   }
   return SupervisorWashroomType.unknown;
-}
-
-DateTime? parseBackendDate(Object? value) {
-  final raw = _string(value);
-  if (raw.isEmpty) return null;
-  final normalized = raw.contains(' ') ? raw.replaceFirst(' ', 'T') : raw;
-  return DateTime.tryParse(normalized);
 }
 
 String dateKey(DateTime date) {

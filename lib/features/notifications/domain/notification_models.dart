@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/date/date_time.dart';
+
 /// Known notification template keys.
 ///
 /// Backends may send any string in the `template` field of the push
@@ -74,9 +76,7 @@ class AppNotification {
     return AppNotification(
       id: json['id']?.toString() ?? '',
       template: NotificationTemplateType.fromKey(json['template']?.toString()),
-      receivedAt:
-          DateTime.tryParse(json['receivedAt']?.toString() ?? '') ??
-          DateTime.now(),
+      receivedAt: parseBackendUtcDate(json['receivedAt']) ?? DateTime.now(),
       params: Map<String, String>.from(json['params'] as Map? ?? {}),
       deepLink: json['deepLink']?.toString(),
       isRead: json['isRead'] as bool? ?? false,

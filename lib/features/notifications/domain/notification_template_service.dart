@@ -35,7 +35,7 @@ class NotificationTemplateService {
         title: l10n.notificationTicketAssignedTitle,
         body: l10n.notificationTicketAssignedBody(
           _param(params, 'ticketId'),
-          _param(params, 'washroomId'),
+          _washroom(params),
         ),
         icon: Icons.assignment_late_rounded,
         color: AdaniColors.blue,
@@ -87,6 +87,13 @@ class NotificationTemplateService {
   }
 
   String _param(Map<String, String> params, String key) => params[key] ?? '-';
+
+  String _washroom(Map<String, String> params) {
+    final name = params['washroomName'];
+    return name == null || name.trim().isEmpty
+        ? _param(params, 'washroomId')
+        : name;
+  }
 
   String _fallback(Map<String, String> params, String key, String orElse) {
     final value = params[key];

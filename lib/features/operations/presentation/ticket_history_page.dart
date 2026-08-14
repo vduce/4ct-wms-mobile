@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/date/date_time.dart';
 import '../../../l10n/app_localizations_context.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
 import '../data/operations_repository.dart';
@@ -139,9 +139,7 @@ class _TicketHistoryPageState extends ConsumerState<TicketHistoryPage> {
             Expanded(
               child: Text(
                 l10n.ticketHistoryResults(filtered.length),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
             SizedBox(
@@ -299,15 +297,13 @@ class _WideHistoryTicket extends StatelessWidget {
                 _historyTicketTitle(context, ticket),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 2),
               Text(
                 '${ticket.washroomLabel} · ${ticket.shortId} · '
                 '${ticketStatusLabel(context, ticket.status)} · '
-                '${_formatTicketTime(ticket.createdAt)} · '
+                '${context.formatAppDateTime(ticket.createdAt)} · '
                 '${_historySourceLabel(context, ticket)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -350,9 +346,7 @@ class _MobileHistoryTicket extends StatelessWidget {
                 _historyTicketTitle(context, ticket),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
             const SizedBox(width: 8),
@@ -376,7 +370,7 @@ class _MobileHistoryTicket extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${_formatTicketTime(ticket.createdAt)} · '
+                '${context.formatAppDateTime(ticket.createdAt)} · '
                 '${_historySourceLabel(context, ticket)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -454,7 +448,7 @@ class _FilterCard extends StatelessWidget {
           Expanded(
             child: _DateFilterField(
               label: l10n.historyFromLabel,
-              value: _displayDate(fromDate),
+              value: _displayDate(context, fromDate),
               onTap: onPickFrom,
             ),
           ),
@@ -462,7 +456,7 @@ class _FilterCard extends StatelessWidget {
           Expanded(
             child: _DateFilterField(
               label: l10n.historyToLabel,
-              value: _displayDate(toDate),
+              value: _displayDate(context, toDate),
               onTap: onPickTo,
             ),
           ),
@@ -674,7 +668,7 @@ String _buildCsv(BuildContext context, List<SupervisorTicket> tickets) {
         ticket.category,
         ticket.description,
         ticket.washroomLabel,
-        _formatTicketTime(ticket.createdAt),
+        context.formatAppDateTime(ticket.createdAt),
         lastLog?.status ?? '',
         lastLog?.comment ?? '',
       ];
@@ -686,10 +680,6 @@ String _buildCsv(BuildContext context, List<SupervisorTicket> tickets) {
 String _csvCell(String value) {
   final escaped = value.replaceAll('"', '""');
   return '"$escaped"';
-}
-
-String _formatTicketTime(DateTime date) {
-  return DateFormat('dd MMM yyyy, hh:mm a').format(date);
 }
 
 String _historyTicketTitle(BuildContext context, SupervisorTicket ticket) {
@@ -704,7 +694,7 @@ String _historySourceLabel(BuildContext context, SupervisorTicket ticket) {
       : context.l10n.ticketSourceUserReported;
 }
 
-String _displayDate(String date) {
+String _displayDate(BuildContext context, String date) {
   final parsed = DateTime.tryParse(date);
-  return parsed == null ? date : DateFormat('dd MMM yyyy').format(parsed);
+  return parsed == null ? date : context.formatAppCalendarDate(parsed);
 }

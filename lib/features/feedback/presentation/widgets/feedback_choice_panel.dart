@@ -114,7 +114,7 @@ class FeedbackChoicePanel extends StatelessWidget {
                                     color: primaryText,
                                     fontSize: phone ? 28 : (compact ? 31 : 38),
                                     height: 1.08,
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: FontWeight.w600,
                                   ),
                             ),
                             SizedBox(
@@ -394,7 +394,7 @@ class _FeedbackChoiceButton extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: primaryText,
                       fontSize: titleFontSize,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   SizedBox(height: phoneCard ? 4 : (tight ? 5 : 8)),

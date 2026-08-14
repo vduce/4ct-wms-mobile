@@ -80,7 +80,7 @@ class FeedbackDirectQrCard extends StatelessWidget {
             color: foreground,
             fontSize: footer ? 10 : (dense ? 11.5 : (compact ? 13 : 15)),
             height: 1.2,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -202,7 +202,7 @@ class FeedbackQrDialog extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: foreground,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),

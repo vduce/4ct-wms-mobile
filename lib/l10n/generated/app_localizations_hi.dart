@@ -496,6 +496,21 @@ class AppLocalizationsHi extends AppLocalizations {
   String get ticketDetailLoadFailed => 'टिकट विवरण लोड नहीं हो सका।';
 
   @override
+  String get ticketDetailsTitle => 'टिकट विवरण';
+
+  @override
+  String get ticketDetailMoreTooltip => 'टिकट की अन्य कार्रवाइयां';
+
+  @override
+  String get ticketDetailRefreshAction => 'टिकट रीफ़्रेश करें';
+
+  @override
+  String get ticketDescriptionLabel => 'विवरण';
+
+  @override
+  String get ticketInformationTitle => 'टिकट की जानकारी';
+
+  @override
   String get ticketCategoryLabel => 'श्रेणी';
 
   @override
@@ -503,6 +518,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get reportedAtLabel => 'रिपोर्ट का समय';
+
+  @override
+  String get completedAtLabel => 'पूरा होने का समय';
+
+  @override
+  String get ticketDurationLabel => 'टिकट अवधि';
 
   @override
   String get assignedToLabel => 'इन्हें नियुक्त';

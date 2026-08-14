@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/date/date_time.dart';
 import '../features/auth/data/session_controller.dart';
 import '../features/notifications/data/notification_service.dart';
 import '../features/tenant/data/tenant_controller.dart';
@@ -31,7 +32,8 @@ class _WashroomOpsAppState extends ConsumerState<WashroomOpsApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
-    final branding = ref.watch(tenantControllerProvider).branding;
+    final tenantState = ref.watch(tenantControllerProvider);
+    final branding = tenantState.branding;
     final locale = ref.watch(localeControllerProvider);
     final preferredThemeMode = ref.watch(themeModeControllerProvider);
 
@@ -45,16 +47,19 @@ class _WashroomOpsAppState extends ConsumerState<WashroomOpsApp> {
       }
     });
 
-    return MaterialApp.router(
-      title: branding.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(branding),
-      darkTheme: AppTheme.dark(branding),
-      themeMode: preferredThemeMode ?? branding.themeMode,
-      locale: locale,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: router,
+    return AppDateTimeScope(
+      formatter: AppDateTimeFormatter(tenantState.dateTimeSettings),
+      child: MaterialApp.router(
+        title: branding.appName,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(branding),
+        darkTheme: AppTheme.dark(branding),
+        themeMode: preferredThemeMode ?? branding.themeMode,
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: router,
+      ),
     );
   }
 }

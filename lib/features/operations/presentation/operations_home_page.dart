@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../app/theme/adani_design_tokens.dart';
+import '../../../core/date/date_time.dart';
 import '../../../l10n/app_localizations_context.dart';
 import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
@@ -84,8 +84,11 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
             username: username,
             role: session?.roleDisplayName ?? session?.role ?? '',
             tenantSummary: locationSummary,
-            lastLogin: _formatDateTime(session?.lastLogin),
-            shiftLabel: ticketState.asData?.value.shiftLabel ?? '-',
+            lastLogin: context.formatAppDateTime(session?.lastLogin),
+            shiftLabel: _shiftTime(
+              context,
+              ticketState.asData?.value.latestShiftRoster,
+            ),
           ),
           const SizedBox(height: 18),
           ticketState.when(
@@ -810,7 +813,7 @@ class _RosterTile extends StatelessWidget {
           subtitle: Text(
             '${roster.washroomName.isEmpty ? l10n.washroomFallback : roster.washroomName} · ${roster.shift}',
           ),
-          trailing: Text(_shiftTime(roster)),
+          trailing: Text(_shiftTime(context, roster)),
         ),
       ),
     );
@@ -903,11 +906,6 @@ class _LoadingPanel extends StatelessWidget {
   }
 }
 
-String _formatDateTime(DateTime? date) {
-  if (date == null) return '-';
-  return DateFormat('dd MMM yyyy, h:mm a').format(date);
-}
-
 String _twoDigits(int value) => value.toString().padLeft(2, '0');
 
 String _deltaLabel(BuildContext context, int delta) {
@@ -921,10 +919,10 @@ Color _deltaColor(SupervisorTicketStatus status, int delta) {
   return AdaniColors.success;
 }
 
-String _shiftTime(SupervisorRoster roster) {
-  if (roster.shiftStart == null || roster.shiftEnd == null) return '-';
-  final format = DateFormat.jm();
-  return '${format.format(roster.shiftStart!)} - ${format.format(roster.shiftEnd!)}';
+String _shiftTime(BuildContext context, SupervisorRoster? roster) {
+  if (roster?.shiftStart == null || roster?.shiftEnd == null) return '-';
+  return '${context.formatAppTime(roster!.shiftStart)} - '
+      '${context.formatAppTime(roster.shiftEnd)}';
 }
 
 IconData _washroomIcon(SupervisorWashroomType type) {

@@ -1,3 +1,5 @@
+import '../../../core/date/date_time.dart';
+
 class FeedbackReason {
   const FeedbackReason({
     required this.id,
@@ -83,7 +85,7 @@ class FeedbackMetrics {
         details['totalOccupancy'] ?? details['total_occupancy'],
       ),
       occupancyStatus: details['occupancyStatus']?.toString(),
-      footfall: _int(details['footfall'] ?? details['people']),
+      footfall: _int(details['footfall']),
       footfallStatus: details['footfallStatus']?.toString(),
       odour: _num(details['odour'] ?? details['odor']),
       odourStatus: (details['odourStatus'] ?? details['odorStatus'])
@@ -96,7 +98,7 @@ class FeedbackMetrics {
             details['temp'] ??
             details['temp_c'],
       ),
-      updatedAt: DateTime.tryParse(details['updatedAt']?.toString() ?? ''),
+      updatedAt: parseBackendUtcDate(details['updatedAt']),
       source: details['source']?.toString(),
       isDemoData: details['isDemoData'] as bool? ?? false,
     );

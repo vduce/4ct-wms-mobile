@@ -14,6 +14,33 @@ import 'package:washroom_ops/l10n/generated/app_localizations.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('app theme applies Poppins with restrained default weights', () {
+    final textTheme = AppTheme.light(TenantBranding.default4ct()).textTheme;
+    final styles = <TextStyle?>[
+      textTheme.displayLarge,
+      textTheme.displayMedium,
+      textTheme.displaySmall,
+      textTheme.headlineLarge,
+      textTheme.headlineMedium,
+      textTheme.headlineSmall,
+      textTheme.titleLarge,
+      textTheme.titleMedium,
+      textTheme.titleSmall,
+      textTheme.bodyLarge,
+      textTheme.bodyMedium,
+      textTheme.bodySmall,
+      textTheme.labelLarge,
+      textTheme.labelMedium,
+      textTheme.labelSmall,
+    ];
+
+    expect(styles.every((style) => style?.fontFamily == 'Poppins'), isTrue);
+    expect(textTheme.headlineSmall?.fontWeight, FontWeight.w600);
+    expect(textTheme.titleMedium?.fontWeight, FontWeight.w500);
+    expect(textTheme.bodyMedium?.fontWeight, FontWeight.w400);
+    expect(textTheme.labelLarge?.fontWeight, FontWeight.w500);
+  });
+
   testWidgets('theme switch stays visible and toggles at narrow mobile width', (
     tester,
   ) async {

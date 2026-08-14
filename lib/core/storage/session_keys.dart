@@ -14,4 +14,5 @@ abstract final class SessionKeys {
   static const pushToken = 'NotiToken';
   static const notificationInbox = 'notificationInbox';
   static const cachedBranding = 'cachedBranding';
+  static const cachedDateTimeSettings = 'cachedDateTimeSettings';
 }

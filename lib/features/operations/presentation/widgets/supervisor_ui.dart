@@ -194,10 +194,9 @@ class SupervisorSectionHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: colors.onSurface,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: colors.onSurface),
           ),
         ),
         ?trailing,
@@ -260,10 +259,9 @@ class SupervisorGradientButton extends StatelessWidget {
                 child: Text(
                   label,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(color: Colors.white),
                 ),
               ),
             ],
@@ -386,7 +384,7 @@ class SupervisorFilterPill extends StatelessWidget {
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: selected ? Colors.white : colors.onSurfaceVariant,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
                 ),
               ),
             ],
@@ -536,7 +534,7 @@ class TicketStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = SupervisorPalette.status(status);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(7),
@@ -545,7 +543,7 @@ class TicketStatusBadge extends StatelessWidget {
         ticketStatusLabel(context, status),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: color,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -562,7 +560,7 @@ class TicketPriorityBadge extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final color = SupervisorPalette.priority(priority, colors);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(7),
@@ -571,7 +569,7 @@ class TicketPriorityBadge extends StatelessWidget {
         priority.isEmpty ? context.l10n.priorityFallback : priority,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: color,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );

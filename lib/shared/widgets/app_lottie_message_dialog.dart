@@ -112,7 +112,7 @@ class AppLottieMessageDialog extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: primaryText,
                       fontSize: phone ? 24 : 30,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                       height: 1.12,
                     ),
                   ),
@@ -123,7 +123,7 @@ class AppLottieMessageDialog extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: secondaryText,
                       fontSize: phone ? 14 : 18,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       height: 1.35,
                     ),
                   ),
@@ -139,7 +139,7 @@ class AppLottieMessageDialog extends StatelessWidget {
                           actionLabel!,
                           style: TextStyle(
                             fontSize: phone ? 14 : 15,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),

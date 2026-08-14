@@ -974,6 +974,36 @@ abstract class AppLocalizations {
   /// **'Could not load ticket details.'**
   String get ticketDetailLoadFailed;
 
+  /// No description provided for @ticketDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket Details'**
+  String get ticketDetailsTitle;
+
+  /// No description provided for @ticketDetailMoreTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More ticket actions'**
+  String get ticketDetailMoreTooltip;
+
+  /// No description provided for @ticketDetailRefreshAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh ticket'**
+  String get ticketDetailRefreshAction;
+
+  /// No description provided for @ticketDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get ticketDescriptionLabel;
+
+  /// No description provided for @ticketInformationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket information'**
+  String get ticketInformationTitle;
+
   /// No description provided for @ticketCategoryLabel.
   ///
   /// In en, this message translates to:
@@ -991,6 +1021,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reported at'**
   String get reportedAtLabel;
+
+  /// No description provided for @completedAtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed at'**
+  String get completedAtLabel;
+
+  /// No description provided for @ticketDurationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket duration'**
+  String get ticketDurationLabel;
 
   /// No description provided for @assignedToLabel.
   ///

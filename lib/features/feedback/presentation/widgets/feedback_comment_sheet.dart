@@ -55,9 +55,7 @@ class _FeedbackCommentSheetState extends State<FeedbackCommentSheet> {
               children: [
                 Text(
                   l10n.feedbackCommentTitle,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(),
                 ),
                 const SizedBox(height: 12),
                 TextField(

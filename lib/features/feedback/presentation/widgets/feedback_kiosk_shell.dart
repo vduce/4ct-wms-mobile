@@ -96,7 +96,7 @@ class FeedbackErrorShell extends StatelessWidget {
                 l10n.feedbackDeviceNotReadyTitle,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: primaryText,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 8),

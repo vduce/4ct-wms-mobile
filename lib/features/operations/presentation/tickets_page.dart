@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../../../core/date/date_time.dart';
 import '../../../l10n/app_localizations_context.dart';
 import '../../../shared/widgets/app_loading_dialog.dart';
 import '../data/operations_repository.dart';
@@ -193,37 +193,50 @@ class _TicketsPageState extends ConsumerState<TicketsPage> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 700;
-            return IntrinsicHeight(
-              child: Row(
-                children: [
-                  Container(width: 5, color: accent),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        wide ? 20 : 14,
-                        wide ? 16 : 14,
-                        wide ? 14 : 12,
-                        wide ? 16 : 14,
+            return Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: SizedBox(
+                    width: 5,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: SupervisorPalette.actionGradient.colors,
+                          stops: SupervisorPalette.actionGradient.stops,
+                        ),
                       ),
-                      child: wide
-                          ? _WideTicketCardContent(
-                              ticket: ticket,
-                              accent: accent,
-                              canAcknowledge: canAcknowledge,
-                              isBusy: isBusy,
-                              onAcknowledge: () => _acknowledge(ticket),
-                            )
-                          : _MobileTicketCardContent(
-                              ticket: ticket,
-                              accent: accent,
-                              canAcknowledge: canAcknowledge,
-                              isBusy: isBusy,
-                              onAcknowledge: () => _acknowledge(ticket),
-                            ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    (wide ? 16 : 10) + 5,
+                    wide ? 14 : 10,
+                    wide ? 14 : 10,
+                    wide ? 14 : 10,
+                  ),
+                  child: wide
+                      ? _WideTicketCardContent(
+                          ticket: ticket,
+                          accent: accent,
+                          canAcknowledge: canAcknowledge,
+                          isBusy: isBusy,
+                          onAcknowledge: () => _acknowledge(ticket),
+                        )
+                      : _MobileTicketCardContent(
+                          ticket: ticket,
+                          accent: accent,
+                          canAcknowledge: canAcknowledge,
+                          isBusy: isBusy,
+                          onAcknowledge: () => _acknowledge(ticket),
+                        ),
+                ),
+              ],
             );
           },
         ),
@@ -276,17 +289,17 @@ class _StatusTabs extends StatelessWidget {
           label:
               '${ticketStatusLabel(context, status)} (${counts[status] ?? 0})',
           selected: activeStatus == status,
-          height: 48,
-          horizontalPadding: 20,
+          height: 38,
+          horizontalPadding: 15,
           onPressed: () => onChanged(status),
         ),
         if (status != SupervisorTicketStatus.values.last)
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
       ],
     ];
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth >= 700) {
+        if (constraints.maxWidth >= 1280) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: tabs,
@@ -313,12 +326,7 @@ class _TicketSectionHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
+          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
         ),
         Text(
           '$count',
@@ -326,7 +334,6 @@ class _TicketSectionHeader extends StatelessWidget {
             color: count == 0
                 ? colors.onSurfaceVariant.withValues(alpha: 0.48)
                 : colors.primary,
-            fontWeight: FontWeight.w700,
           ),
         ),
       ],
@@ -335,21 +342,201 @@ class _TicketSectionHeader extends StatelessWidget {
 }
 
 class _TicketIcon extends StatelessWidget {
-  const _TicketIcon({required this.ticket, required this.accent});
+  const _TicketIcon({
+    required this.ticket,
+    required this.accent,
+    this.compact = false,
+  });
 
   final SupervisorTicket ticket;
   final Color accent;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 46,
-      height: 46,
+      width: compact ? 36 : 42,
+      height: compact ? 36 : 42,
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(compact ? 8 : 10),
       ),
-      child: Icon(_ticketIcon(ticket), color: accent, size: 24),
+      child: Icon(_ticketIcon(ticket), color: accent, size: compact ? 17 : 19),
+    );
+  }
+}
+
+class _TicketWashroomName extends StatelessWidget {
+  const _TicketWashroomName({required this.ticket, this.compact = false});
+
+  final SupervisorTicket ticket;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(
+            Icons.location_on_outlined,
+            size: compact ? 16 : 17,
+            color: colors.primary,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            ticket.washroomLabel,
+            softWrap: true,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: compact ? 12 : 13,
+              height: 1.25,
+              color: colors.onSurface,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TicketMetaRow extends StatelessWidget {
+  const _TicketMetaRow({required this.ticket});
+
+  final SupervisorTicket ticket;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            _TicketMetaItem(
+              icon: Icons.calendar_today_outlined,
+              label: context.formatAppDateTime(ticket.createdAt),
+              color: colors.onSurfaceVariant,
+              maxWidth: constraints.maxWidth,
+            ),
+            _TicketMetaItem(
+              icon: ticket.isSystemGenerated
+                  ? Icons.badge_outlined
+                  : Icons.person_outline_rounded,
+              label: _ticketSourceLabel(context, ticket),
+              color: colors.onSurfaceVariant,
+              maxWidth: constraints.maxWidth,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _TicketMetaItem extends StatelessWidget {
+  const _TicketMetaItem({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.maxWidth,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 7),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(fontSize: 11, color: color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TicketTrailingAction extends StatelessWidget {
+  const _TicketTrailingAction({
+    required this.ticket,
+    required this.canAcknowledge,
+    required this.isBusy,
+    required this.onAcknowledge,
+  });
+
+  final SupervisorTicket ticket;
+  final bool canAcknowledge;
+  final bool isBusy;
+  final VoidCallback onAcknowledge;
+
+  @override
+  Widget build(BuildContext context) {
+    if (canAcknowledge) {
+      return _AcknowledgeControl(
+        loading: isBusy,
+        onPressed: onAcknowledge,
+        compact: true,
+      );
+    }
+
+    final colors = Theme.of(context).colorScheme;
+    return Icon(
+      ticket.isLocked
+          ? Icons.lock_outline_rounded
+          : Icons.chevron_right_rounded,
+      color: colors.onSurfaceVariant.withValues(alpha: 0.62),
+      size: 22,
+    );
+  }
+}
+
+class _TicketCardHeader extends StatelessWidget {
+  const _TicketCardHeader({required this.ticket, this.compact = false});
+
+  final SupervisorTicket ticket;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(width: 4.0),
+        Expanded(
+          child: Text(
+            _ticketTitle(context, ticket),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              height: 2.5,
+              fontWeight: compact ? FontWeight.w600 : FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        TicketPriorityBadge(priority: ticket.priority),
+      ],
     );
   }
 }
@@ -371,50 +558,33 @@ class _WideTicketCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _TicketIcon(ticket: ticket, accent: accent),
-        const SizedBox(width: 18),
+        const SizedBox(width: 20),
         Expanded(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _ticketTitle(context, ticket),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                '${ticket.washroomLabel} · ${ticket.shortId} · '
-                '${_formatTicketTime(ticket.createdAt)} · '
-                '${_ticketSourceLabel(context, ticket)}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-              ),
+              _TicketCardHeader(ticket: ticket),
+              const SizedBox(height: 6),
+              _TicketWashroomName(ticket: ticket),
+              const SizedBox(height: 8),
+              _TicketMetaRow(ticket: ticket),
             ],
           ),
         ),
-        const SizedBox(width: 14),
-        TicketPriorityBadge(priority: ticket.priority),
         const SizedBox(width: 10),
-        if (canAcknowledge)
-          _AcknowledgeControl(loading: isBusy, onPressed: onAcknowledge)
-        else
-          Icon(
-            ticket.isLocked
-                ? Icons.lock_outline_rounded
-                : Icons.chevron_right_rounded,
-            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: _TicketTrailingAction(
+            ticket: ticket,
+            canAcknowledge: canAcknowledge,
+            isBusy: isBusy,
+            onAcknowledge: onAcknowledge,
           ),
+        ),
       ],
     );
   }
@@ -437,63 +607,30 @@ class _MobileTicketCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _TicketIcon(ticket: ticket, accent: accent),
-        const SizedBox(width: 12),
+        _TicketIcon(ticket: ticket, accent: accent, compact: true),
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _ticketTitle(context, ticket),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  TicketPriorityBadge(priority: ticket.priority),
-                ],
-              ),
-              const SizedBox(height: 7),
-              Text(
-                '${ticket.washroomLabel} · ${ticket.shortId}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-              ),
+              _TicketCardHeader(ticket: ticket, compact: true),
               const SizedBox(height: 4),
+              _TicketWashroomName(ticket: ticket, compact: true),
+              const SizedBox(height: 5),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Text(
-                      '${_formatTicketTime(ticket.createdAt)} · '
-                      '${_ticketSourceLabel(context, ticket)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
+                  Expanded(child: _TicketMetaRow(ticket: ticket)),
+                  const SizedBox(width: 4),
+                  _TicketTrailingAction(
+                    ticket: ticket,
+                    canAcknowledge: canAcknowledge,
+                    isBusy: isBusy,
+                    onAcknowledge: onAcknowledge,
                   ),
-                  if (canAcknowledge) ...[
-                    const SizedBox(width: 4),
-                    _AcknowledgeControl(
-                      loading: isBusy,
-                      onPressed: onAcknowledge,
-                      compact: true,
-                    ),
-                  ],
                 ],
               ),
             ],
@@ -551,10 +688,6 @@ int _priorityRank(String priority) {
     'low' => 2,
     _ => 9,
   };
-}
-
-String _formatTicketTime(DateTime date) {
-  return DateFormat('dd MMM yyyy, hh:mm a').format(date);
 }
 
 String _ticketTitle(BuildContext context, SupervisorTicket ticket) {

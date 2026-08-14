@@ -60,10 +60,9 @@ class AppGradientButton extends StatelessWidget {
                   ],
           ),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: Colors.white),
             child: IconTheme.merge(
               data: const IconThemeData(color: Colors.white, size: 22),
               child: _ButtonContent(

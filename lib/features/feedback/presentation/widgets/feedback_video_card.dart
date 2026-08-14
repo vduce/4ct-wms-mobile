@@ -159,7 +159,7 @@ class _FeedbackVideoCardState extends State<FeedbackVideoCard> {
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.82),
                               fontSize: widget.compact ? 11 : 13,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],

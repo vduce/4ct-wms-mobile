@@ -18,8 +18,13 @@ class TenantController extends Notifier<TenantState> {
   Future<void> restoreCachedBranding() async {
     final repository = ref.read(tenantRepositoryProvider);
     final cached = await repository.readCachedBranding();
-    if (cached != null) {
-      state = state.copyWith(branding: cached);
+    final cachedDateTimeSettings = await repository
+        .readCachedDateTimeSettings();
+    if (cached != null || cachedDateTimeSettings != null) {
+      state = state.copyWith(
+        branding: cached,
+        dateTimeSettings: cachedDateTimeSettings,
+      );
     }
 
     final tenantSlug = ref.read(environmentConfigProvider).tenantSlug.trim();
@@ -36,10 +41,14 @@ class TenantController extends Notifier<TenantState> {
   Future<void> setContext(TenantContext context) async {
     state = state.copyWith(context: context, isLoading: true);
     try {
-      final branding = await ref
+      final tenantSettings = await ref
           .read(tenantRepositoryProvider)
-          .fetchBranding(context);
-      state = state.copyWith(branding: branding, isLoading: false);
+          .fetchTenantSettings(context);
+      state = state.copyWith(
+        branding: tenantSettings.branding,
+        dateTimeSettings: tenantSettings.dateTimeSettings,
+        isLoading: false,
+      );
     } catch (_) {
       state = state.copyWith(isLoading: false);
     }

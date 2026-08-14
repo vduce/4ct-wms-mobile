@@ -493,6 +493,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ticketDetailLoadFailed => 'Could not load ticket details.';
 
   @override
+  String get ticketDetailsTitle => 'Ticket Details';
+
+  @override
+  String get ticketDetailMoreTooltip => 'More ticket actions';
+
+  @override
+  String get ticketDetailRefreshAction => 'Refresh ticket';
+
+  @override
+  String get ticketDescriptionLabel => 'Description';
+
+  @override
+  String get ticketInformationTitle => 'Ticket information';
+
+  @override
   String get ticketCategoryLabel => 'Category';
 
   @override
@@ -500,6 +515,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportedAtLabel => 'Reported at';
+
+  @override
+  String get completedAtLabel => 'Completed at';
+
+  @override
+  String get ticketDurationLabel => 'Ticket duration';
 
   @override
   String get assignedToLabel => 'Assigned to';

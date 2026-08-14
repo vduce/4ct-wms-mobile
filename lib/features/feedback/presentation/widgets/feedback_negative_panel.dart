@@ -72,7 +72,7 @@ class FeedbackNegativePanel extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: primaryText,
                   fontSize: phone ? 18 : (compact ? 21 : 27),
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: phone ? 2 : 4),
@@ -85,7 +85,7 @@ class FeedbackNegativePanel extends StatelessWidget {
                   color: primaryText,
                   fontSize: phone ? 17 : (compact ? 18 : 22),
                   height: 1.15,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: phone ? 6 : 8),
@@ -180,7 +180,7 @@ class FeedbackNegativePanel extends StatelessWidget {
                           l10n.feedbackSubmitButton,
                           style: TextStyle(
                             fontSize: phone ? 14 : (compact ? 15 : 18),
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                   trailingIcon: submitting
@@ -251,7 +251,7 @@ class _CommentFieldButton extends StatelessWidget {
                   style: TextStyle(
                     color: textColor,
                     fontSize: phone ? 12.5 : 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -358,7 +358,7 @@ class _ReasonTile extends StatelessWidget {
                                     ? 8.4
                                     : (compact ? 13.5 : 16),
                                 height: phoneTile ? 1.05 : 1.12,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                               ),
                         ),
                       ],
@@ -483,7 +483,7 @@ class _EmptyReasons extends StatelessWidget {
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
           color: Colors.black54,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );

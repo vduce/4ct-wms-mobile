@@ -116,7 +116,7 @@ class _AdaniWordmark extends StatelessWidget {
         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
           color: Colors.white,
           fontSize: phone ? 22 : (compact ? 25 : 32),
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
         ),
       ),
@@ -191,7 +191,7 @@ class FeedbackLanguagePill extends ConsumerWidget {
               style: TextStyle(
                 color: foreground,
                 fontSize: phone ? 10 : (compact ? 12 : 13),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w500,
               ),
             ),
             SizedBox(width: phone ? 2 : 2),
@@ -356,7 +356,7 @@ class _TemperaturePill extends StatelessWidget {
             style: TextStyle(
               color: foreground,
               fontSize: phone ? 10 : (compact ? 12 : 13),
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

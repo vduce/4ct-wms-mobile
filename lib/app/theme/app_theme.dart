@@ -39,7 +39,7 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         titleTextStyle: textTheme.titleLarge?.copyWith(
           color: colors.onSurface,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
         systemOverlayStyle: isDark
             ? SystemUiOverlayStyle.light
@@ -64,7 +64,10 @@ abstract final class AppTheme {
           disabledBackgroundColor: colors.outlineVariant.withValues(alpha: 0.5),
           disabledForegroundColor: colors.onSurface.withValues(alpha: 0.45),
           minimumSize: const Size.fromHeight(48),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          textStyle: textTheme.labelLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -75,7 +78,10 @@ abstract final class AppTheme {
           backgroundColor: AdaniColors.purple,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          textStyle: textTheme.labelLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -90,7 +96,10 @@ abstract final class AppTheme {
           side: BorderSide(
             color: isDark ? const Color(0xFF513B65) : const Color(0xFFE7D6EF),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          textStyle: textTheme.labelLarge?.copyWith(
+            color: isDark ? const Color(0xFFD77BFA) : AdaniColors.purple,
+            fontWeight: FontWeight.w500,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -101,7 +110,10 @@ abstract final class AppTheme {
           foregroundColor: isDark
               ? const Color(0xFFD77BFA)
               : AdaniColors.purpleBright,
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          textStyle: textTheme.labelLarge?.copyWith(
+            color: isDark ? const Color(0xFFD77BFA) : AdaniColors.purpleBright,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -141,75 +153,61 @@ abstract final class AppTheme {
         backgroundColor: isDark
             ? AdaniColors.darkSurface
             : AdaniColors.lightPrimaryText,
-        contentTextStyle: const TextStyle(
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
           color: Colors.white,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w400,
         ),
       ),
     );
   }
 
   static TextTheme _poppinsTextTheme(TextTheme baseTextTheme) {
-    return baseTextTheme.copyWith(
-      displayLarge: baseTextTheme.displayLarge?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w800,
-      ),
-      displayMedium: baseTextTheme.displayMedium?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w800,
-      ),
-      displaySmall: baseTextTheme.displaySmall?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w800,
-      ),
-      headlineLarge: baseTextTheme.headlineLarge?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w700,
-      ),
-      headlineMedium: baseTextTheme.headlineMedium?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w700,
-      ),
-      headlineSmall: baseTextTheme.headlineSmall?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w700,
-      ),
-      titleLarge: baseTextTheme.titleLarge?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w700,
-      ),
-      titleMedium: baseTextTheme.titleMedium?.copyWith(
-        fontFamily: 'Poppins',
+    final poppinsTextTheme = baseTextTheme.apply(fontFamily: 'Poppins');
+    return poppinsTextTheme.copyWith(
+      displayLarge: poppinsTextTheme.displayLarge?.copyWith(
         fontWeight: FontWeight.w600,
       ),
-      titleSmall: baseTextTheme.titleSmall?.copyWith(
-        fontFamily: 'Poppins',
+      displayMedium: poppinsTextTheme.displayMedium?.copyWith(
         fontWeight: FontWeight.w600,
       ),
-      bodyLarge: baseTextTheme.bodyLarge?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w400,
-      ),
-      bodyMedium: baseTextTheme.bodyMedium?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w400,
-      ),
-      bodySmall: baseTextTheme.bodySmall?.copyWith(
-        fontFamily: 'Poppins',
-        fontWeight: FontWeight.w400,
-      ),
-      labelLarge: baseTextTheme.labelLarge?.copyWith(
-        fontFamily: 'Poppins',
+      displaySmall: poppinsTextTheme.displaySmall?.copyWith(
         fontWeight: FontWeight.w600,
       ),
-      labelMedium: baseTextTheme.labelMedium?.copyWith(
-        fontFamily: 'Poppins',
+      headlineLarge: poppinsTextTheme.headlineLarge?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      headlineMedium: poppinsTextTheme.headlineMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      headlineSmall: poppinsTextTheme.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      titleLarge: poppinsTextTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      titleMedium: poppinsTextTheme.titleMedium?.copyWith(
         fontWeight: FontWeight.w500,
       ),
-      labelSmall: baseTextTheme.labelSmall?.copyWith(
-        fontFamily: 'Poppins',
+      titleSmall: poppinsTextTheme.titleSmall?.copyWith(
         fontWeight: FontWeight.w500,
+      ),
+      bodyLarge: poppinsTextTheme.bodyLarge?.copyWith(
+        fontWeight: FontWeight.w400,
+      ),
+      bodyMedium: poppinsTextTheme.bodyMedium?.copyWith(
+        fontWeight: FontWeight.w400,
+      ),
+      bodySmall: poppinsTextTheme.bodySmall?.copyWith(
+        fontWeight: FontWeight.w400,
+      ),
+      labelLarge: poppinsTextTheme.labelLarge?.copyWith(
+        fontWeight: FontWeight.w500,
+      ),
+      labelMedium: poppinsTextTheme.labelMedium?.copyWith(
+        fontWeight: FontWeight.w400,
+      ),
+      labelSmall: poppinsTextTheme.labelSmall?.copyWith(
+        fontWeight: FontWeight.w400,
       ),
     );
   }

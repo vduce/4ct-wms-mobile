@@ -58,35 +58,14 @@ class FeedbackRepository {
   }
 
   Future<FeedbackMetrics> fetchMetrics(String washroomId) async {
-    FeedbackMetrics metrics;
-    try {
-      final response = await _dio.get<Map<String, Object?>>(
-        '/dashboard/feedback-screen/$washroomId',
-      );
-      metrics = FeedbackMetrics.fromJson(_unwrapData(response.data));
-    } on DioException {
-      metrics = await _fetchLegacyMetrics(washroomId);
-    }
+    final response = await _dio.get<Map<String, Object?>>(
+      '/dashboard/feedback-screen/$washroomId',
+    );
+    final metrics = FeedbackMetrics.fromJson(_unwrapData(response.data));
 
     final temperature =
         metrics.temperatureCelsius ?? await _fetchLiveTemperatureCelsius();
     return metrics.copyWith(temperatureCelsius: temperature);
-  }
-
-  Future<FeedbackMetrics> _fetchLegacyMetrics(String washroomId) async {
-    try {
-      final response = await _dio.get<Map<String, Object?>>(
-        '/dashboard/screensaver',
-        queryParameters: {'washroomId': washroomId},
-      );
-      return FeedbackMetrics.fromJson(_unwrapData(response.data));
-    } on DioException {
-      final response = await _dio.get<Map<String, Object?>>(
-        '/user_screensaver_page',
-        queryParameters: {'washroomId': washroomId},
-      );
-      return FeedbackMetrics.fromJson(response.data ?? {});
-    }
   }
 
   Future<num?> _fetchLiveTemperatureCelsius() async {

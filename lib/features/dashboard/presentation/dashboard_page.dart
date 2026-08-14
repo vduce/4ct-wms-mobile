@@ -95,12 +95,7 @@ class _DashboardTile extends StatelessWidget {
           ),
           child: Icon(icon, color: colors.onPrimaryContainer),
         ),
-        title: Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-        ),
+        title: Text(title, style: Theme.of(context).textTheme.titleMedium),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right_rounded),
       ),
