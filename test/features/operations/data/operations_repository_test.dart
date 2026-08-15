@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:washroom_ops/features/operations/data/operations_repository.dart';
+import 'package:washroom_ops/features/operations/domain/ticket_models.dart';
 
 void main() {
   group('OperationsRepository.fetchTickets', () {
@@ -64,6 +65,65 @@ void main() {
       );
     });
   });
+
+  group('OperationsRepository.fetchPassengerPeaks', () {
+    test(
+      'uses canonical footfall-peaks endpoint and parses grouped peaks',
+      () async {
+        final adapter = _RecordingAdapter({
+          'success': true,
+          'data': [
+            {
+              'washroomId': 'washroom-1',
+              'washroomName': 'Terminal 2 Female',
+              'topHours': [
+                {
+                  'hour': '2026-08-14 05:00:00',
+                  'count': 42,
+                  'hourRange': '2026-08-14 05:00:00',
+                },
+              ],
+            },
+          ],
+        });
+        final repository = OperationsRepository(_dioWith(adapter));
+
+        final result = await repository.fetchPassengerPeaks(
+          washroomIds: const ['washroom-1'],
+          range: DateRange(
+            start: DateTime.utc(2026, 8, 7),
+            end: DateTime.utc(2026, 8, 14, 23, 59, 59),
+          ),
+        );
+
+        expect(adapter.path, '/reports/footfall-peaks');
+        expect(adapter.requestData, {
+          'washroomIds': ['washroom-1'],
+          'startTime': '2026-08-07T00:00:00.000Z',
+          'endTime': '2026-08-14T23:59:59.000Z',
+        });
+        expect(result.single.washroomName, 'Terminal 2 Female');
+        expect(result.single.count, 42);
+        expect(result.single.timestamp, isNotNull);
+      },
+    );
+
+    test('rejects a response without grouped peak data', () async {
+      final adapter = _RecordingAdapter({'success': true, 'data': {}});
+      final repository = OperationsRepository(_dioWith(adapter));
+
+      await expectLater(
+        repository.fetchPassengerPeaks(
+          washroomIds: const ['washroom-1'],
+          range: DateRange(
+            start: DateTime.utc(2026, 8, 7),
+            end: DateTime.utc(2026, 8, 14),
+          ),
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    });
+  });
 }
 
 Dio _dioWith(_RecordingAdapter adapter) {
@@ -78,6 +138,7 @@ class _RecordingAdapter implements HttpClientAdapter {
   final Map<String, Object?> payload;
   String? path;
   Map<String, dynamic>? queryParameters;
+  Object? requestData;
 
   @override
   Future<ResponseBody> fetch(
@@ -87,6 +148,7 @@ class _RecordingAdapter implements HttpClientAdapter {
   ) async {
     path = options.path;
     queryParameters = options.queryParameters;
+    requestData = options.data;
     return ResponseBody.fromString(
       jsonEncode(payload),
       200,

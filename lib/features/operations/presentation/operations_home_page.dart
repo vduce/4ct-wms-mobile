@@ -13,7 +13,10 @@ import '../data/operations_repository.dart';
 import '../domain/ticket_models.dart';
 import 'widgets/operations_drawer.dart';
 import 'widgets/operations_home_hero.dart';
+import 'widgets/operations_passenger_flow_sheet.dart';
+import 'widgets/operations_roster_section.dart';
 import 'widgets/operations_sign_out_dialog.dart';
+import 'widgets/operations_washroom_section.dart';
 import 'widgets/supervisor_ui.dart';
 import 'widgets/ticket_overview_grid.dart';
 
@@ -138,7 +141,8 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
           ),
           const SizedBox(height: 18),
           washroomState.when(
-            data: (washrooms) => _WashroomSection(washrooms: washrooms),
+            data: (washrooms) =>
+                OperationsWashroomSection(washrooms: washrooms),
             loading: () => const _LoadingPanel(),
             error: (error, _) => SupervisorStatePanel(
               icon: Icons.error_outline_rounded,
@@ -149,7 +153,7 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
           ),
           const SizedBox(height: 18),
           rosterState.when(
-            data: (rosters) => _RosterSection(rosters: rosters),
+            data: (rosters) => OperationsRosterSection(rosters: rosters),
             loading: () => const SizedBox.shrink(),
             error: (_, _) => SupervisorStatePanel(
               icon: Icons.error_outline_rounded,
@@ -184,8 +188,12 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
       if (!context.mounted) return;
       await showModalBottomSheet<void>(
         context: context,
-        showDragHandle: true,
-        builder: (context) => _PassengerFlowSheet(peaks: peaks),
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: false,
+        backgroundColor: Colors.transparent,
+        constraints: const BoxConstraints(maxWidth: 720),
+        builder: (context) => OperationsPassengerFlowSheet(peaks: peaks),
       );
     } catch (_) {
       _showSnack(l10n.passengerFlowLoadFailed);
@@ -284,288 +292,6 @@ class _QuickActions extends StatelessWidget {
   }
 }
 
-class _WashroomSection extends StatelessWidget {
-  const _WashroomSection({required this.washrooms});
-
-  final List<SupervisorWashroom> washrooms;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SupervisorSectionHeader(
-          title: l10n.supervisedUnitsTitle,
-          trailing: TextButton(
-            onPressed: () => _showAllWashrooms(context),
-            child: Text(l10n.viewAllButton),
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (washrooms.isEmpty)
-          _WashroomEmptyState(message: l10n.emptyWashroomsMessage)
-        else
-          ...washrooms.map((washroom) => _WashroomTile(washroom: washroom)),
-      ],
-    );
-  }
-
-  Future<void> _showAllWashrooms(BuildContext context) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.l10n.supervisedUnitsTitle,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              if (washrooms.isEmpty)
-                _WashroomEmptyState(message: context.l10n.emptyWashroomsMessage)
-              else
-                Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: washrooms
-                        .map((washroom) => _WashroomTile(washroom: washroom))
-                        .toList(),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _WashroomEmptyState extends StatelessWidget {
-  const _WashroomEmptyState({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderColor = colors.primary.withValues(alpha: isDark ? 0.34 : 0.24);
-    return CustomPaint(
-      foregroundPainter: _DottedRoundedBorderPainter(
-        color: borderColor,
-        radius: 16,
-      ),
-      child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 82),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        decoration: BoxDecoration(
-          color: colors.surface.withValues(alpha: isDark ? 0.84 : 0.94),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.info_outline_rounded,
-              size: 21,
-              color: colors.onSurfaceVariant.withValues(alpha: 0.65),
-            ),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant.withValues(alpha: 0.72),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DottedRoundedBorderPainter extends CustomPainter {
-  const _DottedRoundedBorderPainter({
-    required this.color,
-    required this.radius,
-  });
-
-  final Color color;
-  final double radius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const dotRadius = 1.0;
-    const dotSpacing = 5.0;
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          Offset.zero & size,
-          Radius.circular(radius),
-        ).deflate(dotRadius),
-      );
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    for (final metric in path.computeMetrics()) {
-      for (
-        var distance = 0.0;
-        distance < metric.length;
-        distance += dotSpacing
-      ) {
-        final tangent = metric.getTangentForOffset(distance);
-        if (tangent != null) {
-          canvas.drawCircle(tangent.position, dotRadius, paint);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DottedRoundedBorderPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.radius != radius;
-  }
-}
-
-class _WashroomTile extends StatelessWidget {
-  const _WashroomTile({required this.washroom});
-
-  final SupervisorWashroom washroom;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: SupervisorSurface(
-        padding: EdgeInsets.zero,
-        child: ListTile(
-          leading: Icon(_washroomIcon(washroom.type)),
-          title: Text(washroom.name),
-          subtitle: Text(
-            [
-              if (washroom.code.isNotEmpty) washroom.code,
-              l10n.cubiclesCount(washroom.cubicleCount),
-            ].join(' · '),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RosterSection extends StatelessWidget {
-  const _RosterSection({required this.rosters});
-
-  final List<SupervisorRoster> rosters;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final uniqueJanitors = rosters
-        .map((item) => item.janitorId)
-        .where((id) => id.isNotEmpty)
-        .toSet()
-        .length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SupervisorSectionHeader(
-          title: l10n.janitorScheduleTitle,
-          trailing: Text(l10n.janitorsAssignedCount(uniqueJanitors)),
-        ),
-        const SizedBox(height: 10),
-        if (rosters.isEmpty)
-          SupervisorStatePanel(
-            icon: Icons.info_outline_rounded,
-            message: l10n.emptyScheduleMessage,
-            compact: true,
-          )
-        else
-          ...rosters.map((roster) => _RosterTile(roster: roster)),
-      ],
-    );
-  }
-}
-
-class _RosterTile extends StatelessWidget {
-  const _RosterTile({required this.roster});
-
-  final SupervisorRoster roster;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: SupervisorSurface(
-        padding: EdgeInsets.zero,
-        child: ListTile(
-          leading: const Icon(Icons.cleaning_services_rounded),
-          title: Text(roster.janitorName),
-          subtitle: Text(
-            '${roster.washroomName.isEmpty ? l10n.washroomFallback : roster.washroomName} · ${roster.shift}',
-          ),
-          trailing: Text(_shiftTime(context, roster)),
-        ),
-      ),
-    );
-  }
-}
-
-class _PassengerFlowSheet extends StatelessWidget {
-  const _PassengerFlowSheet({required this.peaks});
-
-  final List<PassengerPeak> peaks;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.passengerFlowTitle,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 12),
-          if (peaks.isEmpty)
-            SupervisorStatePanel(
-              icon: Icons.info_outline_rounded,
-              message: l10n.emptyPassengerFlowMessage,
-              compact: true,
-            )
-          else
-            ...peaks.map(
-              (peak) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.trending_up_rounded),
-                title: Text(l10n.passengerCount(peak.count)),
-                subtitle: Text(
-                  peak.hourRange.isEmpty ? peak.hour : peak.hourRange,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 class _LoadingPanel extends StatelessWidget {
   const _LoadingPanel();
 
@@ -630,14 +356,4 @@ String _shiftTime(BuildContext context, SupervisorRoster? roster) {
   if (roster?.shiftStart == null || roster?.shiftEnd == null) return '';
   return '${context.formatAppTime(roster!.shiftStart)} – '
       '${context.formatAppTime(roster.shiftEnd)}';
-}
-
-IconData _washroomIcon(SupervisorWashroomType type) {
-  return switch (type) {
-    SupervisorWashroomType.female => Icons.woman_rounded,
-    SupervisorWashroomType.handicapped => Icons.accessible_forward_rounded,
-    SupervisorWashroomType.unisex => Icons.wc_rounded,
-    SupervisorWashroomType.male => Icons.man_rounded,
-    SupervisorWashroomType.unknown => Icons.meeting_room_rounded,
-  };
 }

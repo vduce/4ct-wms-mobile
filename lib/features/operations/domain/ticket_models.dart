@@ -574,24 +574,34 @@ class SupervisorWashroom {
 class PassengerPeak {
   const PassengerPeak({
     required this.washroomId,
+    required this.washroomName,
     required this.hour,
     required this.count,
     required this.hourRange,
+    required this.timestamp,
   });
 
-  factory PassengerPeak.fromJson(String washroomId, Map<String, Object?> json) {
+  factory PassengerPeak.fromJson(
+    String washroomId,
+    String washroomName,
+    Map<String, Object?> json,
+  ) {
     return PassengerPeak(
       washroomId: washroomId,
+      washroomName: washroomName,
       hour: _string(json['hour']),
       count: _int(json['count']),
-      hourRange: _string(json['hour_range']),
+      hourRange: _string(json['hourRange'] ?? json['hour_range']),
+      timestamp: parseBackendUtcDate(json['hour']),
     );
   }
 
   final String washroomId;
+  final String washroomName;
   final String hour;
   final int count;
   final String hourRange;
+  final DateTime? timestamp;
 }
 
 class LocalTicketAttachment {

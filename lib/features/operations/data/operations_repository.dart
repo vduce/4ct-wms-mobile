@@ -179,27 +179,48 @@ class OperationsRepository {
   }) async {
     if (washroomIds.isEmpty) return const [];
     final response = await _dio.post<Map<String, Object?>>(
-      '/peak_footfall',
+      '/reports/footfall-peaks',
       data: {
         'washroomIds': washroomIds,
-        'starttime': range.startIsoUtc.replaceFirst('Z', '+00:00'),
-        'endtime': range.endIsoUtc.replaceFirst('Z', '+00:00'),
+        'startTime': range.startIsoUtc,
+        'endTime': range.endIsoUtc,
       },
     );
-    final rows = response.data?['footfall_data'];
-    if (rows is! List) return const [];
+    final rows = _unwrapData(response.data)['data'];
+    if (rows is! List) {
+      throw const FormatException(
+        'Passenger-flow response must contain a data list.',
+      );
+    }
     final peaks = <PassengerPeak>[];
-    for (final item in rows.whereType<Map>()) {
-      final washroomId = item['washroomId']?.toString() ?? '';
-      final topHours = item['top_3_peak_hours'];
-      if (topHours is! List) continue;
+    for (final item in rows) {
+      if (item is! Map) {
+        throw const FormatException(
+          'Passenger-flow response contains an invalid washroom item.',
+        );
+      }
+      final group = Map<String, Object?>.from(item);
+      final washroomId = group['washroomId']?.toString() ?? '';
+      final washroomName = group['washroomName']?.toString() ?? '';
+      final topHours = group['topHours'];
+      if (topHours is! List) {
+        throw const FormatException(
+          'Passenger-flow response contains an invalid peaks list.',
+        );
+      }
       peaks.addAll(
-        topHours.whereType<Map>().map(
-          (peak) => PassengerPeak.fromJson(
+        topHours.map((peak) {
+          if (peak is! Map) {
+            throw const FormatException(
+              'Passenger-flow response contains an invalid peak item.',
+            );
+          }
+          return PassengerPeak.fromJson(
             washroomId,
+            washroomName,
             Map<String, Object?>.from(peak),
-          ),
-        ),
+          );
+        }),
       );
     }
     peaks.sort((a, b) => b.count.compareTo(a.count));
