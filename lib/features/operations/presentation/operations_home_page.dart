@@ -194,7 +194,7 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
         useSafeArea: true,
         showDragHandle: false,
         backgroundColor: Colors.transparent,
-        constraints: const BoxConstraints(maxWidth: 720),
+        constraints: const BoxConstraints(maxWidth: 640),
         builder: (context) => OperationsPassengerFlowSheet(peaks: peaks),
       );
     } catch (_) {

@@ -30,7 +30,7 @@ class OperationsPassengerFlowSheet extends StatelessWidget {
           maxHeight: MediaQuery.sizeOf(context).height * 0.82,
         ),
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 10, 20, 20 + bottomInset),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + bottomInset),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -44,9 +44,9 @@ class OperationsPassengerFlowSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               _SheetHeader(title: l10n.passengerFlowTitle),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
               if (peaks.isEmpty)
                 SupervisorStatePanel(
                   icon: Icons.info_outline_rounded,
@@ -59,7 +59,7 @@ class OperationsPassengerFlowSheet extends StatelessWidget {
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
                     itemCount: peaks.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, index) =>
                         _PassengerPeakCard(rank: index + 1, peak: peaks[index]),
                   ),
@@ -81,35 +81,25 @@ class _SheetHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
 
     return Row(
       children: [
         Container(
-          width: 48,
-          height: 48,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             gradient: AdaniGradients.action,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: AdaniColors.purple.withValues(
-                  alpha: isDark ? 0.28 : 0.18,
-                ),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(11),
           ),
           child: const ExcludeSemantics(
-            child: Icon(Icons.groups_rounded, color: Colors.white, size: 25),
+            child: Icon(Icons.groups_rounded, color: Colors.white, size: 20),
           ),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
-            style: theme.textTheme.titleLarge?.copyWith(
+            style: theme.textTheme.titleMedium?.copyWith(
               color: colors.onSurface,
               fontWeight: FontWeight.w600,
             ),
@@ -136,62 +126,63 @@ class _PassengerPeakCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
     final washroomName = peak.washroomName.trim();
 
     return Semantics(
       container: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Color.alphaBlend(
-            colors.primary.withValues(alpha: isDark ? 0.1 : 0.045),
-            colors.surface,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: colors.primary.withValues(alpha: isDark ? 0.28 : 0.14),
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: AdaniColors.purple.withValues(alpha: 0.07),
-                    blurRadius: 18,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
+          color: colors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: colors.outlineVariant),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _PeakRankBadge(rank: rank),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       context.l10n.passengerCount(peak.count),
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: theme.textTheme.bodyLarge?.copyWith(
                         color: colors.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 5),
                     if (washroomName.isNotEmpty) ...[
                       _PeakMetadata(
                         icon: Icons.location_on_outlined,
                         value: washroomName,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                     ],
                     _PeakMetadata(
                       icon: Icons.schedule_rounded,
                       value: _passengerPeakTime(context, peak),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              ExcludeSemantics(
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.09),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(
+                    Icons.trending_up_rounded,
+                    size: 20,
+                    color: colors.primary,
+                  ),
                 ),
               ),
             ],
@@ -210,16 +201,16 @@ class _PeakRankBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44,
-      height: 44,
+      width: 32,
+      height: 32,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         gradient: AdaniGradients.action,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         '$rank',
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
           color: Colors.white,
           fontWeight: FontWeight.w700,
         ),
@@ -245,16 +236,16 @@ class _PeakMetadata extends StatelessWidget {
         ExcludeSemantics(
           child: Padding(
             padding: const EdgeInsets.only(top: 1),
-            child: Icon(icon, size: 18, color: colors.primary),
+            child: Icon(icon, size: 15, color: colors.primary),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         Expanded(
           child: Text(
             value,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.bodySmall?.copyWith(
               color: colors.onSurfaceVariant,
-              height: 1.4,
+              height: 1.35,
             ),
           ),
         ),
