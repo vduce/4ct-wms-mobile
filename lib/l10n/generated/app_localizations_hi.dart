@@ -43,6 +43,85 @@ class AppLocalizationsHi extends AppLocalizations {
   String get operationsTitle => 'संचालन';
 
   @override
+  String get settingsTitle => 'सेटिंग्स';
+
+  @override
+  String get settingsHeroTitle => 'ऐप को अपने अनुसार बनाएं';
+
+  @override
+  String get settingsHeroSubtitle =>
+      'भाषा और रूप चुनें, फिर ऐप की जानकारी देखें।';
+
+  @override
+  String get preferencesSectionTitle => 'प्राथमिकताएं';
+
+  @override
+  String get preferencesSectionSubtitle =>
+      'परिवर्तन पूरे ऑपरेशंस ऐप पर लागू होते हैं।';
+
+  @override
+  String get languageSettingTitle => 'भाषा';
+
+  @override
+  String get languageSettingSubtitle =>
+      'पूरे ऐप में उपयोग होने वाली भाषा चुनें।';
+
+  @override
+  String get appearanceSettingTitle => 'रूप-रंग';
+
+  @override
+  String get appearanceSettingSubtitle =>
+      'डिवाइस सेटिंग अपनाएं या लाइट अथवा डार्क थीम चुनें।';
+
+  @override
+  String get themeSystemLabel => 'सिस्टम';
+
+  @override
+  String get themeLightLabel => 'लाइट';
+
+  @override
+  String get themeDarkLabel => 'डार्क';
+
+  @override
+  String get appInformationSectionTitle => 'ऐप और सहायता';
+
+  @override
+  String get appInformationSectionSubtitle => 'अलर्ट और उत्पाद जानकारी देखें।';
+
+  @override
+  String get notificationsSettingSubtitle => 'ऐप अलर्ट और अपडेट देखें।';
+
+  @override
+  String get aboutUsTitle => 'हमारे बारे में';
+
+  @override
+  String get aboutUsSubtitle => 'वर्ज़न, बिल्ड और उत्पाद जानकारी।';
+
+  @override
+  String get accountSectionTitle => 'खाता';
+
+  @override
+  String get accountSectionSubtitle => 'अपने मौजूदा सत्र को प्रबंधित करें।';
+
+  @override
+  String aboutAppTitle(String appName) {
+    return '$appName के बारे में';
+  }
+
+  @override
+  String get aboutAppDescription =>
+      'स्मार्ट वॉशरूम ऑपरेशंस हवाई अड्डे की टीमों को सुविधाओं की निगरानी, टिकट प्रबंधन और दैनिक सेवा समन्वय में मदद करता है।';
+
+  @override
+  String get appVersionLabel => 'वर्ज़न';
+
+  @override
+  String get appBuildLabel => 'बिल्ड';
+
+  @override
+  String get closeButton => 'बंद करें';
+
+  @override
   String get signOutTooltip => 'साइन आउट करें';
 
   @override
@@ -134,6 +213,22 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get feedbackDeviceTitle => 'प्रतिक्रिया डिवाइस';
+
+  @override
+  String get feedbackAdminExitControlLabel => 'एडमिन निकास';
+
+  @override
+  String get feedbackAdminExitTitle => 'फ़ीडबैक मोड से बाहर निकलें?';
+
+  @override
+  String get feedbackAdminExitMessage =>
+      'यह फ़ीडबैक डिवाइस से साइन आउट करके लॉगिन स्क्रीन पर लौटेगा।';
+
+  @override
+  String get feedbackAdminExitButton => 'बाहर निकलें और साइन आउट करें';
+
+  @override
+  String get feedbackAdminStayButton => 'फ़ीडबैक खुला रखें';
 
   @override
   String washroomLabel(String washroomId) {

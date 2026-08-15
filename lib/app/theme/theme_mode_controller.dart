@@ -20,8 +20,6 @@ class ThemeModeController extends Notifier<ThemeMode?> {
   }
 
   Future<void> setThemeMode(ThemeMode themeMode) async {
-    if (themeMode == ThemeMode.system) return;
-
     _hasUserSelectedThemeMode = true;
     state = themeMode;
     await ref
@@ -34,6 +32,7 @@ class ThemeModeController extends Notifier<ThemeMode?> {
         .read(keyValueStoreProvider)
         .getString(_preferredThemeModeKey);
     final themeMode = switch (storedThemeMode) {
+      'system' => ThemeMode.system,
       'light' => ThemeMode.light,
       'dark' => ThemeMode.dark,
       _ => null,

@@ -11,6 +11,7 @@ import '../../auth/data/session_controller.dart';
 import '../../tenant/data/tenant_controller.dart';
 import '../data/feedback_repository.dart';
 import '../domain/feedback_models.dart';
+import 'widgets/feedback_admin_exit_control.dart';
 import 'widgets/feedback_choice_panel.dart';
 import 'widgets/feedback_comment_sheet.dart';
 import 'widgets/feedback_kiosk_shell.dart';
@@ -83,6 +84,9 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
             behavior: HitTestBehavior.opaque,
             onTap: _handleGlobalTap,
             child: FeedbackKioskScaffold(
+              adminControl: _step == _FeedbackStep.screensaver
+                  ? FeedbackAdminExitControl(onPressed: _confirmAdminSignOut)
+                  : null,
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 260),
                 switchInCurve: Curves.easeOutCubic,
@@ -130,8 +134,7 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
         error: (error, _) => FeedbackErrorShell(
           message: error.toString(),
           onRetry: () => ref.invalidate(feedbackDeviceStateProvider),
-          onSignOut: () =>
-              ref.read(sessionControllerProvider.notifier).signOut(),
+          onSignOut: _confirmAdminSignOut,
         ),
       ),
     );
@@ -368,6 +371,12 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
       _comment = '';
       _submitting = false;
     });
+  }
+
+  Future<void> _confirmAdminSignOut() async {
+    final confirmed = await showFeedbackAdminExitDialog(context);
+    if (!mounted || !confirmed) return;
+    await ref.read(sessionControllerProvider.notifier).signOut();
   }
 
   void _showSnack(String message) {

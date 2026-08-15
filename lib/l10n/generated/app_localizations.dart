@@ -164,6 +164,150 @@ abstract class AppLocalizations {
   /// **'Operations'**
   String get operationsTitle;
 
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your app, your way'**
+  String get settingsHeroTitle;
+
+  /// No description provided for @settingsHeroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language and appearance, then review app information.'**
+  String get settingsHeroSubtitle;
+
+  /// No description provided for @preferencesSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferencesSectionTitle;
+
+  /// No description provided for @preferencesSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes apply across the operations app.'**
+  String get preferencesSectionSubtitle;
+
+  /// No description provided for @languageSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageSettingTitle;
+
+  /// No description provided for @languageSettingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the language used throughout the app.'**
+  String get languageSettingSubtitle;
+
+  /// No description provided for @appearanceSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceSettingTitle;
+
+  /// No description provided for @appearanceSettingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow your device or choose a light or dark theme.'**
+  String get appearanceSettingSubtitle;
+
+  /// No description provided for @themeSystemLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystemLabel;
+
+  /// No description provided for @themeLightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLightLabel;
+
+  /// No description provided for @themeDarkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDarkLabel;
+
+  /// No description provided for @appInformationSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App and support'**
+  String get appInformationSectionTitle;
+
+  /// No description provided for @appInformationSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review alerts and product information.'**
+  String get appInformationSectionSubtitle;
+
+  /// No description provided for @notificationsSettingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review app alerts and updates.'**
+  String get notificationsSettingSubtitle;
+
+  /// No description provided for @aboutUsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About us'**
+  String get aboutUsTitle;
+
+  /// No description provided for @aboutUsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Version, build and product information.'**
+  String get aboutUsSubtitle;
+
+  /// No description provided for @accountSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountSectionTitle;
+
+  /// No description provided for @accountSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your current session.'**
+  String get accountSectionSubtitle;
+
+  /// No description provided for @aboutAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About {appName}'**
+  String aboutAppTitle(String appName);
+
+  /// No description provided for @aboutAppDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Washroom Operations helps airport teams monitor facilities, manage tickets and coordinate daily service.'**
+  String get aboutAppDescription;
+
+  /// No description provided for @appVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get appVersionLabel;
+
+  /// No description provided for @appBuildLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Build'**
+  String get appBuildLabel;
+
+  /// No description provided for @closeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeButton;
+
   /// No description provided for @signOutTooltip.
   ///
   /// In en, this message translates to:
@@ -325,6 +469,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Feedback device'**
   String get feedbackDeviceTitle;
+
+  /// No description provided for @feedbackAdminExitControlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin exit'**
+  String get feedbackAdminExitControlLabel;
+
+  /// No description provided for @feedbackAdminExitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit feedback mode?'**
+  String get feedbackAdminExitTitle;
+
+  /// No description provided for @feedbackAdminExitMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will sign out this feedback device and return to the login screen.'**
+  String get feedbackAdminExitMessage;
+
+  /// No description provided for @feedbackAdminExitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit and sign out'**
+  String get feedbackAdminExitButton;
+
+  /// No description provided for @feedbackAdminStayButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep feedback open'**
+  String get feedbackAdminStayButton;
 
   /// No description provided for @washroomLabel.
   ///

@@ -11,6 +11,37 @@
   "otpSentMessage": "ओटीपी भेज दिया गया है।",
   "enterSixDigitOtpError": "6 अंकों का ओटीपी दर्ज करें।",
   "operationsTitle": "संचालन",
+  "settingsTitle": "सेटिंग्स",
+  "settingsHeroTitle": "ऐप को अपने अनुसार बनाएं",
+  "settingsHeroSubtitle": "भाषा और रूप चुनें, फिर ऐप की जानकारी देखें।",
+  "preferencesSectionTitle": "प्राथमिकताएं",
+  "preferencesSectionSubtitle": "परिवर्तन पूरे ऑपरेशंस ऐप पर लागू होते हैं।",
+  "languageSettingTitle": "भाषा",
+  "languageSettingSubtitle": "पूरे ऐप में उपयोग होने वाली भाषा चुनें।",
+  "appearanceSettingTitle": "रूप-रंग",
+  "appearanceSettingSubtitle": "डिवाइस सेटिंग अपनाएं या लाइट अथवा डार्क थीम चुनें।",
+  "themeSystemLabel": "सिस्टम",
+  "themeLightLabel": "लाइट",
+  "themeDarkLabel": "डार्क",
+  "appInformationSectionTitle": "ऐप और सहायता",
+  "appInformationSectionSubtitle": "अलर्ट और उत्पाद जानकारी देखें।",
+  "notificationsSettingSubtitle": "ऐप अलर्ट और अपडेट देखें।",
+  "aboutUsTitle": "हमारे बारे में",
+  "aboutUsSubtitle": "वर्ज़न, बिल्ड और उत्पाद जानकारी।",
+  "accountSectionTitle": "खाता",
+  "accountSectionSubtitle": "अपने मौजूदा सत्र को प्रबंधित करें।",
+  "aboutAppTitle": "{appName} के बारे में",
+  "@aboutAppTitle": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutAppDescription": "स्मार्ट वॉशरूम ऑपरेशंस हवाई अड्डे की टीमों को सुविधाओं की निगरानी, टिकट प्रबंधन और दैनिक सेवा समन्वय में मदद करता है।",
+  "appVersionLabel": "वर्ज़न",
+  "appBuildLabel": "बिल्ड",
+  "closeButton": "बंद करें",
   "signOutTooltip": "साइन आउट करें",
   "signOutConfirmTitle": "क्या आप अपने खाते से साइन आउट करना चाहते हैं?",
   "signOutConfirmMessage": "वॉशरूम संचालन जारी रखने से पहले आपको फिर से साइन इन करना होगा।",
@@ -62,6 +93,11 @@
   "negativeFeedbackHeatmapTitle": "नकारात्मक प्रतिक्रिया हीटमैप",
   "zoneLeadResponseResolutionTitle": "ज़ोन लीड प्रतिक्रिया और समाधान",
   "feedbackDeviceTitle": "प्रतिक्रिया डिवाइस",
+  "feedbackAdminExitControlLabel": "एडमिन निकास",
+  "feedbackAdminExitTitle": "फ़ीडबैक मोड से बाहर निकलें?",
+  "feedbackAdminExitMessage": "यह फ़ीडबैक डिवाइस से साइन आउट करके लॉगिन स्क्रीन पर लौटेगा।",
+  "feedbackAdminExitButton": "बाहर निकलें और साइन आउट करें",
+  "feedbackAdminStayButton": "फ़ीडबैक खुला रखें",
   "washroomLabel": "शौचालय {washroomId}",
   "@washroomLabel": {
     "placeholders": {

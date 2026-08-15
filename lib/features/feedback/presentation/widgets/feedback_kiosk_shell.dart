@@ -6,9 +6,14 @@ import '../../../../shared/widgets/app_gradient_button.dart';
 import '../../../../shared/widgets/app_loading_dialog.dart';
 
 class FeedbackKioskScaffold extends StatelessWidget {
-  const FeedbackKioskScaffold({required this.child, super.key});
+  const FeedbackKioskScaffold({
+    required this.child,
+    this.adminControl,
+    super.key,
+  });
 
   final Widget child;
+  final Widget? adminControl;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,16 @@ class FeedbackKioskScaffold extends StatelessWidget {
                 ],
         ),
       ),
-      child: SafeArea(child: child),
+      child: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            child,
+            if (adminControl != null)
+              PositionedDirectional(end: 2, bottom: 2, child: adminControl!),
+          ],
+        ),
+      ),
     );
   }
 }

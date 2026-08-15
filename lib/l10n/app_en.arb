@@ -11,6 +11,37 @@
   "otpSentMessage": "OTP sent.",
   "enterSixDigitOtpError": "Enter a 6 digit OTP.",
   "operationsTitle": "Operations",
+  "settingsTitle": "Settings",
+  "settingsHeroTitle": "Your app, your way",
+  "settingsHeroSubtitle": "Choose your language and appearance, then review app information.",
+  "preferencesSectionTitle": "Preferences",
+  "preferencesSectionSubtitle": "Changes apply across the operations app.",
+  "languageSettingTitle": "Language",
+  "languageSettingSubtitle": "Choose the language used throughout the app.",
+  "appearanceSettingTitle": "Appearance",
+  "appearanceSettingSubtitle": "Follow your device or choose a light or dark theme.",
+  "themeSystemLabel": "System",
+  "themeLightLabel": "Light",
+  "themeDarkLabel": "Dark",
+  "appInformationSectionTitle": "App and support",
+  "appInformationSectionSubtitle": "Review alerts and product information.",
+  "notificationsSettingSubtitle": "Review app alerts and updates.",
+  "aboutUsTitle": "About us",
+  "aboutUsSubtitle": "Version, build and product information.",
+  "accountSectionTitle": "Account",
+  "accountSectionSubtitle": "Manage your current session.",
+  "aboutAppTitle": "About {appName}",
+  "@aboutAppTitle": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutAppDescription": "Smart Washroom Operations helps airport teams monitor facilities, manage tickets and coordinate daily service.",
+  "appVersionLabel": "Version",
+  "appBuildLabel": "Build",
+  "closeButton": "Close",
   "signOutTooltip": "Sign out",
   "signOutConfirmTitle": "Sign out of your account?",
   "signOutConfirmMessage": "You’ll need to sign in again before continuing your washroom operations.",
@@ -62,6 +93,11 @@
   "negativeFeedbackHeatmapTitle": "Negative feedback heatmap",
   "zoneLeadResponseResolutionTitle": "Zone lead response and resolution",
   "feedbackDeviceTitle": "Feedback device",
+  "feedbackAdminExitControlLabel": "Admin exit",
+  "feedbackAdminExitTitle": "Exit feedback mode?",
+  "feedbackAdminExitMessage": "This will sign out this feedback device and return to the login screen.",
+  "feedbackAdminExitButton": "Exit and sign out",
+  "feedbackAdminStayButton": "Keep feedback open",
   "washroomLabel": "Washroom {washroomId}",
   "@washroomLabel": {
     "placeholders": {

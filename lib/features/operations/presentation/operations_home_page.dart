@@ -56,10 +56,12 @@ class _OperationsHomePageState extends ConsumerState<OperationsHomePage> {
         displayName: username,
         role: session?.roleDisplayName ?? session?.role ?? '',
         unreadCount: unreadNotifications,
+        selectedDestination: OperationsDrawerDestination.home,
         onOpenHome: () => context.go('/operations/home'),
         onOpenHistory: () => context.go('/operations/ticket-history'),
         onOpenNotifications: () => context.go('/notifications'),
         onOpenDashboards: () => context.go('/operations/dashboard'),
+        onOpenSettings: () => context.go('/operations/settings'),
         onSignOut: () => _confirmSignOut(context),
       ),
       appBar: AppBar(

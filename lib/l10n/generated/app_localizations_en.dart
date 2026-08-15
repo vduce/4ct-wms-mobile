@@ -43,6 +43,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationsTitle => 'Operations';
 
   @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsHeroTitle => 'Your app, your way';
+
+  @override
+  String get settingsHeroSubtitle =>
+      'Choose your language and appearance, then review app information.';
+
+  @override
+  String get preferencesSectionTitle => 'Preferences';
+
+  @override
+  String get preferencesSectionSubtitle =>
+      'Changes apply across the operations app.';
+
+  @override
+  String get languageSettingTitle => 'Language';
+
+  @override
+  String get languageSettingSubtitle =>
+      'Choose the language used throughout the app.';
+
+  @override
+  String get appearanceSettingTitle => 'Appearance';
+
+  @override
+  String get appearanceSettingSubtitle =>
+      'Follow your device or choose a light or dark theme.';
+
+  @override
+  String get themeSystemLabel => 'System';
+
+  @override
+  String get themeLightLabel => 'Light';
+
+  @override
+  String get themeDarkLabel => 'Dark';
+
+  @override
+  String get appInformationSectionTitle => 'App and support';
+
+  @override
+  String get appInformationSectionSubtitle =>
+      'Review alerts and product information.';
+
+  @override
+  String get notificationsSettingSubtitle => 'Review app alerts and updates.';
+
+  @override
+  String get aboutUsTitle => 'About us';
+
+  @override
+  String get aboutUsSubtitle => 'Version, build and product information.';
+
+  @override
+  String get accountSectionTitle => 'Account';
+
+  @override
+  String get accountSectionSubtitle => 'Manage your current session.';
+
+  @override
+  String aboutAppTitle(String appName) {
+    return 'About $appName';
+  }
+
+  @override
+  String get aboutAppDescription =>
+      'Smart Washroom Operations helps airport teams monitor facilities, manage tickets and coordinate daily service.';
+
+  @override
+  String get appVersionLabel => 'Version';
+
+  @override
+  String get appBuildLabel => 'Build';
+
+  @override
+  String get closeButton => 'Close';
+
+  @override
   String get signOutTooltip => 'Sign out';
 
   @override
@@ -133,6 +213,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackDeviceTitle => 'Feedback device';
+
+  @override
+  String get feedbackAdminExitControlLabel => 'Admin exit';
+
+  @override
+  String get feedbackAdminExitTitle => 'Exit feedback mode?';
+
+  @override
+  String get feedbackAdminExitMessage =>
+      'This will sign out this feedback device and return to the login screen.';
+
+  @override
+  String get feedbackAdminExitButton => 'Exit and sign out';
+
+  @override
+  String get feedbackAdminStayButton => 'Keep feedback open';
 
   @override
   String washroomLabel(String washroomId) {

@@ -4,6 +4,14 @@ import '../../../../app/theme/adani_design_tokens.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import 'operations_drawer_header.dart';
 
+enum OperationsDrawerDestination {
+  home,
+  history,
+  notifications,
+  dashboards,
+  settings,
+}
+
 class OperationsDrawer extends StatelessWidget {
   const OperationsDrawer({
     required this.appName,
@@ -11,10 +19,12 @@ class OperationsDrawer extends StatelessWidget {
     required this.displayName,
     required this.role,
     required this.unreadCount,
+    required this.selectedDestination,
     required this.onOpenHome,
     required this.onOpenHistory,
     required this.onOpenNotifications,
     required this.onOpenDashboards,
+    required this.onOpenSettings,
     required this.onSignOut,
     super.key,
   });
@@ -24,10 +34,12 @@ class OperationsDrawer extends StatelessWidget {
   final String displayName;
   final String role;
   final int unreadCount;
+  final OperationsDrawerDestination selectedDestination;
   final VoidCallback onOpenHome;
   final VoidCallback onOpenHistory;
   final VoidCallback onOpenNotifications;
   final VoidCallback onOpenDashboards;
+  final VoidCallback onOpenSettings;
   final VoidCallback onSignOut;
 
   @override
@@ -64,13 +76,17 @@ class OperationsDrawer extends StatelessWidget {
                   _DrawerDestination(
                     icon: Icons.home_rounded,
                     label: l10n.operationsTitle,
-                    selected: true,
+                    selected:
+                        selectedDestination == OperationsDrawerDestination.home,
                     onTap: () => _closeThen(context, onOpenHome),
                   ),
                   const SizedBox(height: 6),
                   _DrawerDestination(
                     icon: Icons.history_rounded,
                     label: l10n.ticketHistoryTitle,
+                    selected:
+                        selectedDestination ==
+                        OperationsDrawerDestination.history,
                     onTap: () => _closeThen(context, onOpenHistory),
                   ),
                   const SizedBox(height: 6),
@@ -78,13 +94,28 @@ class OperationsDrawer extends StatelessWidget {
                     icon: Icons.notifications_none_rounded,
                     label: l10n.notificationsTitle,
                     badgeCount: unreadCount,
+                    selected:
+                        selectedDestination ==
+                        OperationsDrawerDestination.notifications,
                     onTap: () => _closeThen(context, onOpenNotifications),
                   ),
                   const SizedBox(height: 6),
                   _DrawerDestination(
                     icon: Icons.dashboard_outlined,
                     label: l10n.dashboardsTitle,
+                    selected:
+                        selectedDestination ==
+                        OperationsDrawerDestination.dashboards,
                     onTap: () => _closeThen(context, onOpenDashboards),
+                  ),
+                  const SizedBox(height: 6),
+                  _DrawerDestination(
+                    icon: Icons.settings_outlined,
+                    label: l10n.settingsTitle,
+                    selected:
+                        selectedDestination ==
+                        OperationsDrawerDestination.settings,
+                    onTap: () => _closeThen(context, onOpenSettings),
                   ),
                 ],
               ),
