@@ -716,6 +716,12 @@ abstract class AppLocalizations {
   /// **'Footfall'**
   String get metricFootfallLabel;
 
+  /// No description provided for @metricWashroomOccupancyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Washroom Occupancy'**
+  String get metricWashroomOccupancyLabel;
+
   /// No description provided for @metricOdourLabel.
   ///
   /// In en, this message translates to:
@@ -745,6 +751,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Neutral'**
   String get metricOdourStatusNeutral;
+
+  /// No description provided for @metricStatusLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get metricStatusLive;
+
+  /// No description provided for @metricStatusUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get metricStatusUnavailable;
+
+  /// No description provided for @metricStatusStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Stale data'**
+  String get metricStatusStale;
+
+  /// No description provided for @metricStatusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial sensor coverage'**
+  String get metricStatusPartial;
+
+  /// No description provided for @metricOccupancyBandComfortable.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfortable'**
+  String get metricOccupancyBandComfortable;
+
+  /// No description provided for @metricOccupancyBandModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get metricOccupancyBandModerate;
+
+  /// No description provided for @metricOccupancyBandBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy'**
+  String get metricOccupancyBandBusy;
+
+  /// No description provided for @metricOccupancyBandAtCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'At full capacity'**
+  String get metricOccupancyBandAtCapacity;
+
+  /// No description provided for @metricOccupancyPercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{percentage}% occupied'**
+  String metricOccupancyPercentage(int percentage);
+
+  /// No description provided for @metricOccupancyPercentagePartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{percentage}% occupied · Partial coverage'**
+  String metricOccupancyPercentagePartial(int percentage);
+
+  /// No description provided for @metricCubicleOccupiedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{occupied} of {total} occupied'**
+  String metricCubicleOccupiedValue(int occupied, int total);
 
   /// No description provided for @feedbackInsightRealTimeTitle.
   ///

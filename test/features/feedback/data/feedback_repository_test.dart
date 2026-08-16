@@ -6,6 +6,58 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:washroom_ops/features/feedback/data/feedback_repository.dart';
 
 void main() {
+  test('parses canonical production feedback metrics envelope', () async {
+    final adapter = _FeedbackAdapter(
+      payload: {
+        'success': true,
+        'data': {
+          'washroom': {'id': 'washroom-1'},
+          'metrics': {
+            'aqi': 18,
+            'occupancy': 0,
+            'totalOccupancy': 15,
+            'footfall': null,
+            'odour': 0.18,
+            'cubicleOccupancy': {
+              'occupied': 8,
+              'total': 12,
+              'monitored': 12,
+              'percentage': 67,
+              'dataStatus': 'live',
+            },
+            'washroomOccupancy': {
+              'estimatedCount': 15,
+              'percentage': 75,
+              'band': 'busy',
+              'capacity': 20,
+              'displayLimit': 25,
+              'isCapped': false,
+              'dataStatus': 'live',
+              'washroomType': 'female',
+              'urinalCount': 0,
+              'windowMinutes': 15,
+            },
+          },
+          'updatedAt': '2026-08-11T18:41:10.998Z',
+        },
+      },
+    );
+    final repository = FeedbackRepository(_dioWith(adapter));
+
+    final metrics = await repository.fetchMetrics('washroom-1');
+
+    expect(metrics.aqi, 18);
+    expect(metrics.occupied, 8);
+    expect(metrics.totalOccupancy, 12);
+    expect(metrics.footfall, isNull);
+    expect(metrics.odour, 0.18);
+    expect(metrics.cubicleOccupancy?.monitored, 12);
+    expect(metrics.washroomOccupancy?.estimatedCount, 15);
+    expect(metrics.washroomOccupancy?.band, 'busy');
+    expect(metrics.washroomOccupancy?.washroomType, 'female');
+    expect(metrics.updatedAt, DateTime.parse('2026-08-11T18:41:10.998Z'));
+  });
+
   test(
     'uses canonical feedback metrics and ignores cumulative people field',
     () async {

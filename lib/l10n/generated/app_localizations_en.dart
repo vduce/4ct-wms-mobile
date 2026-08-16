@@ -347,6 +347,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricFootfallLabel => 'Footfall';
 
   @override
+  String get metricWashroomOccupancyLabel => 'Washroom Occupancy';
+
+  @override
   String get metricOdourLabel => 'Odor';
 
   @override
@@ -360,6 +363,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricOdourStatusNeutral => 'Neutral';
+
+  @override
+  String get metricStatusLive => 'Live';
+
+  @override
+  String get metricStatusUnavailable => 'Unavailable';
+
+  @override
+  String get metricStatusStale => 'Stale data';
+
+  @override
+  String get metricStatusPartial => 'Partial sensor coverage';
+
+  @override
+  String get metricOccupancyBandComfortable => 'Comfortable';
+
+  @override
+  String get metricOccupancyBandModerate => 'Moderate';
+
+  @override
+  String get metricOccupancyBandBusy => 'Busy';
+
+  @override
+  String get metricOccupancyBandAtCapacity => 'At full capacity';
+
+  @override
+  String metricOccupancyPercentage(int percentage) {
+    return '$percentage% occupied';
+  }
+
+  @override
+  String metricOccupancyPercentagePartial(int percentage) {
+    return '$percentage% occupied · Partial coverage';
+  }
+
+  @override
+  String metricCubicleOccupiedValue(int occupied, int total) {
+    return '$occupied of $total occupied';
+  }
 
   @override
   String get feedbackInsightRealTimeTitle => 'Real-time Insights';

@@ -141,11 +141,47 @@
   "metricOccupancyLabel": "Occupancy",
   "metricCubicleOccupancyLabel": "Cubicle Occupancy",
   "metricFootfallLabel": "Footfall",
+  "metricWashroomOccupancyLabel": "Washroom Occupancy",
   "metricOdourLabel": "Odor",
   "metricAqiStatusGood": "Good",
   "metricOccupancyStatusLow": "Low",
   "metricFootfallStatusToday": "Today",
   "metricOdourStatusNeutral": "Neutral",
+  "metricStatusLive": "Live",
+  "metricStatusUnavailable": "Unavailable",
+  "metricStatusStale": "Stale data",
+  "metricStatusPartial": "Partial sensor coverage",
+  "metricOccupancyBandComfortable": "Comfortable",
+  "metricOccupancyBandModerate": "Moderate",
+  "metricOccupancyBandBusy": "Busy",
+  "metricOccupancyBandAtCapacity": "At full capacity",
+  "metricOccupancyPercentage": "{percentage}% occupied",
+  "@metricOccupancyPercentage": {
+    "placeholders": {
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "metricOccupancyPercentagePartial": "{percentage}% occupied · Partial coverage",
+  "@metricOccupancyPercentagePartial": {
+    "placeholders": {
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "metricCubicleOccupiedValue": "{occupied} of {total} occupied",
+  "@metricCubicleOccupiedValue": {
+    "placeholders": {
+      "occupied": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "feedbackInsightRealTimeTitle": "Real-time Insights",
   "feedbackInsightRealTimeSubtitle": "Live environment metrics upfront",
   "feedbackInsightCleanTitle": "Clean & Spacious",

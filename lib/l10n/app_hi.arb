@@ -141,11 +141,47 @@
   "metricOccupancyLabel": "उपयोग",
   "metricCubicleOccupancyLabel": "क्यूबिकल उपयोग",
   "metricFootfallLabel": "फुटफॉल",
+  "metricWashroomOccupancyLabel": "शौचालय अधिभोग",
   "metricOdourLabel": "गंध",
   "metricAqiStatusGood": "अच्छा",
   "metricOccupancyStatusLow": "कम",
   "metricFootfallStatusToday": "आज",
   "metricOdourStatusNeutral": "सामान्य",
+  "metricStatusLive": "लाइव",
+  "metricStatusUnavailable": "अनुपलब्ध",
+  "metricStatusStale": "पुराना डेटा",
+  "metricStatusPartial": "आंशिक सेंसर कवरेज",
+  "metricOccupancyBandComfortable": "आरामदायक",
+  "metricOccupancyBandModerate": "मध्यम",
+  "metricOccupancyBandBusy": "व्यस्त",
+  "metricOccupancyBandAtCapacity": "पूर्ण क्षमता पर",
+  "metricOccupancyPercentage": "{percentage}% भरा हुआ",
+  "@metricOccupancyPercentage": {
+    "placeholders": {
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "metricOccupancyPercentagePartial": "{percentage}% भरा हुआ · आंशिक कवरेज",
+  "@metricOccupancyPercentagePartial": {
+    "placeholders": {
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "metricCubicleOccupiedValue": "{total} में से {occupied} भरे हुए",
+  "@metricCubicleOccupiedValue": {
+    "placeholders": {
+      "occupied": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "feedbackInsightRealTimeTitle": "रीयल-टाइम जानकारी",
   "feedbackInsightRealTimeSubtitle": "लाइव वातावरण मेट्रिक्स एक नज़र में",
   "feedbackInsightCleanTitle": "स्वच्छ और विशाल",

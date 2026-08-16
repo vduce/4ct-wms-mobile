@@ -52,7 +52,76 @@ class FeedbackWashroom {
   final String type;
 }
 
+class FeedbackCubicleOccupancy {
+  const FeedbackCubicleOccupancy({
+    required this.occupied,
+    required this.total,
+    required this.monitored,
+    required this.percentage,
+    required this.dataStatus,
+  });
+
+  factory FeedbackCubicleOccupancy.fromJson(Map<String, Object?> json) {
+    return FeedbackCubicleOccupancy(
+      occupied: FeedbackMetrics._int(json['occupied']),
+      total: FeedbackMetrics._int(json['total']),
+      monitored: FeedbackMetrics._int(json['monitored']),
+      percentage: FeedbackMetrics._int(json['percentage']),
+      dataStatus: json['dataStatus']?.toString() ?? 'unavailable',
+    );
+  }
+
+  final int? occupied;
+  final int? total;
+  final int? monitored;
+  final int? percentage;
+  final String dataStatus;
+}
+
+class FeedbackWashroomOccupancy {
+  const FeedbackWashroomOccupancy({
+    required this.estimatedCount,
+    required this.percentage,
+    required this.band,
+    required this.capacity,
+    required this.displayLimit,
+    required this.isCapped,
+    required this.dataStatus,
+    required this.washroomType,
+    required this.urinalCount,
+    required this.windowMinutes,
+  });
+
+  factory FeedbackWashroomOccupancy.fromJson(Map<String, Object?> json) {
+    return FeedbackWashroomOccupancy(
+      estimatedCount: FeedbackMetrics._int(json['estimatedCount']),
+      percentage: FeedbackMetrics._int(json['percentage']),
+      band: json['band']?.toString(),
+      capacity: FeedbackMetrics._int(json['capacity']),
+      displayLimit: FeedbackMetrics._int(json['displayLimit']),
+      isCapped: json['isCapped'] as bool? ?? false,
+      dataStatus: json['dataStatus']?.toString() ?? 'unavailable',
+      washroomType: json['washroomType']?.toString() ?? '',
+      urinalCount: FeedbackMetrics._int(json['urinalCount']) ?? 0,
+      windowMinutes: FeedbackMetrics._int(json['windowMinutes']) ?? 15,
+    );
+  }
+
+  final int? estimatedCount;
+  final int? percentage;
+  final String? band;
+  final int? capacity;
+  final int? displayLimit;
+  final bool isCapped;
+  final String dataStatus;
+  final String washroomType;
+  final int urinalCount;
+  final int windowMinutes;
+}
+
 class FeedbackMetrics {
+  static const staleAfter = Duration(minutes: 15);
+
   const FeedbackMetrics({
     this.aqi,
     this.aqiStatus,
@@ -68,21 +137,36 @@ class FeedbackMetrics {
     this.updatedAt,
     this.source,
     this.isDemoData = false,
+    this.cubicleOccupancy,
+    this.washroomOccupancy,
   });
 
   factory FeedbackMetrics.empty() => const FeedbackMetrics();
 
   factory FeedbackMetrics.fromJson(Map<String, Object?> json) {
-    final details = json['details'] is Map
-        ? Map<String, Object?>.from(json['details']! as Map)
+    final metrics = json['metrics'];
+    final legacyDetails = json['details'];
+    final details = metrics is Map
+        ? Map<String, Object?>.from(metrics)
+        : legacyDetails is Map
+        ? Map<String, Object?>.from(legacyDetails)
         : json;
+    final cubicleOccupancyJson = _map(details['cubicleOccupancy']);
+    final washroomOccupancyJson = _map(details['washroomOccupancy']);
+    final cubicleOccupancy = cubicleOccupancyJson == null
+        ? null
+        : FeedbackCubicleOccupancy.fromJson(cubicleOccupancyJson);
 
     return FeedbackMetrics(
-      aqi: _num(details['aqiValue'] ?? details['aqi_value']),
+      aqi: _num(details['aqi'] ?? details['aqiValue'] ?? details['aqi_value']),
       aqiStatus: details['aqiStatus']?.toString(),
-      occupied: _int(details['occupied'] ?? details['occupancy']),
+      occupied:
+          cubicleOccupancy?.occupied ??
+          _int(details['occupied'] ?? details['occupancy']),
       totalOccupancy: _int(
-        details['totalOccupancy'] ?? details['total_occupancy'],
+        cubicleOccupancy?.total ??
+            details['totalOccupancy'] ??
+            details['total_occupancy'],
       ),
       occupancyStatus: details['occupancyStatus']?.toString(),
       footfall: _int(details['footfall']),
@@ -98,9 +182,14 @@ class FeedbackMetrics {
             details['temp'] ??
             details['temp_c'],
       ),
-      updatedAt: parseBackendUtcDate(details['updatedAt']),
-      source: details['source']?.toString(),
-      isDemoData: details['isDemoData'] as bool? ?? false,
+      updatedAt: parseBackendUtcDate(details['updatedAt'] ?? json['updatedAt']),
+      source: (details['source'] ?? json['source'])?.toString(),
+      isDemoData:
+          (details['isDemoData'] ?? json['isDemoData']) as bool? ?? false,
+      cubicleOccupancy: cubicleOccupancy,
+      washroomOccupancy: washroomOccupancyJson == null
+          ? null
+          : FeedbackWashroomOccupancy.fromJson(washroomOccupancyJson),
     );
   }
 
@@ -118,6 +207,14 @@ class FeedbackMetrics {
   final DateTime? updatedAt;
   final String? source;
   final bool isDemoData;
+  final FeedbackCubicleOccupancy? cubicleOccupancy;
+  final FeedbackWashroomOccupancy? washroomOccupancy;
+
+  bool isStaleAt(DateTime now) {
+    final timestamp = updatedAt;
+    if (timestamp == null) return false;
+    return now.toUtc().difference(timestamp.toUtc()) > staleAfter;
+  }
 
   String get occupancyLabel {
     if (occupied == null && totalOccupancy == null) return '-';
@@ -139,6 +236,8 @@ class FeedbackMetrics {
     DateTime? updatedAt,
     String? source,
     bool? isDemoData,
+    FeedbackCubicleOccupancy? cubicleOccupancy,
+    FeedbackWashroomOccupancy? washroomOccupancy,
   }) {
     return FeedbackMetrics(
       aqi: aqi ?? this.aqi,
@@ -155,7 +254,13 @@ class FeedbackMetrics {
       updatedAt: updatedAt ?? this.updatedAt,
       source: source ?? this.source,
       isDemoData: isDemoData ?? this.isDemoData,
+      cubicleOccupancy: cubicleOccupancy ?? this.cubicleOccupancy,
+      washroomOccupancy: washroomOccupancy ?? this.washroomOccupancy,
     );
+  }
+
+  static Map<String, Object?>? _map(Object? value) {
+    return value is Map ? Map<String, Object?>.from(value) : null;
   }
 
   static num? _num(Object? value) {
