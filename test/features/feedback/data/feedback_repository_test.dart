@@ -6,6 +6,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:washroom_ops/features/feedback/data/feedback_repository.dart';
 
 void main() {
+  test('fails closed when the kiosk has no single washroom assignment', () async {
+    final adapter = _FeedbackAdapter(payload: const {});
+    final repository = FeedbackRepository(_dioWith(adapter));
+
+    final washroom = await repository.resolveWashroom(
+      assignedWashroomIds: const ['washroom-1', 'washroom-2'],
+    );
+
+    expect(washroom, isNull);
+    expect(adapter.paths, isEmpty);
+  });
+
   test('parses canonical production feedback metrics envelope', () async {
     final adapter = _FeedbackAdapter(
       payload: {
@@ -98,6 +110,90 @@ void main() {
       expect(adapter.paths, ['/dashboard/feedback-screen/washroom-1']);
     },
   );
+
+  test('loads all location washrooms for development preview', () async {
+    final adapter = _FeedbackAdapter(
+      payload: {
+        'data': [
+          {
+            '_id': 'washroom-1',
+            'name': 'Arrivals Male',
+            'code': 'ARR-M',
+            'type': 'male',
+          },
+          {
+            '_id': 'washroom-2',
+            'name': 'Arrivals Female',
+            'code': 'ARR-F',
+            'type': 'female',
+          },
+        ],
+      },
+    );
+    final repository = FeedbackRepository(_dioWith(adapter));
+
+    final washrooms = await repository.fetchPreviewWashrooms(
+      locationId: 'airport-1',
+    );
+
+    expect(washrooms.map((washroom) => washroom.id), [
+      'washroom-1',
+      'washroom-2',
+    ]);
+    expect(adapter.requests.single.path, '/washrooms');
+    expect(adapter.requests.single.queryParameters, {
+      'locationId': 'airport-1',
+      'page': 1,
+      'limit': 100,
+      'sortBy': 'name',
+      'sortOrder': 'asc',
+    });
+  });
+
+  test('surfaces preview washroom authorization failure', () async {
+    final adapter = _FeedbackAdapter(
+      payload: {'message': 'forbidden'},
+      statusCode: 403,
+    );
+    final repository = FeedbackRepository(_dioWith(adapter));
+
+    await expectLater(
+      repository.fetchPreviewWashrooms(locationId: 'airport-1'),
+      throwsA(isA<DioException>()),
+    );
+    expect(adapter.paths, ['/washrooms']);
+  });
+
+  test('loads every preview washroom page', () async {
+    final adapter = _FeedbackAdapter(
+      payload: const {},
+      payloadForRequest: (options) {
+        final page = options.queryParameters['page'];
+        return {
+          'data': page == 1
+              ? List.generate(
+                  100,
+                  (index) => {
+                    '_id': 'washroom-$index',
+                    'name': 'Washroom $index',
+                  },
+                )
+              : [
+                  {'_id': 'washroom-100', 'name': 'Washroom 100'},
+                ],
+        };
+      },
+    );
+    final repository = FeedbackRepository(_dioWith(adapter));
+
+    final washrooms = await repository.fetchPreviewWashrooms(
+      locationId: 'airport-1',
+    );
+
+    expect(washrooms, hasLength(101));
+    expect(adapter.requests, hasLength(2));
+    expect(adapter.requests.last.queryParameters['page'], 2);
+  });
 }
 
 Dio _dioWith(_FeedbackAdapter adapter) {
@@ -107,11 +203,18 @@ Dio _dioWith(_FeedbackAdapter adapter) {
 }
 
 class _FeedbackAdapter implements HttpClientAdapter {
-  _FeedbackAdapter({required this.payload, this.statusCode = 200});
+  _FeedbackAdapter({
+    required this.payload,
+    this.statusCode = 200,
+    this.payloadForRequest,
+  });
 
   final Map<String, Object?> payload;
   final int statusCode;
+  final Map<String, Object?> Function(RequestOptions options)?
+  payloadForRequest;
   final List<String> paths = [];
+  final List<RequestOptions> requests = [];
 
   @override
   Future<ResponseBody> fetch(
@@ -120,8 +223,9 @@ class _FeedbackAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     paths.add(options.path);
+    requests.add(options);
     return ResponseBody.fromString(
-      jsonEncode(payload),
+      jsonEncode(payloadForRequest?.call(options) ?? payload),
       statusCode,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],

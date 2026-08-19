@@ -43,7 +43,7 @@ void main() {
     );
 
     expect(find.text('18'), findsOneWidget);
-    expect(find.text('0 of 15 occupied'), findsOneWidget);
+    expect(find.text('0 of 15'), findsOneWidget);
     expect(find.text('0.18'), findsOneWidget);
     expect(find.text('Stale data'), findsNWidgets(3));
     expect(find.text('Unavailable'), findsOneWidget);
@@ -107,7 +107,7 @@ void main() {
     expect(find.text('Washroom Occupancy'), findsOneWidget);
     expect(find.text('Moderate'), findsOneWidget);
     expect(find.text('58% occupied'), findsOneWidget);
-    expect(find.text('3 of 4 occupied'), findsOneWidget);
+    expect(find.text('3 of 4'), findsOneWidget);
     expect(find.text('Footfall'), findsNothing);
     expect(find.text('9'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -154,9 +154,7 @@ void main() {
               return MediaQuery(
                 data: mediaQuery.copyWith(
                   disableAnimations: true,
-                  textScaler: TextScaler.linear(
-                    viewport.key == 'constrained tablet' ? 1.2 : 1,
-                  ),
+                  textScaler: const TextScaler.linear(1.2),
                 ),
                 child: child!,
               );
@@ -168,13 +166,13 @@ void main() {
                 metrics: FeedbackMetrics(
                   aqi: 52,
                   odour: 0.18,
-                  occupied: 3,
-                  totalOccupancy: 4,
+                  occupied: 0,
+                  totalOccupancy: 1,
                   cubicleOccupancy: const FeedbackCubicleOccupancy(
-                    occupied: 3,
-                    total: 4,
-                    monitored: 4,
-                    percentage: 75,
+                    occupied: 0,
+                    total: 1,
+                    monitored: 1,
+                    percentage: 0,
                     dataStatus: 'live',
                   ),
                   washroomOccupancy: const FeedbackWashroomOccupancy(
@@ -202,6 +200,7 @@ void main() {
       );
 
       expect(find.text('Washroom Occupancy'), findsOneWidget);
+      expect(find.text('0 of 1'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

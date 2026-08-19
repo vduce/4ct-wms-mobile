@@ -280,9 +280,11 @@ class FeedbackDeviceState {
     required this.washroom,
     required this.metrics,
     required this.reasons,
+    this.availableWashrooms = const [],
   });
 
   final FeedbackWashroom? washroom;
   final FeedbackMetrics metrics;
   final List<FeedbackReason> reasons;
+  final List<FeedbackWashroom> availableWashrooms;
 }

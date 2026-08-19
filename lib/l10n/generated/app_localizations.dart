@@ -815,7 +815,7 @@ abstract class AppLocalizations {
   /// No description provided for @metricCubicleOccupiedValue.
   ///
   /// In en, this message translates to:
-  /// **'{occupied} of {total} occupied'**
+  /// **'{occupied} of {total}'**
   String metricCubicleOccupiedValue(int occupied, int total);
 
   /// No description provided for @feedbackInsightRealTimeTitle.
@@ -1639,6 +1639,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have a new update.'**
   String get notificationGeneralBody;
+
+  /// No description provided for @pushNotificationsSettingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose whether this device receives push alerts.'**
+  String get pushNotificationsSettingSubtitle;
+
+  /// No description provided for @pushNotificationsToggleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get pushNotificationsToggleTitle;
+
+  /// No description provided for @pushNotificationsToggleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive ticket and feedback alerts on this device.'**
+  String get pushNotificationsToggleSubtitle;
+
+  /// No description provided for @pushNotificationsLockedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled on this passenger-facing kiosk.'**
+  String get pushNotificationsLockedSubtitle;
+
+  /// No description provided for @feedbackDebugPreviewControlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open development washroom preview'**
+  String get feedbackDebugPreviewControlLabel;
+
+  /// No description provided for @feedbackDebugPreviewBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'DEV · {washroomName}'**
+  String feedbackDebugPreviewBadge(String washroomName);
+
+  /// No description provided for @feedbackDebugPreviewFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'DEV preview'**
+  String get feedbackDebugPreviewFallback;
+
+  /// No description provided for @feedbackDebugPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview washroom'**
+  String get feedbackDebugPreviewTitle;
+
+  /// No description provided for @feedbackDebugPreviewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which washroom\'s live metrics and feedback flow this debug build uses.'**
+  String get feedbackDebugPreviewSubtitle;
+
+  /// No description provided for @feedbackDebugPreviewWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Development build only. Feedback submissions use the selected washroom.'**
+  String get feedbackDebugPreviewWarning;
+
+  /// No description provided for @feedbackDebugUseAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Use assigned washroom'**
+  String get feedbackDebugUseAssigned;
+
+  /// No description provided for @feedbackDebugUseAssignedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to the washroom assigned to this feedback device.'**
+  String get feedbackDebugUseAssignedSubtitle;
+
+  /// No description provided for @feedbackDebugNoWashrooms.
+  ///
+  /// In en, this message translates to:
+  /// **'No washrooms are available for this location.'**
+  String get feedbackDebugNoWashrooms;
+
+  /// No description provided for @feedbackDebugAssignedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned'**
+  String get feedbackDebugAssignedLabel;
 }
 
 class _AppLocalizationsDelegate

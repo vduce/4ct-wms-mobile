@@ -54,13 +54,8 @@ class OneSignalService {
     _registerSubscriptionObserver();
     _registerPermissionObserver();
 
-    await _requestPermission();
-  }
-
-  Future<bool> _requestPermission() async {
-    final granted = await OneSignal.Notifications.requestPermission(true);
-    _logger.info('OneSignal push permission granted: $granted');
-    return granted;
+    // Permission is requested lazily via [applyPushPreference] once the
+    // session is known, so passenger-facing kiosk devices are never prompted.
   }
 
   void _registerForegroundListener() {
@@ -140,6 +135,53 @@ class OneSignalService {
       _logger.info('OneSignal user logged out.');
     } catch (error, stackTrace) {
       _logger.warning('OneSignal logout failed.', error, stackTrace);
+    }
+  }
+
+  /// Applies the effective push state for the current [session] and the
+  /// device [pushEnabled] preference.
+  ///
+  /// Feedback-device (kiosk) roles are force-disabled regardless of the
+  /// preference, so passenger-facing tablets never receive push. Regular
+  /// users are logged in and opted in/out based on [pushEnabled]; opting in
+  /// triggers the native permission prompt on first use.
+  Future<void> applyPushPreference(
+    UserSession? session,
+    bool pushEnabled,
+  ) async {
+    if (!_initialized) await initialize();
+    if (!_initialized) return;
+
+    if (session == null) {
+      await logout();
+      return;
+    }
+
+    if (session.isFeedbackDevice) {
+      try {
+        await OneSignal.User.pushSubscription.optOut();
+        await OneSignal.logout();
+        _logger.info('OneSignal push disabled for feedback-device role.');
+      } catch (error, stackTrace) {
+        _logger.warning(
+          'Failed to disable push for feedback device.',
+          error,
+          stackTrace,
+        );
+      }
+      return;
+    }
+
+    await login(session.userId);
+    try {
+      if (pushEnabled) {
+        await OneSignal.User.pushSubscription.optIn();
+      } else {
+        await OneSignal.User.pushSubscription.optOut();
+      }
+      _logger.info('OneSignal push preference applied: enabled=$pushEnabled');
+    } catch (error, stackTrace) {
+      _logger.warning('Failed to apply push preference.', error, stackTrace);
     }
   }
 

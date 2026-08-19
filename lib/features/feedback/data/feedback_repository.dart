@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_provider.dart';
 import '../../auth/data/session_controller.dart';
 import '../domain/feedback_models.dart';
+import 'feedback_preview_controller.dart';
 
 final feedbackRepositoryProvider = Provider<FeedbackRepository>((ref) {
   return FeedbackRepository(ref.watch(dioProvider));
@@ -14,33 +16,56 @@ class FeedbackRepository {
 
   static const _mumbaiAirportLatitude = 19.0896;
   static const _mumbaiAirportLongitude = 72.8656;
+  static const _previewWashroomPageSize = 100;
 
   final Dio _dio;
 
   Future<FeedbackWashroom?> resolveWashroom({
-    required String locationId,
     required List<String> assignedWashroomIds,
   }) async {
-    if (assignedWashroomIds.isNotEmpty) {
-      final response = await _dio.get<Map<String, Object?>>(
-        '/washrooms/${assignedWashroomIds.first}',
-      );
-      return FeedbackWashroom.fromJson(_unwrapData(response.data));
-    }
+    if (assignedWashroomIds.length != 1) return null;
+    final washroomId = assignedWashroomIds.single.trim();
+    if (washroomId.isEmpty) return null;
 
     final response = await _dio.get<Map<String, Object?>>(
-      '/washrooms',
-      queryParameters: {
-        'locationId': locationId,
-        'page': 1,
-        'limit': 1,
-        'sortBy': 'createdAt',
-        'sortOrder': 'asc',
-      },
+      '/washrooms/$washroomId',
     );
-    final washrooms = _unwrapList(response.data);
-    if (washrooms.isEmpty) return null;
-    return FeedbackWashroom.fromJson(washrooms.first);
+    return FeedbackWashroom.fromJson(_unwrapData(response.data));
+  }
+
+  Future<List<FeedbackWashroom>> fetchPreviewWashrooms({
+    required String locationId,
+  }) async {
+    final washrooms = <FeedbackWashroom>[];
+    final loadedIds = <String>{};
+    var page = 1;
+
+    while (true) {
+      final response = await _dio.get<Map<String, Object?>>(
+        '/washrooms',
+        queryParameters: {
+          'locationId': locationId,
+          'page': page,
+          'limit': _previewWashroomPageSize,
+          'sortBy': 'name',
+          'sortOrder': 'asc',
+        },
+      );
+      final pageItems = _unwrapList(response.data)
+          .map(FeedbackWashroom.fromJson)
+          .where((washroom) => washroom.id.isNotEmpty)
+          .toList(growable: false);
+      final countBeforePage = washrooms.length;
+      for (final washroom in pageItems) {
+        if (loadedIds.add(washroom.id)) washrooms.add(washroom);
+      }
+
+      final pageAddedNoWashrooms = washrooms.length == countBeforePage;
+      if (pageItems.length < _previewWashroomPageSize || pageAddedNoWashrooms) {
+        return List.unmodifiable(washrooms);
+      }
+      page += 1;
+    }
   }
 
   Future<List<FeedbackReason>> fetchReasons({
@@ -151,10 +176,21 @@ final feedbackDeviceStateProvider = FutureProvider<FeedbackDeviceState>((
   }
 
   final repository = ref.watch(feedbackRepositoryProvider);
-  final washroom = await repository.resolveWashroom(
-    locationId: session.airportId,
-    assignedWashroomIds: session.washroomIds,
-  );
+  final previewWashroomId = kDebugMode
+      ? ref.watch(feedbackPreviewWashroomIdProvider)
+      : null;
+  final availableWashrooms = kDebugMode
+      ? await repository.fetchPreviewWashrooms(locationId: session.airportId)
+      : const <FeedbackWashroom>[];
+  final washroom = kDebugMode
+      ? _selectPreviewWashroom(
+          availableWashrooms: availableWashrooms,
+          previewWashroomId: previewWashroomId,
+          assignedWashroomIds: session.washroomIds,
+        )
+      : await repository.resolveWashroom(
+          assignedWashroomIds: session.washroomIds,
+        );
   final reasons = await repository.fetchReasons(locationId: session.airportId);
   final metrics = washroom == null
       ? FeedbackMetrics.empty()
@@ -164,5 +200,22 @@ final feedbackDeviceStateProvider = FutureProvider<FeedbackDeviceState>((
     washroom: washroom,
     metrics: metrics,
     reasons: reasons,
+    availableWashrooms: availableWashrooms,
   );
 });
+
+FeedbackWashroom? _selectPreviewWashroom({
+  required List<FeedbackWashroom> availableWashrooms,
+  required String? previewWashroomId,
+  required List<String> assignedWashroomIds,
+}) {
+  if (availableWashrooms.isEmpty) return null;
+
+  final preferredIds = [?previewWashroomId, ...assignedWashroomIds];
+  for (final preferredId in preferredIds) {
+    for (final washroom in availableWashrooms) {
+      if (washroom.id == preferredId) return washroom;
+    }
+  }
+  return availableWashrooms.first;
+}

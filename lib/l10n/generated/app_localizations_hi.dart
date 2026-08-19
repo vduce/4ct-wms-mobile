@@ -400,7 +400,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String metricCubicleOccupiedValue(int occupied, int total) {
-    return '$total में से $occupied भरे हुए';
+    return '$total में से $occupied';
   }
 
   @override
@@ -864,4 +864,56 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get notificationGeneralBody => 'आपके लिए एक नया अपडेट है।';
+
+  @override
+  String get pushNotificationsSettingSubtitle =>
+      'चुनें कि इस डिवाइस पर पुश अलर्ट प्राप्त हों या नहीं।';
+
+  @override
+  String get pushNotificationsToggleTitle => 'पुश सूचनाएं';
+
+  @override
+  String get pushNotificationsToggleSubtitle =>
+      'इस डिवाइस पर टिकट और प्रतिक्रिया अलर्ट प्राप्त करें।';
+
+  @override
+  String get pushNotificationsLockedSubtitle =>
+      'इस यात्री-सामना कियोस्क पर अक्षम।';
+
+  @override
+  String get feedbackDebugPreviewControlLabel =>
+      'डेवलपमेंट वॉशरूम प्रीव्यू खोलें';
+
+  @override
+  String feedbackDebugPreviewBadge(String washroomName) {
+    return 'DEV · $washroomName';
+  }
+
+  @override
+  String get feedbackDebugPreviewFallback => 'DEV प्रीव्यू';
+
+  @override
+  String get feedbackDebugPreviewTitle => 'वॉशरूम प्रीव्यू';
+
+  @override
+  String get feedbackDebugPreviewSubtitle =>
+      'चुनें कि यह डिबग बिल्ड किस वॉशरूम के लाइव मेट्रिक्स और प्रतिक्रिया प्रवाह का उपयोग करे।';
+
+  @override
+  String get feedbackDebugPreviewWarning =>
+      'केवल डेवलपमेंट बिल्ड। प्रतिक्रिया चुने गए वॉशरूम के लिए दर्ज होगी।';
+
+  @override
+  String get feedbackDebugUseAssigned => 'असाइन किया गया वॉशरूम उपयोग करें';
+
+  @override
+  String get feedbackDebugUseAssignedSubtitle =>
+      'इस प्रतिक्रिया डिवाइस को असाइन किए गए वॉशरूम पर वापस जाएं।';
+
+  @override
+  String get feedbackDebugNoWashrooms =>
+      'इस स्थान के लिए कोई वॉशरूम उपलब्ध नहीं है।';
+
+  @override
+  String get feedbackDebugAssignedLabel => 'असाइन किया गया';
 }

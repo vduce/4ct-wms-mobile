@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,11 +10,14 @@ import '../../../core/config/environment_config.dart';
 import '../../../l10n/app_localizations_context.dart';
 import '../../auth/data/session_controller.dart';
 import '../../tenant/data/tenant_controller.dart';
+import '../data/feedback_preview_controller.dart';
 import '../data/feedback_repository.dart';
 import '../domain/feedback_models.dart';
+import '../domain/public_feedback_url.dart';
 import 'widgets/feedback_admin_exit_control.dart';
 import 'widgets/feedback_choice_panel.dart';
 import 'widgets/feedback_comment_sheet.dart';
+import 'widgets/feedback_debug_washroom_control.dart';
 import 'widgets/feedback_kiosk_shell.dart';
 import 'widgets/feedback_negative_panel.dart';
 import 'widgets/feedback_screensaver_panel.dart';
@@ -33,6 +37,7 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
   static const _idleDuration = Duration(seconds: 60);
   static const _preferenceResetDuration = Duration(seconds: 30);
   static const _thanksDuration = Duration(seconds: 3);
+  static const _debugFooterClearance = 64.0;
 
   final Set<String> _selectedReasonIds = <String>{};
   Timer? _idleTimer;
@@ -63,6 +68,9 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(feedbackDeviceStateProvider);
+    final previewWashroomId = kDebugMode
+        ? ref.watch(feedbackPreviewWashroomIdProvider)
+        : null;
     final branding = ref.watch(tenantControllerProvider).branding;
     final environment = ref.watch(environmentConfigProvider);
     ref.listen<Locale?>(localeControllerProvider, (_, _) {
@@ -85,7 +93,24 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
             onTap: _handleGlobalTap,
             child: FeedbackKioskScaffold(
               adminControl: _step == _FeedbackStep.screensaver
-                  ? FeedbackAdminExitControl(onPressed: _confirmAdminSignOut)
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (kDebugMode) ...[
+                          FeedbackDebugWashroomControl(
+                            washroomName: data.washroom?.name,
+                            onPressed: () => _openDebugWashroomSelector(
+                              data,
+                              previewWashroomId,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        FeedbackAdminExitControl(
+                          onPressed: _confirmAdminSignOut,
+                        ),
+                      ],
+                    )
                   : null,
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 260),
@@ -99,6 +124,9 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
                     metrics: data.metrics,
                     temperatureCelsius: data.metrics.temperatureCelsius,
                     feedbackQrUrl: _feedbackQrUrl(data.washroom),
+                    bottomContentPadding: kDebugMode
+                        ? _debugFooterClearance
+                        : 0,
                     onShowQr: () => _openQrDialog(data.washroom),
                     onStart: _showChoice,
                   ),
@@ -192,41 +220,10 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
     final session = ref.read(sessionControllerProvider).session;
     if (session == null || washroom == null) return null;
     final environment = ref.read(environmentConfigProvider);
-    final base = _normalizeFeedbackBaseUrl(
-      session.webappUrl ?? environment.feedbackWebUrl,
+    return buildPublicFeedbackUrl(
+      baseUrl: environment.feedbackWebUrl,
+      washroomId: washroom.id,
     );
-    return _urlWithParams(base, {
-      'tenantId': session.tenantId,
-      'airportId': session.airportId,
-      'userId': session.userId,
-      'washroomId': washroom.id,
-    });
-  }
-
-  String _normalizeFeedbackBaseUrl(String base) {
-    return base.replaceAll('#/auth/register', '#/auth/feedback');
-  }
-
-  String _urlWithParams(String base, Map<String, String> params) {
-    final hashIndex = base.indexOf('#');
-    if (hashIndex >= 0) {
-      final preHash = base.substring(0, hashIndex);
-      final fragment = base.substring(hashIndex + 1);
-      final questionIndex = fragment.indexOf('?');
-      final fragmentPath = questionIndex >= 0
-          ? fragment.substring(0, questionIndex)
-          : fragment;
-      final existingQuery = questionIndex >= 0
-          ? Uri.splitQueryString(fragment.substring(questionIndex + 1))
-          : <String, String>{};
-      final mergedQuery = {...existingQuery, ...params};
-      return '$preHash#$fragmentPath?${Uri(queryParameters: mergedQuery).query}';
-    }
-
-    final uri = Uri.parse(base);
-    return uri
-        .replace(queryParameters: {...uri.queryParameters, ...params})
-        .toString();
   }
 
   void _openQrDialog(FeedbackWashroom? washroom) {
@@ -377,6 +374,27 @@ class _FeedbackDevicePageState extends ConsumerState<FeedbackDevicePage> {
     final confirmed = await showFeedbackAdminExitDialog(context);
     if (!mounted || !confirmed) return;
     await ref.read(sessionControllerProvider.notifier).signOut();
+  }
+
+  Future<void> _openDebugWashroomSelector(
+    FeedbackDeviceState data,
+    String? previewWashroomId,
+  ) async {
+    if (!kDebugMode) return;
+    final session = ref.read(sessionControllerProvider).session;
+    final assignedWashroomId = session == null || session.washroomIds.isEmpty
+        ? null
+        : session.washroomIds.first;
+    await showFeedbackDebugWashroomSheet(
+      context: context,
+      washrooms: data.availableWashrooms,
+      selectedWashroomId: previewWashroomId,
+      assignedWashroomId: assignedWashroomId,
+      onSelected: (washroomId) {
+        ref.read(feedbackPreviewWashroomIdProvider.notifier).select(washroomId);
+        _resetToScreensaver();
+      },
+    );
   }
 
   void _showSnack(String message) {

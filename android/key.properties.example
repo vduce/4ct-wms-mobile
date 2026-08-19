@@ -1,0 +1,8 @@
+# Copy this file to android/key.properties and replace every placeholder.
+# Keep the keystore and this file outside Git. The storeFile path is relative
+# to the android/app directory; ../../../.secrets resolves to the WMS workspace.
+storeFile=../../../.secrets/wms-prod-release.jks
+keyAlias=wms-prod-release
+storePassword=REPLACE_WITH_A_LONG_RANDOM_PASSWORD
+keyPassword=REPLACE_WITH_A_LONG_RANDOM_PASSWORD
+sha256=5fc551287f09ced50cb55fa74f9e8cc7f1670ea3c449eb1fe92ee4753812f031

@@ -20,6 +20,7 @@ class FeedbackScreensaverPanel extends StatelessWidget {
     required this.feedbackQrUrl,
     required this.onShowQr,
     required this.onStart,
+    this.bottomContentPadding = 0,
     super.key,
   });
 
@@ -30,6 +31,7 @@ class FeedbackScreensaverPanel extends StatelessWidget {
   final String? feedbackQrUrl;
   final VoidCallback onShowQr;
   final VoidCallback onStart;
+  final double bottomContentPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +72,7 @@ class FeedbackScreensaverPanel extends StatelessWidget {
                 temperatureCelsius: temperatureCelsius,
                 feedbackQrUrl: feedbackQrUrl,
                 onShowQr: onShowQr,
+                bottomContentPadding: bottomContentPadding,
               )
             else
               _MobileScreensaverHome(
@@ -83,6 +86,7 @@ class FeedbackScreensaverPanel extends StatelessWidget {
                 temperatureCelsius: temperatureCelsius,
                 feedbackQrUrl: feedbackQrUrl,
                 onShowQr: onShowQr,
+                bottomContentPadding: bottomContentPadding,
               ),
           ],
         );
@@ -103,6 +107,7 @@ class _MobileScreensaverHome extends StatelessWidget {
     required this.temperatureCelsius,
     required this.feedbackQrUrl,
     required this.onShowQr,
+    required this.bottomContentPadding,
   });
 
   final String brandingName;
@@ -115,6 +120,7 @@ class _MobileScreensaverHome extends StatelessWidget {
   final num? temperatureCelsius;
   final String? feedbackQrUrl;
   final VoidCallback onShowQr;
+  final double bottomContentPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +130,12 @@ class _MobileScreensaverHome extends StatelessWidget {
     final tight = height < 720;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, tight ? 10 : 14, 16, 12),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        tight ? 10 : 14,
+        16,
+        12 + bottomContentPadding,
+      ),
       child: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
         child: Column(
@@ -259,6 +270,7 @@ class _TabletScreensaverHome extends StatelessWidget {
     required this.temperatureCelsius,
     required this.feedbackQrUrl,
     required this.onShowQr,
+    required this.bottomContentPadding,
   });
 
   final String brandingName;
@@ -271,6 +283,7 @@ class _TabletScreensaverHome extends StatelessWidget {
   final num? temperatureCelsius;
   final String? feedbackQrUrl;
   final VoidCallback onShowQr;
+  final double bottomContentPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -286,7 +299,7 @@ class _TabletScreensaverHome extends StatelessWidget {
         edgePadding,
         shortHeight ? 14 : 24,
         edgePadding,
-        shortHeight ? 14 : 20,
+        (shortHeight ? 14 : 20) + bottomContentPadding,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

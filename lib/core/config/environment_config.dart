@@ -34,7 +34,7 @@ class EnvironmentConfig {
       AppFlavor.prod => 'https://api.wms-prod.smartdigibuild.net/api/v1',
     };
     final defaultPortalBaseUrl = switch (flavor) {
-      AppFlavor.dev => 'https://api.wms-dev.smartdigibuild.net',
+      AppFlavor.dev => 'https://wms-dev.smartdigibuild.net',
       AppFlavor.qa => 'https://qa.4ctwms.com',
       AppFlavor.prod => 'https://mial.smartdigibuild.net',
     };
@@ -42,7 +42,7 @@ class EnvironmentConfig {
         const String.fromEnvironment('PORTAL_BASE_URL').isNotEmpty
         ? const String.fromEnvironment('PORTAL_BASE_URL')
         : defaultPortalBaseUrl;
-    final defaultFeedbackWebUrl = '$portalBaseUrl/#/auth/feedback';
+    final defaultFeedbackWebUrl = portalBaseUrl;
 
     return EnvironmentConfig(
       flavor: flavor,

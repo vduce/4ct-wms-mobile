@@ -171,7 +171,7 @@
       }
     }
   },
-  "metricCubicleOccupiedValue": "{occupied} of {total} occupied",
+  "metricCubicleOccupiedValue": "{occupied} of {total}",
   "@metricCubicleOccupiedValue": {
     "placeholders": {
       "occupied": {
@@ -422,5 +422,26 @@
     }
   },
   "notificationGeneralTitle": "New notification",
-  "notificationGeneralBody": "You have a new update."
+  "notificationGeneralBody": "You have a new update.",
+  "pushNotificationsSettingSubtitle": "Choose whether this device receives push alerts.",
+  "pushNotificationsToggleTitle": "Push notifications",
+  "pushNotificationsToggleSubtitle": "Receive ticket and feedback alerts on this device.",
+  "pushNotificationsLockedSubtitle": "Disabled on this passenger-facing kiosk.",
+  "feedbackDebugPreviewControlLabel": "Open development washroom preview",
+  "feedbackDebugPreviewBadge": "DEV · {washroomName}",
+  "@feedbackDebugPreviewBadge": {
+    "placeholders": {
+      "washroomName": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackDebugPreviewFallback": "DEV preview",
+  "feedbackDebugPreviewTitle": "Preview washroom",
+  "feedbackDebugPreviewSubtitle": "Choose which washroom's live metrics and feedback flow this debug build uses.",
+  "feedbackDebugPreviewWarning": "Development build only. Feedback submissions use the selected washroom.",
+  "feedbackDebugUseAssigned": "Use assigned washroom",
+  "feedbackDebugUseAssignedSubtitle": "Return to the washroom assigned to this feedback device.",
+  "feedbackDebugNoWashrooms": "No washrooms are available for this location.",
+  "feedbackDebugAssignedLabel": "Assigned"
 }

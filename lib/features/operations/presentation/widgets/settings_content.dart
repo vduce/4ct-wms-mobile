@@ -11,6 +11,9 @@ class SettingsContent extends StatelessWidget {
     required this.themeMode,
     required this.onLanguageChanged,
     required this.onThemeChanged,
+    required this.pushEnabled,
+    required this.pushLocked,
+    required this.onPushChanged,
     required this.onOpenNotifications,
     required this.onOpenAbout,
     required this.onSignOut,
@@ -21,6 +24,9 @@ class SettingsContent extends StatelessWidget {
   final ThemeMode themeMode;
   final ValueChanged<String> onLanguageChanged;
   final ValueChanged<ThemeMode> onThemeChanged;
+  final bool pushEnabled;
+  final bool pushLocked;
+  final ValueChanged<bool> onPushChanged;
   final VoidCallback onOpenNotifications;
   final VoidCallback onOpenAbout;
   final VoidCallback onSignOut;
@@ -43,6 +49,17 @@ class SettingsContent extends StatelessWidget {
           themeMode: themeMode,
           onLanguageChanged: onLanguageChanged,
           onThemeChanged: onThemeChanged,
+        ),
+        const SizedBox(height: 24),
+        _SectionHeading(
+          title: l10n.pushNotificationsToggleTitle,
+          subtitle: l10n.pushNotificationsSettingSubtitle,
+        ),
+        const SizedBox(height: 12),
+        _PushNotificationsCard(
+          pushEnabled: pushEnabled,
+          pushLocked: pushLocked,
+          onPushChanged: onPushChanged,
         ),
         const SizedBox(height: 24),
         _SectionHeading(
@@ -180,6 +197,56 @@ class _SectionHeading extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PushNotificationsCard extends StatelessWidget {
+  const _PushNotificationsCard({
+    required this.pushEnabled,
+    required this.pushLocked,
+    required this.onPushChanged,
+  });
+
+  final bool pushEnabled;
+  final bool pushLocked;
+  final ValueChanged<bool> onPushChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+    return SupervisorSurface(
+      padding: EdgeInsets.zero,
+      radius: 18,
+      child: SwitchListTile(
+        value: pushEnabled && !pushLocked,
+        onChanged: pushLocked ? null : onPushChanged,
+        secondary: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: colors.primary.withValues(alpha: 0.09),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            pushEnabled && !pushLocked
+                ? Icons.notifications_active_rounded
+                : Icons.notifications_off_outlined,
+            size: 20,
+            color: colors.primary,
+          ),
+        ),
+        title: Text(
+          pushLocked
+              ? l10n.pushNotificationsLockedSubtitle
+              : l10n.pushNotificationsToggleSubtitle,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      ),
     );
   }
 }

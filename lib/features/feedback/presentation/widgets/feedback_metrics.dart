@@ -352,6 +352,7 @@ class _MetricCardText extends StatelessWidget {
             !horizontal &&
             constraints.maxHeight.isFinite &&
             constraints.maxHeight < 118;
+        final narrowValue = !horizontal && constraints.maxWidth < 96;
         final titleStyle =
             (phone || tightVertical
                     ? textTheme.labelMedium
@@ -364,7 +365,9 @@ class _MetricCardText extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 );
         final valueStyle =
-            (phone
+            (narrowValue
+                    ? textTheme.titleMedium
+                    : phone
                     ? textTheme.titleLarge
                     : tightVertical
                     ? textTheme.titleMedium

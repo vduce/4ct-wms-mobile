@@ -8,6 +8,7 @@ import '../../../app/theme/theme_mode_controller.dart';
 import '../../../l10n/app_localizations_context.dart';
 import '../../auth/data/session_controller.dart';
 import '../../notifications/data/notification_inbox_controller.dart';
+import '../../notifications/data/push_preference_controller.dart';
 import '../../tenant/data/tenant_controller.dart';
 import 'widgets/operations_drawer.dart';
 import 'widgets/operations_sign_out_dialog.dart';
@@ -33,6 +34,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final unreadCount = ref.watch(
       notificationInboxControllerProvider.select((state) => state.unreadCount),
     );
+    final pushEnabled = ref.watch(pushPreferenceControllerProvider);
+    final pushLocked = session?.isFeedbackDevice ?? false;
     final displayName = session?.username.isNotEmpty == true
         ? session!.username
         : l10n.defaultUserName;
@@ -85,6 +88,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onThemeChanged: (themeMode) => ref
                 .read(themeModeControllerProvider.notifier)
                 .setThemeMode(themeMode),
+            pushEnabled: pushEnabled,
+            pushLocked: pushLocked,
+            onPushChanged: (enabled) => ref
+                .read(pushPreferenceControllerProvider.notifier)
+                .setEnabled(enabled),
             onOpenNotifications: () => context.go('/notifications'),
             onOpenAbout: _showAbout,
             onSignOut: _confirmSignOut,

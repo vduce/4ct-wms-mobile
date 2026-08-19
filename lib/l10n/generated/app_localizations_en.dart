@@ -400,7 +400,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String metricCubicleOccupiedValue(int occupied, int total) {
-    return '$occupied of $total occupied';
+    return '$occupied of $total';
   }
 
   @override
@@ -857,4 +857,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationGeneralBody => 'You have a new update.';
+
+  @override
+  String get pushNotificationsSettingSubtitle =>
+      'Choose whether this device receives push alerts.';
+
+  @override
+  String get pushNotificationsToggleTitle => 'Push notifications';
+
+  @override
+  String get pushNotificationsToggleSubtitle =>
+      'Receive ticket and feedback alerts on this device.';
+
+  @override
+  String get pushNotificationsLockedSubtitle =>
+      'Disabled on this passenger-facing kiosk.';
+
+  @override
+  String get feedbackDebugPreviewControlLabel =>
+      'Open development washroom preview';
+
+  @override
+  String feedbackDebugPreviewBadge(String washroomName) {
+    return 'DEV · $washroomName';
+  }
+
+  @override
+  String get feedbackDebugPreviewFallback => 'DEV preview';
+
+  @override
+  String get feedbackDebugPreviewTitle => 'Preview washroom';
+
+  @override
+  String get feedbackDebugPreviewSubtitle =>
+      'Choose which washroom\'s live metrics and feedback flow this debug build uses.';
+
+  @override
+  String get feedbackDebugPreviewWarning =>
+      'Development build only. Feedback submissions use the selected washroom.';
+
+  @override
+  String get feedbackDebugUseAssigned => 'Use assigned washroom';
+
+  @override
+  String get feedbackDebugUseAssignedSubtitle =>
+      'Return to the washroom assigned to this feedback device.';
+
+  @override
+  String get feedbackDebugNoWashrooms =>
+      'No washrooms are available for this location.';
+
+  @override
+  String get feedbackDebugAssignedLabel => 'Assigned';
 }
